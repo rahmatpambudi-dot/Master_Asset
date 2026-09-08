@@ -488,6 +488,10 @@ tfoot td{
       <div class="msel" id="mselArmada"></div>
     </div>
     <div class="fgroup">
+      <label>Klasifikasi Kendaraan</label>
+      <div class="msel" id="mselJenis"></div>
+    </div>
+    <div class="fgroup">
       <label>Status Downtime</label>
       <select id="fDowntime">
         <option value="">Semua</option>
@@ -543,6 +547,7 @@ tfoot td{
             <th data-key="Site Name">Site Name</th>
             <th data-key="BU Site">BU Site</th>
             <th data-key="Type Armada">Type Armada</th>
+            <th data-key="Klasifikasi Kendaraan">Klasifikasi</th>
             <th data-key="Usia (Year)" class="num">Usia</th>
             <th data-key="Owner">Owner</th>
             <th data-key="DPP" class="num">DPP</th>
@@ -553,7 +558,7 @@ tfoot td{
         <tbody id="tableBody"></tbody>
         <tfoot>
           <tr>
-            <td colspan="8">Total (halaman ini tidak dihitung — total = seluruh data ter-filter)</td>
+            <td colspan="9">Total (halaman ini tidak dihitung — total = seluruh data ter-filter)</td>
             <td class="num" id="footDpp">-</td>
             <td class="num" id="footDowntime">-</td>
             <td class="num" id="footDppNet">-</td>
@@ -650,6 +655,7 @@ const filterState = {
   kategori: new Set(),
   owner: new Set(),
   armada: new Set(),
+  jenis: new Set(),
 };
 const resetters = [];
 
@@ -848,6 +854,7 @@ function initFilters(){
   buildMultiSelect('mselKategori', 'Semua Kategori', uniqueSorted(RAW.map(r=>r['Kategori Site'])), filterState.kategori, onFilterChange);
   buildMultiSelect('mselOwner', 'Semua Owner', uniqueSorted(RAW.map(r=>r.Owner)), filterState.owner, onFilterChange);
   buildMultiSelect('mselArmada', 'Semua Type', uniqueSorted(RAW.map(r=>r['Type Armada'])), filterState.armada, onFilterChange);
+  buildMultiSelect('mselJenis', 'Semua Klasifikasi', uniqueSorted(RAW.map(r=>r['Klasifikasi Kendaraan'])), filterState.jenis, onFilterChange);
 
   document.getElementById('fDowntime').addEventListener('change', onFilterChange);
   document.getElementById('fSearch').addEventListener('input', onFilterChange);
@@ -891,6 +898,7 @@ function getFiltered(opts={}){
     if(!matches(filterState.kategori, r['Kategori Site'])) return false;
     if(!matches(filterState.owner, r.Owner)) return false;
     if(!matches(filterState.armada, r['Type Armada'])) return false;
+    if(!matches(filterState.jenis, r['Klasifikasi Kendaraan'])) return false;
     if(downtimeStatus==='ada' && !(r['Nominal Downtime']>0)) return false;
     if(downtimeStatus==='tidak' && (r['Nominal Downtime']>0)) return false;
     if(search){
@@ -1071,6 +1079,7 @@ function renderTable(filtered){
       <td>${r['Site Name']||''}</td>
       <td>${r['BU Site']||''}</td>
       <td>${r['Type Armada']||''}</td>
+      <td>${r['Klasifikasi Kendaraan']||''}</td>
       <td class="num mono">${r['Usia (Year)']??''}</td>
       <td>${r.Owner||''}</td>
       <td class="num mono">${fmtRp(r.DPP)}</td>
