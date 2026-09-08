@@ -113,6 +113,7 @@ def main():
             'Site Name': str(r.get('Site Name', '')).strip(),
             'BU Site': str(r.get('BU Site', '')).strip(),
             'Type Armada': str(r.get('Type Armada', '')).strip(),
+            'Klasifikasi Kendaraan': str(r.get('JENIS', '')).strip(),
             'Usia (Year)': r.get('Usia (Year)', ''),
             'Owner': str(r.get('OWNER', '')).strip(),
             'DPP': dpp,
