@@ -251,6 +251,18 @@ body{
 .msel-options label:hover, .tree-children label:hover{background:var(--bg);}
 .msel-options input, .tree-children input{margin:0;cursor:pointer;flex-shrink:0;}
 .msel-tree{max-height:280px;overflow-y:auto;}
+.tree-search{
+  width:100%;
+  border:1px solid var(--line);
+  background:#fbfcfe;
+  border-radius:8px;
+  padding:6px 9px;
+  font-size:12.5px;
+  font-family:inherit;
+  margin-bottom:8px;
+  box-sizing:border-box;
+}
+.tree-search:focus{outline:2px solid var(--accent);outline-offset:1px;}
 .tree-group{margin-bottom:2px;}
 .tree-group-header{
   display:flex;
@@ -740,6 +752,7 @@ function buildSiteTree(containerId, groupedMap, selectedSet, onChange){
   container.innerHTML = `
     <button type="button" class="msel-btn">Semua Site ▾</button>
     <div class="msel-panel hidden">
+      <input type="text" class="tree-search" placeholder="Cari nama site langsung...">
       <div class="msel-actions">
         <button type="button" data-act="all">Pilih Semua</button>
         <button type="button" data-act="none">Kosongkan</button>
@@ -749,6 +762,37 @@ function buildSiteTree(containerId, groupedMap, selectedSet, onChange){
 
   const btn = container.querySelector('.msel-btn');
   const panel = container.querySelector('.msel-panel');
+  const searchInput = panel.querySelector('.tree-search');
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    panel.querySelectorAll('.tree-group').forEach(group => {
+      const children = group.querySelector('.tree-children');
+      const caret = group.querySelector('.tree-caret');
+      const siteLabels = group.querySelectorAll('.site-cb');
+      let groupHasMatch = false;
+      siteLabels.forEach(cb => {
+        const labelEl = cb.closest('label');
+        const match = !q || cb.value.toLowerCase().includes(q);
+        labelEl.style.display = match ? '' : 'none';
+        if (match) groupHasMatch = true;
+      });
+      const buName = group.querySelector('.grp-label').textContent.toLowerCase();
+      const buMatches = !q || buName.includes(q);
+      if (q && (groupHasMatch || buMatches)) {
+        group.style.display = '';
+        children.classList.remove('hidden');
+        caret.textContent = '▾';
+      } else if (q) {
+        group.style.display = 'none';
+      } else {
+        group.style.display = '';
+        children.classList.add('hidden');
+        caret.textContent = '▸';
+      }
+    });
+  });
+  searchInput.addEventListener('click', e => e.stopPropagation());
 
   function updateLabel(){
     if(selectedSet.size===0 || selectedSet.size===allSites.length){
@@ -823,6 +867,13 @@ function buildSiteTree(containerId, groupedMap, selectedSet, onChange){
     selectedSet.clear();
     panel.querySelectorAll('.site-cb').forEach(cb=>cb.checked=false);
     panel.querySelectorAll('.grp-cb').forEach(cb=>{cb.checked=false; cb.indeterminate=false;});
+    searchInput.value = '';
+    panel.querySelectorAll('.tree-group').forEach(group=>{
+      group.style.display='';
+      group.querySelector('.tree-children').classList.add('hidden');
+      group.querySelector('.tree-caret').textContent='▸';
+      group.querySelectorAll('label').forEach(l=>l.style.display='');
+    });
     updateLabel();
   });
 }
