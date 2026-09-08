@@ -70,6 +70,19 @@ def to_num(v):
         return 0.0
 
 
+SITE_NAME_FIXES = {
+    ('arang', 'AHI'): 'JABABEKA AHI',
+    ('arang', 'KLS'): 'KLS JABABEKA',
+    ('abeka', 'HCI'): 'JABABEKA HCI',
+}
+
+
+def clean_site_name(site, bu):
+    site = (site or '').strip()
+    bu = (bu or '').strip()
+    return SITE_NAME_FIXES.get((site, bu), site)
+
+
 def main():
     creds_json = os.environ['GOOGLE_CREDENTIALS']
     creds_dict = json.loads(creds_json)
@@ -110,7 +123,7 @@ def main():
             'Bulan': bln,
             'NOPOL': str(r.get('NOPOL', '')).strip(),
             'Kategori Site': str(r.get('Kategori Site', '')).strip(),
-            'Site Name': str(r.get('Site Name', '')).strip(),
+            'Site Name': clean_site_name(r.get('Site Name', ''), r.get('BU Site', '')),
             'BU Site': str(r.get('BU Site', '')).strip(),
             'Type Armada': str(r.get('Type Armada', '')).strip(),
             'Klasifikasi Kendaraan': str(r.get('JENIS', '')).strip(),
