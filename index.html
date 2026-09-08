@@ -188,6 +188,92 @@ body{
 }
 .btn-reset:hover{background:var(--bg);color:var(--text);}
 
+/* ---------- multi-select dropdown ---------- */
+.msel{position:relative;}
+.msel-btn{
+  border:1px solid var(--line);
+  background:#fbfcfe;
+  border-radius:8px;
+  padding:7px 10px;
+  font-size:13px;
+  font-family:inherit;
+  color:var(--text);
+  min-width:140px;
+  text-align:left;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.msel-btn:hover{border-color:var(--accent);}
+.msel-panel{
+  position:absolute;
+  top:calc(100% + 6px);
+  left:0;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:10px;
+  box-shadow:0 8px 24px rgba(21,36,81,.14);
+  padding:8px;
+  min-width:220px;
+  max-width:280px;
+  z-index:50;
+}
+.msel-panel.hidden{display:none;}
+.msel-actions{
+  display:flex;
+  gap:6px;
+  margin-bottom:6px;
+  padding-bottom:6px;
+  border-bottom:1px solid var(--line);
+}
+.msel-actions button{
+  border:none;
+  background:var(--accent-soft);
+  color:var(--accent);
+  font-size:11px;
+  font-weight:700;
+  padding:4px 8px;
+  border-radius:6px;
+  cursor:pointer;
+  font-family:inherit;
+}
+.msel-actions button:hover{opacity:.8;}
+.msel-options{max-height:220px;overflow-y:auto;}
+.msel-options label, .tree-children label{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:12.5px;
+  padding:4px 4px;
+  border-radius:6px;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.msel-options label:hover, .tree-children label:hover{background:var(--bg);}
+.msel-options input, .tree-children input{margin:0;cursor:pointer;flex-shrink:0;}
+.msel-tree{max-height:280px;overflow-y:auto;}
+.tree-group{margin-bottom:2px;}
+.tree-group-header{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 4px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:12.5px;
+  font-weight:700;
+}
+.tree-group-header:hover{background:var(--bg);}
+.tree-caret{
+  font-size:10px;
+  color:var(--muted);
+  width:10px;
+  display:inline-block;
+  cursor:pointer;
+}
+.grp-count{font-weight:400;color:var(--muted);font-size:11px;}
+.tree-children{padding-left:20px;}
+.tree-children.hidden{display:none;}
+
 /* ---------- charts ---------- */
 .chart-row{
   display:grid;
@@ -378,24 +464,28 @@ tfoot td{
 
   <div class="filterbar">
     <div class="fgroup">
+      <label>Tahun</label>
+      <div class="msel" id="mselTahun"></div>
+    </div>
+    <div class="fgroup">
       <label>Bulan</label>
-      <select id="fBulan"><option value="">Semua Bulan</option></select>
+      <div class="msel" id="mselBulan"></div>
+    </div>
+    <div class="fgroup">
+      <label>Site (per BU)</label>
+      <div class="msel" id="mselSite"></div>
     </div>
     <div class="fgroup">
       <label>Kategori Site</label>
-      <select id="fKategori"><option value="">Semua Kategori</option></select>
-    </div>
-    <div class="fgroup">
-      <label>BU Site</label>
-      <select id="fBu"><option value="">Semua BU</option></select>
+      <div class="msel" id="mselKategori"></div>
     </div>
     <div class="fgroup">
       <label>Owner</label>
-      <select id="fOwner"><option value="">Semua Owner</option></select>
+      <div class="msel" id="mselOwner"></div>
     </div>
     <div class="fgroup">
       <label>Type Armada</label>
-      <select id="fArmada"><option value="">Semua Type</option></select>
+      <div class="msel" id="mselArmada"></div>
     </div>
     <div class="fgroup">
       <label>Status Downtime</label>
@@ -415,7 +505,7 @@ tfoot td{
   <div class="chart-row">
     <div class="panel">
       <h3>Trend DPP vs DPP Net per Bulan</h3>
-      <p class="hint">Mengikuti filter Kategori/BU/Owner/Armada, tidak mengikuti filter Bulan agar trend tetap terlihat</p>
+      <p class="hint">Mengikuti filter Site/Kategori/Owner/Armada, tidak mengikuti filter Tahun & Bulan agar trend tetap terlihat</p>
       <div class="chart-holder"><canvas id="chartTrend"></canvas></div>
     </div>
     <div class="panel">
@@ -544,23 +634,223 @@ function uniqueSorted(arr){
   return Array.from(new Set(arr.filter(v=>v!==undefined && v!==null && v!=='' ))).sort();
 }
 
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function closeAllPanels(except){
+  document.querySelectorAll('.msel-panel').forEach(p=>{ if(p!==except) p.classList.add('hidden'); });
+}
+document.addEventListener('click', ()=>closeAllPanels(null));
+
+const filterState = {
+  tahun: new Set(),
+  bulanNama: new Set(),
+  site: new Set(),
+  kategori: new Set(),
+  owner: new Set(),
+  armada: new Set(),
+};
+const resetters = [];
+
+function matches(set, value){
+  return set.size===0 || set.has(value);
+}
+
+function buildMultiSelect(containerId, placeholderText, items, selectedSet, onChange){
+  const container = document.getElementById(containerId);
+  container.innerHTML = `
+    <button type="button" class="msel-btn">${escapeHtml(placeholderText)} ▾</button>
+    <div class="msel-panel hidden">
+      <div class="msel-actions">
+        <button type="button" data-act="all">Pilih Semua</button>
+        <button type="button" data-act="none">Kosongkan</button>
+      </div>
+      <div class="msel-options">
+        ${items.map(v=>`<label><input type="checkbox" value="${escapeHtml(v)}"> ${escapeHtml(v)}</label>`).join('')}
+      </div>
+    </div>`;
+  const btn = container.querySelector('.msel-btn');
+  const panel = container.querySelector('.msel-panel');
+
+  function updateLabel(){
+    if(selectedSet.size===0 || selectedSet.size===items.length){
+      btn.textContent = placeholderText + ' ▾';
+    } else if(selectedSet.size<=2){
+      btn.textContent = Array.from(selectedSet).join(', ') + ' ▾';
+    } else {
+      btn.textContent = selectedSet.size + ' dipilih ▾';
+    }
+  }
+
+  btn.addEventListener('click', e=>{
+    e.stopPropagation();
+    const willOpen = panel.classList.contains('hidden');
+    closeAllPanels(panel);
+    panel.classList.toggle('hidden', !willOpen);
+  });
+  panel.addEventListener('click', e=>e.stopPropagation());
+
+  panel.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      if(cb.checked) selectedSet.add(cb.value); else selectedSet.delete(cb.value);
+      updateLabel(); onChange();
+    });
+  });
+  panel.querySelector('[data-act="all"]').addEventListener('click', ()=>{
+    items.forEach(v=>selectedSet.add(v));
+    panel.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=true);
+    updateLabel(); onChange();
+  });
+  panel.querySelector('[data-act="none"]').addEventListener('click', ()=>{
+    selectedSet.clear();
+    panel.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=false);
+    updateLabel(); onChange();
+  });
+
+  updateLabel();
+  resetters.push(()=>{
+    selectedSet.clear();
+    panel.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=false);
+    updateLabel();
+  });
+}
+
+function buildSiteTree(containerId, groupedMap, selectedSet, onChange){
+  const container = document.getElementById(containerId);
+  const allSites = Array.from(groupedMap.values()).flat();
+  const groupsHtml = Array.from(groupedMap.entries()).sort((a,b)=>a[0].localeCompare(b[0])).map(([bu, sites])=>{
+    const siteLabels = sites.map(s=>`<label><input type="checkbox" class="site-cb" data-bu="${escapeHtml(bu)}" value="${escapeHtml(s)}"> ${escapeHtml(s)}</label>`).join('');
+    return `<div class="tree-group">
+      <div class="tree-group-header">
+        <span class="tree-caret">▸</span>
+        <input type="checkbox" class="grp-cb" data-bu="${escapeHtml(bu)}">
+        <span class="grp-label">${escapeHtml(bu)} <span class="grp-count">(${sites.length})</span></span>
+      </div>
+      <div class="tree-children hidden">${siteLabels}</div>
+    </div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <button type="button" class="msel-btn">Semua Site ▾</button>
+    <div class="msel-panel hidden">
+      <div class="msel-actions">
+        <button type="button" data-act="all">Pilih Semua</button>
+        <button type="button" data-act="none">Kosongkan</button>
+      </div>
+      <div class="msel-tree">${groupsHtml}</div>
+    </div>`;
+
+  const btn = container.querySelector('.msel-btn');
+  const panel = container.querySelector('.msel-panel');
+
+  function updateLabel(){
+    if(selectedSet.size===0 || selectedSet.size===allSites.length){
+      btn.textContent = 'Semua Site ▾';
+    } else if(selectedSet.size<=2){
+      btn.textContent = Array.from(selectedSet).join(', ') + ' ▾';
+    } else {
+      btn.textContent = selectedSet.size + ' Site dipilih ▾';
+    }
+  }
+
+  btn.addEventListener('click', e=>{
+    e.stopPropagation();
+    const willOpen = panel.classList.contains('hidden');
+    closeAllPanels(panel);
+    panel.classList.toggle('hidden', !willOpen);
+  });
+  panel.addEventListener('click', e=>e.stopPropagation());
+
+  panel.querySelectorAll('.tree-group-header').forEach(header=>{
+    const toggle = (e)=>{
+      e.stopPropagation();
+      const children = header.parentElement.querySelector('.tree-children');
+      const willHide = !children.classList.contains('hidden');
+      children.classList.toggle('hidden', willHide);
+      header.querySelector('.tree-caret').textContent = willHide ? '▸' : '▾';
+    };
+    header.querySelector('.tree-caret').addEventListener('click', toggle);
+    header.querySelector('.grp-label').addEventListener('click', toggle);
+  });
+
+  panel.querySelectorAll('.grp-cb').forEach(gcb=>{
+    gcb.addEventListener('change', ()=>{
+      const bu = gcb.getAttribute('data-bu');
+      panel.querySelectorAll(`.site-cb[data-bu="${CSS.escape(bu)}"]`).forEach(scb=>{
+        scb.checked = gcb.checked;
+        if(gcb.checked) selectedSet.add(scb.value); else selectedSet.delete(scb.value);
+      });
+      gcb.indeterminate = false;
+      updateLabel(); onChange();
+    });
+  });
+
+  panel.querySelectorAll('.site-cb').forEach(scb=>{
+    scb.addEventListener('change', ()=>{
+      if(scb.checked) selectedSet.add(scb.value); else selectedSet.delete(scb.value);
+      const bu = scb.getAttribute('data-bu');
+      const groupCbs = panel.querySelectorAll(`.site-cb[data-bu="${CSS.escape(bu)}"]`);
+      const checkedCount = Array.from(groupCbs).filter(c=>c.checked).length;
+      const grpCb = panel.querySelector(`.grp-cb[data-bu="${CSS.escape(bu)}"]`);
+      grpCb.checked = checkedCount===groupCbs.length;
+      grpCb.indeterminate = checkedCount>0 && checkedCount<groupCbs.length;
+      updateLabel(); onChange();
+    });
+  });
+
+  panel.querySelector('[data-act="all"]').addEventListener('click', ()=>{
+    allSites.forEach(s=>selectedSet.add(s));
+    panel.querySelectorAll('.site-cb').forEach(cb=>cb.checked=true);
+    panel.querySelectorAll('.grp-cb').forEach(cb=>{cb.checked=true; cb.indeterminate=false;});
+    updateLabel(); onChange();
+  });
+  panel.querySelector('[data-act="none"]').addEventListener('click', ()=>{
+    selectedSet.clear();
+    panel.querySelectorAll('.site-cb').forEach(cb=>cb.checked=false);
+    panel.querySelectorAll('.grp-cb').forEach(cb=>{cb.checked=false; cb.indeterminate=false;});
+    updateLabel(); onChange();
+  });
+
+  updateLabel();
+  resetters.push(()=>{
+    selectedSet.clear();
+    panel.querySelectorAll('.site-cb').forEach(cb=>cb.checked=false);
+    panel.querySelectorAll('.grp-cb').forEach(cb=>{cb.checked=false; cb.indeterminate=false;});
+    updateLabel();
+  });
+}
+
 function initFilters(){
   const bulanList = uniqueSorted(RAW.map(r=>r.Bulan)).sort((a,b)=>bulanSortKey(a)-bulanSortKey(b));
-  fillSelect('fBulan', bulanList);
-  fillSelect('fKategori', uniqueSorted(RAW.map(r=>r['Kategori Site'])));
-  fillSelect('fBu', uniqueSorted(RAW.map(r=>r['BU Site'])));
-  fillSelect('fOwner', uniqueSorted(RAW.map(r=>r.Owner)));
-  fillSelect('fArmada', uniqueSorted(RAW.map(r=>r['Type Armada'])));
-
   const periodeEl = document.getElementById('periodeRange');
   if(bulanList.length){
     periodeEl.textContent = bulanList[0] + ' s/d ' + bulanList[bulanList.length-1];
   }
 
-  ['fBulan','fKategori','fBu','fOwner','fArmada','fDowntime'].forEach(id=>{
-    document.getElementById(id).addEventListener('change', ()=>{page=1; applyFilters();});
+  const tahunList = uniqueSorted(bulanList.map(b=>'20'+b.split('-')[1]));
+  const bulanNamaOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const bulanNamaList = bulanNamaOrder.filter(m=>bulanList.some(b=>b.startsWith(m+'-')));
+
+  const siteGrouped = new Map();
+  RAW.forEach(r=>{
+    const bu = r['BU Site'];
+    const site = r['Site Name'];
+    if(!bu || !site) return;
+    if(!siteGrouped.has(bu)) siteGrouped.set(bu, new Set());
+    siteGrouped.get(bu).add(site);
   });
-  document.getElementById('fSearch').addEventListener('input', ()=>{page=1; applyFilters();});
+  const siteGroupedArr = new Map(Array.from(siteGrouped.entries()).map(([bu, set])=>[bu, Array.from(set).sort()]));
+
+  buildMultiSelect('mselTahun', 'Semua Tahun', tahunList, filterState.tahun, onFilterChange);
+  buildMultiSelect('mselBulan', 'Semua Bulan', bulanNamaList, filterState.bulanNama, onFilterChange);
+  buildSiteTree('mselSite', siteGroupedArr, filterState.site, onFilterChange);
+  buildMultiSelect('mselKategori', 'Semua Kategori', uniqueSorted(RAW.map(r=>r['Kategori Site'])), filterState.kategori, onFilterChange);
+  buildMultiSelect('mselOwner', 'Semua Owner', uniqueSorted(RAW.map(r=>r.Owner)), filterState.owner, onFilterChange);
+  buildMultiSelect('mselArmada', 'Semua Type', uniqueSorted(RAW.map(r=>r['Type Armada'])), filterState.armada, onFilterChange);
+
+  document.getElementById('fDowntime').addEventListener('change', onFilterChange);
+  document.getElementById('fSearch').addEventListener('input', onFilterChange);
   document.getElementById('btnReset').addEventListener('click', resetFilters);
 
   document.querySelectorAll('thead th[data-key]').forEach(th=>{
@@ -573,37 +863,34 @@ function initFilters(){
   });
 }
 
-function fillSelect(id, values){
-  const sel = document.getElementById(id);
-  values.forEach(v=>{
-    const opt = document.createElement('option');
-    opt.value = v; opt.textContent = v;
-    sel.appendChild(opt);
-  });
+function onFilterChange(){
+  page = 1;
+  applyFilters();
 }
 
 function resetFilters(){
-  ['fBulan','fKategori','fBu','fOwner','fArmada','fDowntime'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('fSearch').value='';
-  page=1;
+  resetters.forEach(fn=>fn());
+  document.getElementById('fDowntime').value = '';
+  document.getElementById('fSearch').value = '';
+  page = 1;
   applyFilters();
 }
 
 function getFiltered(opts={}){
-  const bulan = opts.ignoreBulan ? '' : document.getElementById('fBulan').value;
-  const kategori = document.getElementById('fKategori').value;
-  const bu = document.getElementById('fBu').value;
-  const owner = document.getElementById('fOwner').value;
-  const armada = document.getElementById('fArmada').value;
+  const ignoreDate = !!opts.ignoreBulan;
   const downtimeStatus = document.getElementById('fDowntime').value;
   const search = document.getElementById('fSearch').value.trim().toLowerCase();
 
   return RAW.filter(r=>{
-    if(bulan && r.Bulan!==bulan) return false;
-    if(kategori && r['Kategori Site']!==kategori) return false;
-    if(bu && r['BU Site']!==bu) return false;
-    if(owner && r.Owner!==owner) return false;
-    if(armada && r['Type Armada']!==armada) return false;
+    if(!ignoreDate){
+      const [monName, yr2] = String(r.Bulan||'').split('-');
+      if(!matches(filterState.tahun, '20'+yr2)) return false;
+      if(!matches(filterState.bulanNama, monName)) return false;
+    }
+    if(!matches(filterState.site, r['Site Name'])) return false;
+    if(!matches(filterState.kategori, r['Kategori Site'])) return false;
+    if(!matches(filterState.owner, r.Owner)) return false;
+    if(!matches(filterState.armada, r['Type Armada'])) return false;
     if(downtimeStatus==='ada' && !(r['Nominal Downtime']>0)) return false;
     if(downtimeStatus==='tidak' && (r['Nominal Downtime']>0)) return false;
     if(search){
