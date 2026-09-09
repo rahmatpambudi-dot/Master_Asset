@@ -543,7 +543,7 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
     <!-- ============ PAGE 4: LAPORAN SLIDE ============ -->
     <section class="page" id="page-slide">
       <h2 class="page-title">Laporan Slide</h2>
-      <p class="page-sub">Ringkasan otomatis mengikuti format laporan slide bulanan (mengikuti filter selain Tahun/Bulan)</p>
+      <p class="page-sub">Ringkasan otomatis mengikuti format laporan slide bulanan (mengikuti semua filter aktif, termasuk Tahun & Bulan)</p>
 
       <div class="slide-tabs">
         <button class="slide-tab-btn active" data-slide="1">Slide 1 — Overview Unit</button>
@@ -1030,7 +1030,7 @@ function applyFilters(){
   updateChartTopDowntime(filtered);
   renderTable(filtered);
 
-  updateSlideReport(dateIgnored);
+  updateSlideReport(filtered);
 }
 
 function updateKpis(rows){
