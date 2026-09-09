@@ -10,10 +10,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
 
-/* ============================================================
-   CONFIG — edit URL ini setelah CSV di-upload ke GitHub
-   ============================================================ */
-
 :root{
   --bg:#f2f4f9;
   --surface:#ffffff;
@@ -32,6 +28,8 @@
   --line:#e4e8f1;
   --radius:14px;
   --shadow:0 1px 2px rgba(21,36,81,.06), 0 8px 24px rgba(21,36,81,.05);
+  --sidebar-w:280px;
+  --sidebar-w-collapsed:64px;
 }
 
 *{box-sizing:border-box;}
@@ -48,374 +46,225 @@ body{
 .topbar{
   background:linear-gradient(135deg,var(--navy) 0%, var(--navy-soft) 100%);
   color:#fff;
-  padding:22px 28px;
+  padding:18px 24px;
   display:flex;
   justify-content:space-between;
   align-items:flex-start;
   flex-wrap:wrap;
   gap:14px;
 }
-.topbar h1{
-  font-size:20px;
-  font-weight:800;
-  margin:0 0 4px 0;
-  letter-spacing:.2px;
-}
-.topbar p{
-  margin:0;
-  font-size:13px;
-  color:#b9c4e6;
-}
-.topbar .meta{
-  text-align:right;
-  font-size:12px;
-  color:#b9c4e6;
-}
-.topbar .meta .mono{
-  color:#fff;
-  font-size:13px;
-  display:block;
-  margin-top:2px;
-}
+.topbar h1{font-size:19px;font-weight:800;margin:0 0 4px 0;letter-spacing:.2px;}
+.topbar p{margin:0;font-size:12.5px;color:#b9c4e6;}
+.topbar .meta{text-align:right;font-size:12px;color:#b9c4e6;}
+.topbar .meta .mono{color:#fff;font-size:13px;display:block;margin-top:2px;}
 .status-pill{
-  display:inline-flex;
-  align-items:center;
-  gap:6px;
-  background:rgba(255,255,255,.1);
-  border:1px solid rgba(255,255,255,.18);
-  padding:4px 10px;
-  border-radius:20px;
-  font-size:11px;
-  margin-top:8px;
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+  padding:4px 10px;border-radius:20px;font-size:11px;margin-top:8px;
 }
 .status-dot{width:7px;height:7px;border-radius:50%;background:#3ddc97;}
 
-/* ---------- layout wrapper ---------- */
-.wrap{max-width:1400px;margin:0 auto;padding:22px 28px 60px;}
+/* ---------- app shell ---------- */
+.app-shell{display:flex;align-items:flex-start;min-height:calc(100vh - 74px);}
 
-/* ---------- kpi row ---------- */
-.kpi-row{
-  display:grid;
-  grid-template-columns:repeat(6,1fr);
-  gap:14px;
-  margin-bottom:22px;
-}
-.kpi{
+/* ---------- sidebar ---------- */
+.sidebar{
+  width:var(--sidebar-w);
+  flex-shrink:0;
   background:var(--surface);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  padding:16px 16px;
-  border:1px solid var(--line);
-}
-.kpi .label{
-  font-size:11.5px;
-  color:var(--muted);
-  font-weight:600;
-  margin-bottom:8px;
-}
-.kpi .value{
-  font-size:21px;
-  font-weight:700;
-  font-family:'JetBrains Mono',monospace;
-  line-height:1.15;
-}
-.kpi .sub{
-  font-size:11px;
-  color:var(--muted);
-  margin-top:6px;
-}
-.kpi.good .value{color:var(--good);}
-.kpi.bad .value{color:var(--bad);}
-
-@media (max-width:1100px){
-  .kpi-row{grid-template-columns:repeat(3,1fr);}
-}
-@media (max-width:640px){
-  .kpi-row{grid-template-columns:repeat(2,1fr);}
-}
-
-/* ---------- filter bar ---------- */
-.filterbar{
-  background:var(--surface);
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  padding:14px 16px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-bottom:22px;
-  align-items:center;
+  border-right:1px solid var(--line);
+  min-height:calc(100vh - 74px);
   position:sticky;
-  top:10px;
-  z-index:20;
+  top:0;
+  align-self:flex-start;
+  max-height:100vh;
+  overflow-y:auto;
+  transition:width .2s ease;
+  z-index:10;
 }
-.filterbar .fgroup{
-  display:flex;
-  flex-direction:column;
-  gap:4px;
+.sidebar.collapsed{width:var(--sidebar-w-collapsed);}
+.sidebar-top{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 14px;border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:var(--surface);z-index:2;
 }
-.filterbar label{
-  font-size:10.5px;
-  font-weight:700;
-  color:var(--muted);
-  text-transform:uppercase;
-  letter-spacing:.03em;
+.collapse-btn{
+  border:none;background:var(--bg);border-radius:8px;
+  width:32px;height:32px;flex-shrink:0;cursor:pointer;font-size:15px;
+  display:flex;align-items:center;justify-content:center;color:var(--text);
 }
-.filterbar select, .filterbar input[type=text]{
-  border:1px solid var(--line);
-  background:#fbfcfe;
-  border-radius:8px;
-  padding:7px 10px;
-  font-size:13px;
-  font-family:inherit;
-  color:var(--text);
-  min-width:130px;
-}
-.filterbar select:focus, .filterbar input:focus{outline:2px solid var(--accent);outline-offset:1px;}
-.filterbar .search-group{flex:1;min-width:180px;}
-.filterbar .search-group input{width:100%;}
-.btn-reset{
-  border:1px solid var(--line);
-  background:#fff;
-  color:var(--muted);
-  border-radius:8px;
-  padding:7px 12px;
-  font-size:12.5px;
-  font-weight:600;
-  cursor:pointer;
-  align-self:flex-end;
-}
-.btn-reset:hover{background:var(--bg);color:var(--text);}
+.collapse-btn:hover{background:var(--accent-soft);color:var(--accent);}
+.sidebar-brand{overflow:hidden;white-space:nowrap;}
+.sidebar-brand strong{display:block;font-size:13px;}
+.sidebar-brand span{font-size:10.5px;color:var(--muted);}
+.sidebar.collapsed .sidebar-brand{display:none;}
 
-/* ---------- multi-select dropdown ---------- */
+.nav-menu{padding:10px;display:flex;flex-direction:column;gap:3px;border-bottom:1px solid var(--line);}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:9px 10px;
+  border:none;background:transparent;border-radius:10px;cursor:pointer;
+  font-family:inherit;font-size:12.8px;font-weight:600;color:var(--muted);
+  text-align:left;width:100%;white-space:nowrap;overflow:hidden;
+}
+.nav-item:hover{background:var(--bg);color:var(--text);}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);}
+.nav-icon{font-size:15px;flex-shrink:0;width:20px;text-align:center;}
+.sidebar.collapsed .nav-label{display:none;}
+
+.sidebar-filters{padding:14px 12px 20px;display:flex;flex-direction:column;gap:13px;}
+.sidebar.collapsed .sidebar-filters{display:none;}
+.sidebar-filters-head{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:10.5px;font-weight:800;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;
+}
+.btn-reset-mini{border:none;background:none;color:var(--accent);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;padding:0;}
+.fgroup-v{display:flex;flex-direction:column;gap:5px;}
+.fgroup-v label{font-size:10.2px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
+.fgroup-v .msel{width:100%;}
+.fgroup-v .msel-btn{width:100%;}
+.fgroup-v input[type=text], .fgroup-v select{
+  width:100%;border:1px solid var(--line);background:#fbfcfe;
+  border-radius:8px;padding:7px 10px;font-size:12.8px;font-family:inherit;color:var(--text);
+}
+.fgroup-v input:focus, .fgroup-v select:focus{outline:2px solid var(--accent);outline-offset:1px;}
+
+/* ---------- multi-select dropdown (panel positioned fixed via JS) ---------- */
 .msel{position:relative;}
 .msel-btn{
-  border:1px solid var(--line);
-  background:#fbfcfe;
-  border-radius:8px;
-  padding:7px 10px;
-  font-size:13px;
-  font-family:inherit;
-  color:var(--text);
-  min-width:140px;
-  text-align:left;
-  cursor:pointer;
-  white-space:nowrap;
+  border:1px solid var(--line);background:#fbfcfe;border-radius:8px;
+  padding:7px 10px;font-size:12.8px;font-family:inherit;color:var(--text);
+  min-width:0;text-align:left;cursor:pointer;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;
 }
 .msel-btn:hover{border-color:var(--accent);}
 .msel-panel{
-  position:absolute;
-  top:calc(100% + 6px);
-  left:0;
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:10px;
-  box-shadow:0 8px 24px rgba(21,36,81,.14);
-  padding:8px;
-  min-width:220px;
-  max-width:280px;
-  z-index:50;
+  position:fixed;
+  background:#fff;border:1px solid var(--line);border-radius:10px;
+  box-shadow:0 8px 24px rgba(21,36,81,.16);padding:8px;
+  min-width:230px;max-width:290px;z-index:200;
 }
 .msel-panel.hidden{display:none;}
-.msel-actions{
-  display:flex;
-  gap:6px;
-  margin-bottom:6px;
-  padding-bottom:6px;
-  border-bottom:1px solid var(--line);
-}
+.msel-actions{display:flex;gap:6px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--line);}
 .msel-actions button{
-  border:none;
-  background:var(--accent-soft);
-  color:var(--accent);
-  font-size:11px;
-  font-weight:700;
-  padding:4px 8px;
-  border-radius:6px;
-  cursor:pointer;
-  font-family:inherit;
+  border:none;background:var(--accent-soft);color:var(--accent);
+  font-size:11px;font-weight:700;padding:4px 8px;border-radius:6px;cursor:pointer;font-family:inherit;
 }
 .msel-actions button:hover{opacity:.8;}
-.msel-options{max-height:220px;overflow-y:auto;}
+.msel-options{max-height:240px;overflow-y:auto;}
 .msel-options label, .tree-children label{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  font-size:12.5px;
-  padding:4px 4px;
-  border-radius:6px;
-  cursor:pointer;
-  white-space:nowrap;
+  display:flex;align-items:center;gap:7px;font-size:12.5px;
+  padding:4px 4px;border-radius:6px;cursor:pointer;white-space:nowrap;
 }
 .msel-options label:hover, .tree-children label:hover{background:var(--bg);}
 .msel-options input, .tree-children input{margin:0;cursor:pointer;flex-shrink:0;}
-.msel-tree{max-height:280px;overflow-y:auto;}
+.msel-tree{max-height:300px;overflow-y:auto;}
 .tree-search{
-  width:100%;
-  border:1px solid var(--line);
-  background:#fbfcfe;
-  border-radius:8px;
-  padding:6px 9px;
-  font-size:12.5px;
-  font-family:inherit;
-  margin-bottom:8px;
-  box-sizing:border-box;
+  width:100%;border:1px solid var(--line);background:#fbfcfe;border-radius:8px;
+  padding:6px 9px;font-size:12.5px;font-family:inherit;margin-bottom:8px;box-sizing:border-box;
 }
 .tree-search:focus{outline:2px solid var(--accent);outline-offset:1px;}
 .tree-group{margin-bottom:2px;}
 .tree-group-header{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  padding:5px 4px;
-  border-radius:6px;
-  cursor:pointer;
-  font-size:12.5px;
-  font-weight:700;
+  display:flex;align-items:center;gap:6px;padding:5px 4px;
+  border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:700;
 }
 .tree-group-header:hover{background:var(--bg);}
-.tree-caret{
-  font-size:10px;
-  color:var(--muted);
-  width:10px;
-  display:inline-block;
-  cursor:pointer;
-}
+.tree-caret{font-size:10px;color:var(--muted);width:10px;display:inline-block;cursor:pointer;}
 .grp-count{font-weight:400;color:var(--muted);font-size:11px;}
 .tree-children{padding-left:20px;}
 .tree-children.hidden{display:none;}
 
-/* ---------- charts ---------- */
-.chart-row{
-  display:grid;
-  grid-template-columns:1.3fr 1fr;
-  gap:16px;
-  margin-bottom:16px;
-}
+/* ---------- main content ---------- */
+.main-content{flex:1;min-width:0;padding:22px 26px 60px;}
+.page{display:none;}
+.page.active{display:block;}
+.page-title{font-size:17px;font-weight:800;margin:0 0 4px 0;}
+.page-sub{font-size:12.5px;color:var(--muted);margin:0 0 18px 0;}
+
+/* ---------- kpi row ---------- */
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:18px;}
+.kpi{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;border:1px solid var(--line);}
+.kpi .label{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:8px;}
+.kpi .value{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace;line-height:1.15;}
+.kpi .sub{font-size:11px;color:var(--muted);margin-top:6px;}
+.kpi.good .value{color:var(--good);}
+.kpi.bad .value{color:var(--bad);}
+@media (max-width:1200px){.kpi-row{grid-template-columns:repeat(3,1fr);}}
+@media (max-width:640px){.kpi-row{grid-template-columns:repeat(2,1fr);}}
+
+/* ---------- charts / panels ---------- */
+.chart-row{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:16px;}
 .chart-row.full{grid-template-columns:1fr;}
-.panel{
-  background:var(--surface);
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  padding:18px;
-}
-.panel h3{
-  font-size:14px;
-  margin:0 0 2px 0;
-  font-weight:700;
-}
-.panel p.hint{
-  font-size:11.5px;
-  color:var(--muted);
-  margin:0 0 14px 0;
-}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;}
+.panel h3{font-size:14px;margin:0 0 2px 0;font-weight:700;}
+.panel p.hint{font-size:11.5px;color:var(--muted);margin:0 0 14px 0;}
 .panel .chart-holder{position:relative;height:270px;}
-@media (max-width:980px){
-  .chart-row{grid-template-columns:1fr;}
+@media (max-width:980px){.chart-row{grid-template-columns:1fr;}}
+
+/* ---------- overview summary mini tables ---------- */
+.mini-tables{display:flex;flex-direction:column;gap:16px;}
+.mini-table-block h4{font-size:12px;margin:0 0 8px 0;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
+.mini-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.mini-table th{
+  text-align:left;padding:6px 6px;background:var(--bg);color:var(--muted);
+  font-weight:700;font-size:10.5px;text-transform:uppercase;border-bottom:1px solid var(--line);
 }
+.mini-table th.num, .mini-table td.num{text-align:right;}
+.mini-table td{padding:6px 6px;border-bottom:1px solid var(--line);}
+
+/* ---------- trend narrative ---------- */
+.narrative-list{max-height:270px;overflow-y:auto;}
+.narrative-row{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:7px 4px;border-bottom:1px solid var(--line);font-size:12.5px;
+}
+.narrative-row .nr-month{font-weight:600;flex:1;}
+.narrative-row .nr-val{font-size:12.5px;}
+.narrative-row .nr-delta{font-size:11px;min-width:64px;text-align:right;}
+
+/* ---------- highlight card ---------- */
+.highlight-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px;}
+.highlight-item{background:var(--bg);border-radius:10px;padding:12px 14px;}
+.hi-label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;}
+.hi-value{font-size:16px;font-weight:700;}
+.highlight-lists{display:flex;flex-direction:column;gap:10px;font-size:12.5px;line-height:1.6;}
+.highlight-lists strong{font-size:12.5px;}
+@media (max-width:700px){.highlight-grid{grid-template-columns:1fr;}}
 
 /* ---------- table ---------- */
-.table-panel{
-  background:var(--surface);
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-  padding:18px;
-}
-.table-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:12px;
-  flex-wrap:wrap;
-  gap:10px;
-}
+.table-panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;}
+.table-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;}
 .table-head h3{font-size:14px;margin:0;font-weight:700;}
 .table-scroll{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:920px;}
 thead th{
-  text-align:left;
-  padding:9px 10px;
-  background:var(--bg);
-  color:var(--muted);
-  font-weight:700;
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:.02em;
-  cursor:pointer;
-  white-space:nowrap;
-  border-bottom:1px solid var(--line);
+  text-align:left;padding:9px 10px;background:var(--bg);color:var(--muted);
+  font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.02em;
+  cursor:pointer;white-space:nowrap;border-bottom:1px solid var(--line);
 }
 thead th:hover{color:var(--accent);}
 thead th.num, tbody td.num{text-align:right;}
-tbody td{
-  padding:9px 10px;
-  border-bottom:1px solid var(--line);
-  white-space:nowrap;
-}
+tbody td{padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;}
 tbody tr:hover{background:#fafbff;}
-.badge{
-  display:inline-block;
-  padding:2px 8px;
-  border-radius:20px;
-  font-size:11px;
-  font-weight:700;
-  font-family:'JetBrains Mono',monospace;
-}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;}
 .badge.zero{background:var(--good-soft);color:var(--good);}
 .badge.nonzero{background:var(--bad-soft);color:var(--bad);}
-tfoot td{
-  padding:10px;
-  font-weight:700;
-  font-family:'JetBrains Mono',monospace;
-  border-top:2px solid var(--line);
-  background:var(--bg);
-}
-.pagination{
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  gap:8px;
-  margin-top:12px;
-  font-size:12.5px;
-  color:var(--muted);
-}
-.pagination button{
-  border:1px solid var(--line);
-  background:#fff;
-  border-radius:6px;
-  padding:5px 10px;
-  cursor:pointer;
-  font-family:inherit;
-  font-size:12.5px;
-}
+tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;border-top:2px solid var(--line);background:var(--bg);}
+.pagination{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:12px;font-size:12.5px;color:var(--muted);}
+.pagination button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 10px;cursor:pointer;font-family:inherit;font-size:12.5px;}
 .pagination button:disabled{opacity:.4;cursor:default;}
 .pagination button:not(:disabled):hover{background:var(--bg);}
 
-.footer-note{
-  text-align:center;
-  font-size:11.5px;
-  color:var(--muted);
-  margin-top:30px;
-}
+.footer-note{text-align:center;font-size:11.5px;color:var(--muted);margin-top:30px;}
 .loading-overlay{
   position:fixed;inset:0;background:rgba(242,244,249,.9);
   display:flex;align-items:center;justify-content:center;
-  flex-direction:column;gap:10px;z-index:999;
-  font-size:13px;color:var(--muted);
+  flex-direction:column;gap:10px;z-index:999;font-size:13px;color:var(--muted);
 }
-.spinner{
-  width:28px;height:28px;border-radius:50%;
-  border:3px solid var(--line);border-top-color:var(--accent);
-  animation:spin 0.8s linear infinite;
-}
+.spinner{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.error-box{
-  background:var(--bad-soft);color:var(--bad);border:1px solid #f3caca;
-  border-radius:10px;padding:14px 16px;font-size:13px;margin-bottom:18px;
-}
+.error-box{background:var(--bad-soft);color:var(--bad);border:1px solid #f3caca;border-radius:10px;padding:14px 16px;font-size:13px;margin-bottom:18px;}
 </style>
 </head>
 <body>
@@ -437,153 +286,225 @@ tfoot td{
   </div>
 </div>
 
-<div class="wrap">
+<div class="app-shell">
 
-  <div id="errorBox"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <button class="collapse-btn" id="btnCollapse" title="Buka/tutup sidebar">☰</button>
+      <div class="sidebar-brand"><strong>Menu & Filter</strong><span>Kawan Lama Group</span></div>
+    </div>
 
-  <div class="kpi-row">
-    <div class="kpi">
-      <div class="label">Total Unit Asset</div>
-      <div class="value mono" id="kpiUnits">-</div>
-      <div class="sub" id="kpiUnitsSub">unit unik</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Total Baris (Record Bulanan)</div>
-      <div class="value mono" id="kpiRows">-</div>
-      <div class="sub">sesuai filter aktif</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Total DPP (Nilai Sewa)</div>
-      <div class="value mono" id="kpiDpp">-</div>
-      <div class="sub">sebelum potongan downtime</div>
-    </div>
-    <div class="kpi bad">
-      <div class="label">Total Downtime</div>
-      <div class="value mono" id="kpiDowntime">-</div>
-      <div class="sub" id="kpiDowntimePct">-</div>
-    </div>
-    <div class="kpi good">
-      <div class="label">Total DPP Net</div>
-      <div class="value mono" id="kpiDppNet">-</div>
-      <div class="sub">DPP − Downtime</div>
-    </div>
-    <div class="kpi">
-      <div class="label">Rata-rata Usia Armada</div>
-      <div class="value mono" id="kpiUsia">-</div>
-      <div class="sub">tahun</div>
-    </div>
-  </div>
+    <nav class="nav-menu">
+      <button class="nav-item active" data-page="overview"><span class="nav-icon">📊</span><span class="nav-label">Overview</span></button>
+      <button class="nav-item" data-page="trend"><span class="nav-icon">📈</span><span class="nav-label">Trend Tagihan</span></button>
+      <button class="nav-item" data-page="detail"><span class="nav-icon">📋</span><span class="nav-label">Detail & Highlight</span></button>
+    </nav>
 
-  <div class="filterbar">
-    <div class="fgroup">
-      <label>Tahun</label>
-      <div class="msel" id="mselTahun"></div>
+    <div class="sidebar-filters">
+      <div class="sidebar-filters-head">
+        <span>Filter</span>
+        <button class="btn-reset-mini" id="btnReset">Reset Semua</button>
+      </div>
+      <div class="fgroup-v">
+        <label>Tahun</label>
+        <div class="msel" id="mselTahun"></div>
+      </div>
+      <div class="fgroup-v">
+        <label>Bulan</label>
+        <div class="msel" id="mselBulan"></div>
+      </div>
+      <div class="fgroup-v">
+        <label>Site (per BU)</label>
+        <div class="msel" id="mselSite"></div>
+      </div>
+      <div class="fgroup-v">
+        <label>Kategori Site</label>
+        <div class="msel" id="mselKategori"></div>
+      </div>
+      <div class="fgroup-v">
+        <label>Owner</label>
+        <div class="msel" id="mselOwner"></div>
+      </div>
+      <div class="fgroup-v">
+        <label>Type Armada</label>
+        <div class="msel" id="mselArmada"></div>
+      </div>
+      <div class="fgroup-v">
+        <label>Klasifikasi Kendaraan</label>
+        <div class="msel" id="mselJenis"></div>
+      </div>
+      <div class="fgroup-v">
+        <label>Status Downtime</label>
+        <select id="fDowntime">
+          <option value="">Semua</option>
+          <option value="ada">Ada Downtime</option>
+          <option value="tidak">Tanpa Downtime</option>
+        </select>
+      </div>
+      <div class="fgroup-v">
+        <label>Cari NOPOL / Site</label>
+        <input type="text" id="fSearch" placeholder="cth: B9126SCB">
+      </div>
     </div>
-    <div class="fgroup">
-      <label>Bulan</label>
-      <div class="msel" id="mselBulan"></div>
-    </div>
-    <div class="fgroup">
-      <label>Site (per BU)</label>
-      <div class="msel" id="mselSite"></div>
-    </div>
-    <div class="fgroup">
-      <label>Kategori Site</label>
-      <div class="msel" id="mselKategori"></div>
-    </div>
-    <div class="fgroup">
-      <label>Owner</label>
-      <div class="msel" id="mselOwner"></div>
-    </div>
-    <div class="fgroup">
-      <label>Type Armada</label>
-      <div class="msel" id="mselArmada"></div>
-    </div>
-    <div class="fgroup">
-      <label>Klasifikasi Kendaraan</label>
-      <div class="msel" id="mselJenis"></div>
-    </div>
-    <div class="fgroup">
-      <label>Status Downtime</label>
-      <select id="fDowntime">
-        <option value="">Semua</option>
-        <option value="ada">Ada Downtime</option>
-        <option value="tidak">Tanpa Downtime</option>
-      </select>
-    </div>
-    <div class="fgroup search-group">
-      <label>Cari NOPOL / Site</label>
-      <input type="text" id="fSearch" placeholder="cth: B9126SCB atau Kasablanka">
-    </div>
-    <button class="btn-reset" id="btnReset">Reset Filter</button>
-  </div>
+  </aside>
 
-  <div class="chart-row">
-    <div class="panel">
-      <h3>Trend DPP vs DPP Net per Bulan</h3>
-      <p class="hint">Mengikuti filter Site/Kategori/Owner/Armada, tidak mengikuti filter Tahun & Bulan agar trend tetap terlihat</p>
-      <div class="chart-holder"><canvas id="chartTrend"></canvas></div>
-    </div>
-    <div class="panel">
-      <h3>Komposisi DPP per Owner</h3>
-      <p class="hint">MR = milik rental, BU = milik Business Unit, MR CDP = skema CDP</p>
-      <div class="chart-holder"><canvas id="chartOwner"></canvas></div>
-    </div>
-  </div>
+  <main class="main-content">
+    <div id="errorBox"></div>
 
-  <div class="chart-row">
-    <div class="panel">
-      <h3>DPP vs Downtime per BU Site</h3>
-      <p class="hint">Sesuai filter aktif (termasuk filter Bulan)</p>
-      <div class="chart-holder"><canvas id="chartBuSite"></canvas></div>
-    </div>
-    <div class="panel">
-      <h3>Top 10 Unit dengan Downtime Terbesar</h3>
-      <p class="hint">Diakumulasi sesuai filter aktif</p>
-      <div class="chart-holder"><canvas id="chartTopDowntime"></canvas></div>
-    </div>
-  </div>
+    <!-- ============ PAGE 1: OVERVIEW ============ -->
+    <section class="page active" id="page-overview">
+      <h2 class="page-title">Overview</h2>
+      <p class="page-sub">Ringkasan total asset, biaya sewa, dan komposisi kepemilikan armada</p>
 
-  <div class="table-panel">
-    <div class="table-head">
-      <h3>Detail Seluruh Asset</h3>
-      <div class="pagination" id="paginationTop"></div>
-    </div>
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th data-key="NOPOL">Nopol</th>
-            <th data-key="Bulan">Bulan</th>
-            <th data-key="Kategori Site">Kategori Site</th>
-            <th data-key="Site Name">Site Name</th>
-            <th data-key="BU Site">BU Site</th>
-            <th data-key="Type Armada">Type Armada</th>
-            <th data-key="Klasifikasi Kendaraan">Klasifikasi</th>
-            <th data-key="Usia (Year)" class="num">Usia</th>
-            <th data-key="Owner">Owner</th>
-            <th data-key="DPP" class="num">DPP</th>
-            <th data-key="Nominal Downtime" class="num">Downtime</th>
-            <th data-key="DPP Net (setelah downtime)" class="num">DPP Net</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-        <tfoot>
-          <tr>
-            <td colspan="9">Total (halaman ini tidak dihitung — total = seluruh data ter-filter)</td>
-            <td class="num" id="footDpp">-</td>
-            <td class="num" id="footDowntime">-</td>
-            <td class="num" id="footDppNet">-</td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-    <div class="pagination" id="paginationBottom"></div>
-  </div>
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="label">Total Unit Asset</div>
+          <div class="value mono" id="kpiUnits">-</div>
+          <div class="sub" id="kpiUnitsSub">unit unik</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Total Baris (Record Bulanan)</div>
+          <div class="value mono" id="kpiRows">-</div>
+          <div class="sub">sesuai filter aktif</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Total DPP (Nilai Sewa)</div>
+          <div class="value mono" id="kpiDpp">-</div>
+          <div class="sub">sebelum potongan downtime</div>
+        </div>
+        <div class="kpi bad">
+          <div class="label">Total Downtime</div>
+          <div class="value mono" id="kpiDowntime">-</div>
+          <div class="sub" id="kpiDowntimePct">-</div>
+        </div>
+        <div class="kpi good">
+          <div class="label">Total DPP Net</div>
+          <div class="value mono" id="kpiDppNet">-</div>
+          <div class="sub">DPP − Downtime</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Rata-rata Usia Armada</div>
+          <div class="value mono" id="kpiUsia">-</div>
+          <div class="sub">tahun</div>
+        </div>
+      </div>
 
-  <div class="footer-note">
-    Data ditarik otomatis dari CSV di GitHub. Update data cukup replace file CSV di repo — dashboard ini tidak perlu diubah.
-  </div>
+      <div class="chart-row">
+        <div class="panel">
+          <h3>Komposisi DPP per Owner</h3>
+          <p class="hint">MR = milik rental, BU = milik Business Unit, MR CDP = skema CDP</p>
+          <div class="chart-holder"><canvas id="chartOwner"></canvas></div>
+        </div>
+        <div class="panel">
+          <h3>Perbandingan Unit Antar Periode</h3>
+          <p class="hint" id="overviewPeriodLabel">-</p>
+          <div class="mini-tables">
+            <div class="mini-table-block">
+              <h4>Unit per BU Site</h4>
+              <table class="mini-table">
+                <thead><tr><th>BU Site</th><th class="num">Bulan Ini</th><th class="num">Bulan Lalu</th><th class="num">Delta</th></tr></thead>
+                <tbody id="tblBuSiteBody"></tbody>
+              </table>
+            </div>
+            <div class="mini-table-block">
+              <h4>Unit per Kategori Site</h4>
+              <table class="mini-table">
+                <thead><tr><th>Kategori</th><th class="num">Bulan Ini</th><th class="num">Bulan Lalu</th><th class="num">Delta</th></tr></thead>
+                <tbody id="tblKategoriBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PAGE 2: TREND TAGIHAN ============ -->
+    <section class="page" id="page-trend">
+      <h2 class="page-title">Trend Tagihan</h2>
+      <p class="page-sub">Pergerakan biaya sewa (DPP) bulanan dan perbandingan antar BU Site</p>
+
+      <div class="chart-row">
+        <div class="panel">
+          <h3>Trend DPP vs DPP Net per Bulan</h3>
+          <p class="hint">Mengikuti filter Site/Kategori/Owner/Armada, tidak mengikuti filter Tahun & Bulan agar trend tetap terlihat</p>
+          <div class="chart-holder"><canvas id="chartTrend"></canvas></div>
+        </div>
+        <div class="panel">
+          <h3>DPP vs Downtime per BU Site</h3>
+          <p class="hint">Sesuai filter aktif (termasuk filter Bulan)</p>
+          <div class="chart-holder"><canvas id="chartBuSite"></canvas></div>
+        </div>
+      </div>
+
+      <div class="chart-row full">
+        <div class="panel">
+          <h3>Ringkasan Bulanan</h3>
+          <p class="hint">Total DPP tiap bulan beserta perubahan (%) dibanding bulan sebelumnya</p>
+          <div class="narrative-list" id="trendNarrative"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PAGE 3: DETAIL & HIGHLIGHT ============ -->
+    <section class="page" id="page-detail">
+      <h2 class="page-title">Detail & Highlight</h2>
+      <p class="page-sub">Sorotan perubahan periode terakhir dan detail seluruh asset</p>
+
+      <div class="chart-row">
+        <div class="panel">
+          <h3>Highlight Periode Terakhir</h3>
+          <p class="hint">Perbandingan otomatis 2 bulan terakhir yang tersedia (mengikuti filter selain Tahun/Bulan)</p>
+          <div id="highlightBox"><p class="hint">Memuat...</p></div>
+        </div>
+        <div class="panel">
+          <h3>Top 10 Unit dengan Downtime Terbesar</h3>
+          <p class="hint">Diakumulasi sesuai filter aktif</p>
+          <div class="chart-holder"><canvas id="chartTopDowntime"></canvas></div>
+        </div>
+      </div>
+
+      <div class="table-panel">
+        <div class="table-head">
+          <h3>Detail Seluruh Asset</h3>
+          <div class="pagination" id="paginationTop"></div>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th data-key="NOPOL">Nopol</th>
+                <th data-key="Bulan">Bulan</th>
+                <th data-key="Kategori Site">Kategori Site</th>
+                <th data-key="Site Name">Site Name</th>
+                <th data-key="BU Site">BU Site</th>
+                <th data-key="Type Armada">Type Armada</th>
+                <th data-key="Klasifikasi Kendaraan">Klasifikasi</th>
+                <th data-key="Usia (Year)" class="num">Usia</th>
+                <th data-key="Owner">Owner</th>
+                <th data-key="DPP" class="num">DPP</th>
+                <th data-key="Nominal Downtime" class="num">Downtime</th>
+                <th data-key="DPP Net (setelah downtime)" class="num">DPP Net</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+            <tfoot>
+              <tr>
+                <td colspan="9">Total (halaman ini tidak dihitung — total = seluruh data ter-filter)</td>
+                <td class="num" id="footDpp">-</td>
+                <td class="num" id="footDowntime">-</td>
+                <td class="num" id="footDppNet">-</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div class="pagination" id="paginationBottom"></div>
+      </div>
+    </section>
+
+    <div class="footer-note">
+      Data ditarik otomatis dari CSV di GitHub. Update data cukup replace file CSV di repo — dashboard ini tidak perlu diubah.
+    </div>
+  </main>
 
 </div>
 
@@ -618,6 +539,20 @@ const PAGE_SIZE = 50;
 
 let chartTrend, chartOwner, chartBuSite, chartTopDowntime;
 
+/* ---------------- navigation & sidebar collapse ---------------- */
+document.querySelectorAll('.nav-item').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+btn.dataset.page).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active', b===btn));
+  });
+});
+document.getElementById('btnCollapse').addEventListener('click', ()=>{
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  closeAllPanels(null);
+});
+
+/* ---------------- data loading ---------------- */
 function showError(msg){
   document.getElementById('loading').style.display='none';
   document.getElementById('errorBox').innerHTML =
@@ -655,10 +590,22 @@ function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+/* ---------------- multi-select dropdown (fixed-position panel) ---------------- */
 function closeAllPanels(except){
   document.querySelectorAll('.msel-panel').forEach(p=>{ if(p!==except) p.classList.add('hidden'); });
 }
 document.addEventListener('click', ()=>closeAllPanels(null));
+window.addEventListener('scroll', ()=>closeAllPanels(null), true);
+window.addEventListener('resize', ()=>closeAllPanels(null));
+
+function positionPanel(btn, panel){
+  const rect = btn.getBoundingClientRect();
+  panel.style.top = Math.min(rect.bottom+6, window.innerHeight-40) + 'px';
+  let left = rect.left;
+  const maxLeft = window.innerWidth - 300;
+  if(left>maxLeft) left = Math.max(8, maxLeft);
+  panel.style.left = left + 'px';
+}
 
 const filterState = {
   tahun: new Set(),
@@ -690,6 +637,7 @@ function buildMultiSelect(containerId, placeholderText, items, selectedSet, onCh
     </div>`;
   const btn = container.querySelector('.msel-btn');
   const panel = container.querySelector('.msel-panel');
+  document.body.appendChild(panel);
 
   function updateLabel(){
     if(selectedSet.size===0 || selectedSet.size===items.length){
@@ -705,6 +653,7 @@ function buildMultiSelect(containerId, placeholderText, items, selectedSet, onCh
     e.stopPropagation();
     const willOpen = panel.classList.contains('hidden');
     closeAllPanels(panel);
+    if(willOpen) positionPanel(btn, panel);
     panel.classList.toggle('hidden', !willOpen);
   });
   panel.addEventListener('click', e=>e.stopPropagation());
@@ -762,6 +711,7 @@ function buildSiteTree(containerId, groupedMap, selectedSet, onChange){
 
   const btn = container.querySelector('.msel-btn');
   const panel = container.querySelector('.msel-panel');
+  document.body.appendChild(panel);
   const searchInput = panel.querySelector('.tree-search');
 
   searchInput.addEventListener('input', () => {
@@ -808,6 +758,7 @@ function buildSiteTree(containerId, groupedMap, selectedSet, onChange){
     e.stopPropagation();
     const willOpen = panel.classList.contains('hidden');
     closeAllPanels(panel);
+    if(willOpen) positionPanel(btn, panel);
     panel.classList.toggle('hidden', !willOpen);
   });
   panel.addEventListener('click', e=>e.stopPropagation());
@@ -962,10 +913,17 @@ function getFiltered(opts={}){
 
 function applyFilters(){
   const filtered = getFiltered();
+  const dateIgnored = getFiltered({ignoreBulan:true});
+
   updateKpis(filtered);
-  updateChartTrend(getFiltered({ignoreBulan:true}));
   updateChartOwner(filtered);
+  updateOverviewSummary(dateIgnored);
+
+  updateChartTrend(dateIgnored);
   updateChartBuSite(filtered);
+  updateTrendNarrative(dateIgnored);
+
+  updateHighlight(dateIgnored);
   updateChartTopDowntime(filtered);
   renderTable(filtered);
 }
@@ -996,6 +954,134 @@ function groupSum(rows, keyFn, valFn){
     map.set(k, (map.get(k)||0) + valFn(r));
   });
   return map;
+}
+
+function getLatestTwoPeriods(rows){
+  const list = Array.from(new Set(rows.map(r=>r.Bulan))).sort((a,b)=>bulanSortKey(a)-bulanSortKey(b));
+  const curr = list.length ? list[list.length-1] : null;
+  const prev = list.length>1 ? list[list.length-2] : null;
+  return {curr, prev};
+}
+
+function unitCountByKey(rows, keyFn, bulan){
+  const result = new Map();
+  if(!bulan) return result;
+  const subset = rows.filter(r=>r.Bulan===bulan);
+  const tmp = new Map();
+  subset.forEach(r=>{
+    const k = keyFn(r);
+    if(!k) return;
+    if(!tmp.has(k)) tmp.set(k, new Set());
+    tmp.get(k).add(r.NOPOL);
+  });
+  tmp.forEach((set,k)=>result.set(k, set.size));
+  return result;
+}
+
+function renderMiniTable(tbodyId, currMap, prevMap){
+  const keys = uniqueSorted(Array.from(new Set([...currMap.keys(), ...prevMap.keys()])));
+  const tbody = document.getElementById(tbodyId);
+  if(keys.length===0){
+    tbody.innerHTML = '<tr><td colspan="4" class="hint">Tidak ada data</td></tr>';
+    return;
+  }
+  tbody.innerHTML = keys.map(k=>{
+    const c = currMap.get(k)||0;
+    const p = prevMap.get(k)||0;
+    const delta = c-p;
+    const deltaStr = delta===0 ? '0' : (delta>0?'+':'') + delta;
+    const color = delta>0 ? 'var(--good)' : (delta<0 ? 'var(--bad)' : 'var(--muted)');
+    return `<tr><td>${k}</td><td class="num mono">${c}</td><td class="num mono">${p}</td><td class="num mono" style="color:${color};">${deltaStr}</td></tr>`;
+  }).join('');
+}
+
+function updateOverviewSummary(rows){
+  const {curr, prev} = getLatestTwoPeriods(rows);
+  const label = document.getElementById('overviewPeriodLabel');
+  label.textContent = curr ? (prev ? `Bulan Ini: ${curr}  •  Bulan Lalu: ${prev}` : `Hanya tersedia data ${curr}`) : 'Tidak ada data';
+
+  const buCurr = unitCountByKey(rows, r=>r['BU Site'], curr);
+  const buPrev = unitCountByKey(rows, r=>r['BU Site'], prev);
+  const katCurr = unitCountByKey(rows, r=>r['Kategori Site'], curr);
+  const katPrev = unitCountByKey(rows, r=>r['Kategori Site'], prev);
+
+  renderMiniTable('tblBuSiteBody', buCurr, buPrev);
+  renderMiniTable('tblKategoriBody', katCurr, katPrev);
+}
+
+function updateTrendNarrative(rows){
+  const dppMap = groupSum(rows, r=>r.Bulan, r=>r.DPP||0);
+  const labels = Array.from(new Set(rows.map(r=>r.Bulan))).sort((a,b)=>bulanSortKey(a)-bulanSortKey(b));
+  const box = document.getElementById('trendNarrative');
+  if(labels.length===0){
+    box.innerHTML = '<p class="hint">Tidak ada data</p>';
+    return;
+  }
+  let html = '';
+  let prevVal = null;
+  labels.slice().reverse().forEach(l=>{}); // no-op guard
+  let running = null;
+  labels.forEach(l=>{
+    const val = dppMap.get(l)||0;
+    let deltaHtml = '<span class="nr-delta hint">-</span>';
+    if(running!==null && running!==0){
+      const pct = ((val-running)/running*100);
+      const sign = pct>=0?'+':'';
+      const color = pct>=0 ? 'var(--bad)' : 'var(--good)';
+      deltaHtml = `<span class="nr-delta mono" style="color:${color};">${sign}${pct.toFixed(2)}%</span>`;
+    }
+    html += `<div class="narrative-row"><span class="nr-month">${l}</span><span class="nr-val mono">${fmtRp(val)}</span>${deltaHtml}</div>`;
+    running = val;
+  });
+  box.innerHTML = html;
+}
+
+function updateHighlight(rows){
+  const box = document.getElementById('highlightBox');
+  const {curr, prev} = getLatestTwoPeriods(rows);
+  if(!curr){
+    box.innerHTML = '<p class="hint">Tidak ada data.</p>';
+    return;
+  }
+  if(!prev){
+    box.innerHTML = `<p class="hint">Baru ada data untuk 1 periode (${curr}), belum bisa dibandingkan.</p>`;
+    return;
+  }
+  const currRows = rows.filter(r=>r.Bulan===curr);
+  const prevRows = rows.filter(r=>r.Bulan===prev);
+  const currSet = new Set(currRows.map(r=>r.NOPOL));
+  const prevSet = new Set(prevRows.map(r=>r.NOPOL));
+  const added = Array.from(currSet).filter(n=>!prevSet.has(n)).sort();
+  const removed = Array.from(prevSet).filter(n=>!currSet.has(n)).sort();
+  const currDpp = currRows.reduce((s,r)=>s+(r.DPP||0),0);
+  const prevDpp = prevRows.reduce((s,r)=>s+(r.DPP||0),0);
+  const deltaDpp = currDpp - prevDpp;
+  const pctDpp = prevDpp>0 ? (deltaDpp/prevDpp*100) : 0;
+  const dppColor = deltaDpp>=0 ? 'var(--bad)' : 'var(--good)';
+
+  function listPreview(arr, max=8){
+    if(arr.length===0) return '<span class="hint">Tidak ada</span>';
+    const shown = arr.slice(0,max).join(', ');
+    const more = arr.length>max ? ` <span class="hint">+${arr.length-max} lainnya</span>` : '';
+    return `<span class="mono">${escapeHtml(shown)}</span>${more}`;
+  }
+
+  box.innerHTML = `
+    <div class="highlight-grid">
+      <div class="highlight-item">
+        <div class="hi-label">Total Unit (${curr})</div>
+        <div class="hi-value mono">${currSet.size} <span class="hint" style="font-size:11px;font-weight:400;">(${prevSet.size} di ${prev})</span></div>
+      </div>
+      <div class="highlight-item">
+        <div class="hi-label">Perubahan DPP</div>
+        <div class="hi-value mono" style="color:${dppColor};">${deltaDpp>=0?'+':''}${fmtRp(deltaDpp)} (${pctDpp>=0?'+':''}${pctDpp.toFixed(2)}%)</div>
+      </div>
+    </div>
+    <div class="highlight-lists">
+      <div><strong>🟢 Unit Baru (${added.length})</strong> muncul di ${curr}:<br>${listPreview(added)}</div>
+      <div><strong>🔴 Unit Hilang (${removed.length})</strong> ada di ${prev} tapi tidak di ${curr}:<br>${listPreview(removed)}</div>
+    </div>
+  `;
 }
 
 function updateChartTrend(rows){
