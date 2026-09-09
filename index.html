@@ -257,6 +257,44 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
 .pagination button:not(:disabled):hover{background:var(--bg);}
 
 .footer-note{text-align:center;font-size:11.5px;color:var(--muted);margin-top:30px;}
+
+/* ---------- slide report page ---------- */
+.slide-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.slide-tab-btn{
+  border:1px solid var(--line);background:#fff;padding:7px 14px;
+  border-radius:20px;font-size:12.5px;font-weight:700;cursor:pointer;
+  color:var(--muted);font-family:inherit;
+}
+.slide-tab-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.slide-sub{display:none;}
+.slide-sub.active{display:block;}
+.slide-block{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;}
+.slide-block-title{font-size:15px;font-weight:800;margin:0 0 4px;}
+.slide-block-sub{font-size:12px;color:var(--muted);margin:0 0 18px;}
+.slide1-grid{display:grid;grid-template-columns:200px 1fr;gap:20px;margin-bottom:20px;}
+.slide1-hero{
+  background:linear-gradient(160deg,var(--navy),var(--navy-soft));
+  color:#fff;border-radius:14px;padding:20px;
+  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+}
+.slide1-hero .big-num{font-size:38px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1;}
+.slide1-hero .big-label{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#b9c4e6;margin-top:8px;}
+.slide1-hero .big-sub{font-size:11px;color:#b9c4e6;margin-top:10px;}
+.bu-bars{display:flex;flex-direction:column;gap:10px;justify-content:center;}
+.bu-bar-row{display:flex;align-items:center;gap:10px;}
+.bu-bar-name{width:46px;font-size:12px;font-weight:700;flex-shrink:0;}
+.bu-bar-track{flex:1;background:var(--bg);border-radius:6px;height:18px;position:relative;overflow:hidden;}
+.bu-bar-fill{height:100%;background:var(--accent);border-radius:6px;}
+.bu-bar-val{width:100px;text-align:right;font-size:11.5px;font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+.slide1-bottom{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:start;}
+.slide2-summary-line{
+  margin-top:14px;padding:10px 14px;background:var(--accent-soft);color:var(--accent);
+  border-radius:10px;font-size:12.5px;font-weight:600;
+}
+.slide3-sub-note{font-size:11px;color:var(--muted);margin-bottom:14px;}
+@media (max-width:900px){
+  .slide1-grid, .slide1-bottom{grid-template-columns:1fr;}
+}
 .loading-overlay{
   position:fixed;inset:0;background:rgba(242,244,249,.9);
   display:flex;align-items:center;justify-content:center;
@@ -298,6 +336,7 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
       <button class="nav-item active" data-page="overview"><span class="nav-icon">📊</span><span class="nav-label">Overview</span></button>
       <button class="nav-item" data-page="trend"><span class="nav-icon">📈</span><span class="nav-label">Trend Tagihan</span></button>
       <button class="nav-item" data-page="detail"><span class="nav-icon">📋</span><span class="nav-label">Detail & Highlight</span></button>
+      <button class="nav-item" data-page="slide"><span class="nav-icon">🖼️</span><span class="nav-label">Laporan Slide</span></button>
     </nav>
 
     <div class="sidebar-filters">
@@ -501,7 +540,64 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
       </div>
     </section>
 
-    <div class="footer-note">
+    <!-- ============ PAGE 4: LAPORAN SLIDE ============ -->
+    <section class="page" id="page-slide">
+      <h2 class="page-title">Laporan Slide</h2>
+      <p class="page-sub">Ringkasan otomatis mengikuti format laporan slide bulanan (mengikuti filter selain Tahun/Bulan)</p>
+
+      <div class="slide-tabs">
+        <button class="slide-tab-btn active" data-slide="1">Slide 1 — Overview Unit</button>
+        <button class="slide-tab-btn" data-slide="2">Slide 2 — Tagihan</button>
+        <button class="slide-tab-btn" data-slide="3">Slide 3 — Highlight</button>
+      </div>
+
+      <div class="slide-sub active" id="slide-sub-1">
+        <div class="slide-block">
+          <div class="slide-block-title">Total Assets Armada Nasional</div>
+          <div class="slide-block-sub" id="slide1Sub">-</div>
+          <div class="slide1-grid">
+            <div class="slide1-hero">
+              <div class="big-num mono" id="slide1BigNum">-</div>
+              <div class="big-label">Total Unit Armada</div>
+              <div class="big-sub" id="slide1BigSub">-</div>
+            </div>
+            <div class="bu-bars" id="slide1BuBars"></div>
+          </div>
+          <div class="slide1-bottom">
+            <div>
+              <h4 style="font-size:12px;text-transform:uppercase;color:var(--muted);margin:0 0 8px;">Unit per Kategori Site</h4>
+              <table class="mini-table">
+                <thead><tr><th>Site</th><th class="num" id="slide1ColCurr">Bulan Ini</th><th class="num" id="slide1ColPrev">Bulan Lalu</th></tr></thead>
+                <tbody id="slide1KategoriBody"></tbody>
+              </table>
+            </div>
+            <div>
+              <h4 style="font-size:12px;text-transform:uppercase;color:var(--muted);margin:0 0 8px;">Kepemilikan Armada</h4>
+              <div class="chart-holder" style="height:200px;"><canvas id="chartOwnerSlide"></canvas></div>
+              <div class="hint" style="text-align:center;margin-top:8px;" id="slide1DonutCaption">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-sub" id="slide-sub-2">
+        <div class="slide-block">
+          <div class="slide-block-title">Tagihan Armada SCM</div>
+          <div class="slide-block-sub" id="slide2Sub">-</div>
+          <div class="chart-holder" style="height:260px;"><canvas id="chartTrendSlide"></canvas></div>
+          <div class="narrative-list" id="slideNarrative" style="margin-top:14px;"></div>
+          <div class="slide2-summary-line" id="slide2Summary">-</div>
+        </div>
+      </div>
+
+      <div class="slide-sub" id="slide-sub-3">
+        <div class="slide-block">
+          <div class="slide-block-title">Highlight Perubahan Terbaru</div>
+          <div class="slide3-sub-note" id="slide3Sub">-</div>
+          <div id="slideHighlightBox"><p class="hint">Memuat...</p></div>
+        </div>
+      </div>
+    </section>
       Data ditarik otomatis dari CSV di GitHub. Update data cukup replace file CSV di repo — dashboard ini tidak perlu diubah.
     </div>
   </main>
@@ -537,7 +633,7 @@ let sortState = {key:'Bulan', dir:'desc'};
 let page = 1;
 const PAGE_SIZE = 50;
 
-let chartTrend, chartOwner, chartBuSite, chartTopDowntime;
+let chartTrend, chartOwner, chartBuSite, chartTopDowntime, chartTrendSlide, chartOwnerSlide;
 
 /* ---------------- navigation & sidebar collapse ---------------- */
 document.querySelectorAll('.nav-item').forEach(btn=>{
@@ -545,6 +641,13 @@ document.querySelectorAll('.nav-item').forEach(btn=>{
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.getElementById('page-'+btn.dataset.page).classList.add('active');
     document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active', b===btn));
+  });
+});
+document.querySelectorAll('.slide-tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.slide-sub').forEach(s=>s.classList.remove('active'));
+    document.getElementById('slide-sub-'+btn.dataset.slide).classList.add('active');
+    document.querySelectorAll('.slide-tab-btn').forEach(b=>b.classList.toggle('active', b===btn));
   });
 });
 document.getElementById('btnCollapse').addEventListener('click', ()=>{
@@ -926,6 +1029,8 @@ function applyFilters(){
   updateHighlight(dateIgnored);
   updateChartTopDowntime(filtered);
   renderTable(filtered);
+
+  updateSlideReport(dateIgnored);
 }
 
 function updateKpis(rows){
@@ -1009,10 +1114,11 @@ function updateOverviewSummary(rows){
   renderMiniTable('tblKategoriBody', katCurr, katPrev);
 }
 
-function updateTrendNarrative(rows){
+function updateTrendNarrative(rows, containerId){
+  containerId = containerId || 'trendNarrative';
   const dppMap = groupSum(rows, r=>r.Bulan, r=>r.DPP||0);
   const labels = Array.from(new Set(rows.map(r=>r.Bulan))).sort((a,b)=>bulanSortKey(a)-bulanSortKey(b));
-  const box = document.getElementById('trendNarrative');
+  const box = document.getElementById(containerId);
   if(labels.length===0){
     box.innerHTML = '<p class="hint">Tidak ada data</p>';
     return;
@@ -1036,8 +1142,9 @@ function updateTrendNarrative(rows){
   box.innerHTML = html;
 }
 
-function updateHighlight(rows){
-  const box = document.getElementById('highlightBox');
+function updateHighlight(rows, containerId){
+  containerId = containerId || 'highlightBox';
+  const box = document.getElementById(containerId);
   const {curr, prev} = getLatestTwoPeriods(rows);
   if(!curr){
     box.innerHTML = '<p class="hint">Tidak ada data.</p>';
@@ -1182,6 +1289,124 @@ function updateChartTopDowntime(rows){
       }
     }
   });
+}
+
+function renderOwnershipDonutUnits(rows, bulan){
+  const subset = rows.filter(r=>r.Bulan===bulan);
+  const seen = new Map();
+  subset.forEach(r=>{ if(!seen.has(r.NOPOL)) seen.set(r.NOPOL, r.Owner); });
+  const map = new Map();
+  seen.forEach(owner=>{ map.set(owner, (map.get(owner)||0)+1); });
+  const labels = Array.from(map.keys());
+  const data = labels.map(l=>map.get(l));
+  const colors = ['#2f6fed','#c98a1c','#1a9b6c','#d64545'];
+
+  const ctx = document.getElementById('chartOwnerSlide');
+  if(chartOwnerSlide) chartOwnerSlide.destroy();
+  chartOwnerSlide = new Chart(ctx, {
+    type:'doughnut',
+    data:{labels, datasets:[{data, backgroundColor:colors, borderWidth:2, borderColor:'#fff'}]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}},
+        tooltip:{callbacks:{label:(c)=>c.label+': '+c.raw+' unit'}}}
+    }
+  });
+}
+
+function renderChartTrendSlide(rows){
+  const dppMap = groupSum(rows, r=>r.Bulan, r=>r.DPP||0);
+  const labels = Array.from(new Set(rows.map(r=>r.Bulan))).sort((a,b)=>bulanSortKey(a)-bulanSortKey(b));
+  const dppData = labels.map(l=>dppMap.get(l)||0);
+
+  const ctx = document.getElementById('chartTrendSlide');
+  if(chartTrendSlide) chartTrendSlide.destroy();
+  chartTrendSlide = new Chart(ctx, {
+    type:'bar',
+    data:{labels, datasets:[{label:'DPP', data:dppData, backgroundColor:'#2f6fed', borderRadius:4}]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{ticks:{callback:v=>(v/1e6).toFixed(0)+'jt', font:{size:10}}, grid:{color:'#eef1f7'}},
+        x:{ticks:{font:{size:9}}, grid:{display:false}}
+      }
+    }
+  });
+}
+
+function renderSlide1(rows){
+  const {curr, prev} = getLatestTwoPeriods(rows);
+  document.getElementById('slide1Sub').textContent = curr ? `Active On-Hand · ${curr}` : '-';
+
+  const currRows = rows.filter(r=>r.Bulan===curr);
+  const prevRows = rows.filter(r=>r.Bulan===prev);
+  const currTotal = new Set(currRows.map(r=>r.NOPOL)).size;
+  const prevTotal = new Set(prevRows.map(r=>r.NOPOL)).size;
+  document.getElementById('slide1BigNum').textContent = fmtNum(currTotal);
+  document.getElementById('slide1BigSub').textContent = prev ? `${prevTotal} unit di ${prev}` : '';
+
+  const buCurr = unitCountByKey(rows, r=>r['BU Site'], curr);
+  const buList = Array.from(buCurr.entries()).sort((a,b)=>b[1]-a[1]);
+  const maxVal = buList.length ? buList[0][1] : 1;
+  document.getElementById('slide1BuBars').innerHTML = buList.length ? buList.map(([bu,count])=>{
+    const pct = currTotal>0 ? (count/currTotal*100) : 0;
+    const widthPct = maxVal>0 ? (count/maxVal*100) : 0;
+    return `<div class="bu-bar-row">
+      <div class="bu-bar-name">${escapeHtml(bu)}</div>
+      <div class="bu-bar-track"><div class="bu-bar-fill" style="width:${widthPct}%;"></div></div>
+      <div class="bu-bar-val mono">${count} (${pct.toFixed(1)}%)</div>
+    </div>`;
+  }).join('') : '<p class="hint">Tidak ada data</p>';
+
+  document.getElementById('slide1ColCurr').textContent = curr || 'Bulan Ini';
+  document.getElementById('slide1ColPrev').textContent = prev || 'Bulan Lalu';
+  const katCurr = unitCountByKey(rows, r=>r['Kategori Site'], curr);
+  const katPrev = unitCountByKey(rows, r=>r['Kategori Site'], prev);
+  const katKeys = uniqueSorted(Array.from(new Set([...katCurr.keys(), ...katPrev.keys()])));
+  let totalC=0, totalP=0;
+  let rowsHtml = katKeys.map(k=>{
+    const c = katCurr.get(k)||0; const p = katPrev.get(k)||0;
+    totalC+=c; totalP+=p;
+    return `<tr><td>${k}</td><td class="num mono">${c}</td><td class="num mono">${p}</td></tr>`;
+  }).join('');
+  rowsHtml += `<tr style="font-weight:700;"><td>Grand Total</td><td class="num mono">${totalC}</td><td class="num mono">${totalP}</td></tr>`;
+  document.getElementById('slide1KategoriBody').innerHTML = katKeys.length ? rowsHtml : '<tr><td colspan="3" class="hint">Tidak ada data</td></tr>';
+
+  renderOwnershipDonutUnits(rows, curr);
+  const siteCount = new Set(currRows.map(r=>r['Site Name'])).size;
+  const buCount = new Set(currRows.map(r=>r['BU Site'])).size;
+  document.getElementById('slide1DonutCaption').textContent = curr ? `${siteCount} Sites · ${buCount} BU` : '-';
+}
+
+function renderSlide2(rows){
+  const bulanList = Array.from(new Set(rows.map(r=>r.Bulan))).sort((a,b)=>bulanSortKey(a)-bulanSortKey(b));
+  const first = bulanList[0], last = bulanList[bulanList.length-1];
+  document.getElementById('slide2Sub').textContent = (first && last) ? `Periode ${first} s/d ${last}` : '-';
+  renderChartTrendSlide(rows);
+  updateTrendNarrative(rows, 'slideNarrative');
+
+  const dppMap = groupSum(rows, r=>r.Bulan, r=>r.DPP||0);
+  const firstVal = dppMap.get(first)||0;
+  const lastVal = dppMap.get(last)||0;
+  const delta = lastVal-firstVal;
+  const pct = firstVal>0 ? (delta/firstVal*100) : 0;
+  const dir = delta>=0 ? 'kenaikan' : 'penurunan';
+  document.getElementById('slide2Summary').textContent = bulanList.length>1
+    ? `Secara keseluruhan terjadi ${dir} ${fmtRp(Math.abs(delta))} (${pct>=0?'+':''}${pct.toFixed(2)}%) dibandingkan ${first}`
+    : 'Data belum cukup untuk melihat tren (hanya 1 bulan tersedia)';
+}
+
+function renderSlide3(rows){
+  const {curr, prev} = getLatestTwoPeriods(rows);
+  document.getElementById('slide3Sub').textContent = (curr && prev) ? `Periode ${curr} dibandingkan ${prev}` : '-';
+  updateHighlight(rows, 'slideHighlightBox');
+}
+
+function updateSlideReport(rows){
+  renderSlide1(rows);
+  renderSlide2(rows);
+  renderSlide3(rows);
 }
 
 function sortRows(rows){
