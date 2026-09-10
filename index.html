@@ -1335,9 +1335,31 @@ function renderChartTrendSlide(rows){
   });
 }
 
+const TRUCKING_ARMADA = ['TRACTOR HEAD','FUSO','CONT-40'];
+
+function classifySiteGroup(row){
+  const kat = row['Kategori Site'];
+  const site = String(row['Site Name']||'').toUpperCase();
+  const bu = row['BU Site'];
+  const armada = row['Type Armada'];
+
+  if(kat==='NDC' && site.includes('JABABEKA')){
+    return TRUCKING_ARMADA.includes(armada) ? 'Inbound Trucking' : 'NDC Jababeka';
+  }
+  if(kat==='NDC' && site.includes('CIKUPA')) return 'NDC Cikupa';
+  if(kat==='NDC' && site.includes('SIDOARJO')) return 'NDC Sidoarjo';
+  if(kat==='HUB') return 'HUB ' + (bu||'Lainnya');
+  if(kat==='SDC') return 'SDC';
+  if(kat==='RDC' && site.includes('TAMORA')) return 'RDC Tamora';
+  if(kat==='RDC' && site.includes('TALLO')) return 'RDC Tallo';
+  if(kat==='RDC') return 'RDC Lainnya';
+  if(kat==='NDC') return 'NDC Lainnya';
+  return kat || 'Lainnya';
+}
+
 function renderSlide1(rows){
   const {curr, prev} = getLatestTwoPeriods(rows);
-  document.getElementById('slide1Sub').textContent = curr ? `Active On-Hand · ${curr}` : '-';
+  document.getElementById('slide1Sub').textContent = curr ? `Active On-Hand · ${curr} · Owner: MR` : '-';
 
   const currRows = rows.filter(r=>r.Bulan===curr);
   const prevRows = rows.filter(r=>r.Bulan===prev);
@@ -1361,8 +1383,8 @@ function renderSlide1(rows){
 
   document.getElementById('slide1ColCurr').textContent = curr || 'Bulan Ini';
   document.getElementById('slide1ColPrev').textContent = prev || 'Bulan Lalu';
-  const katCurr = unitCountByKey(rows, r=>r['Kategori Site'], curr);
-  const katPrev = unitCountByKey(rows, r=>r['Kategori Site'], prev);
+  const katCurr = unitCountByKey(rows, classifySiteGroup, curr);
+  const katPrev = unitCountByKey(rows, classifySiteGroup, prev);
   const katKeys = uniqueSorted(Array.from(new Set([...katCurr.keys(), ...katPrev.keys()])));
   let totalC=0, totalP=0;
   let rowsHtml = katKeys.map(k=>{
@@ -1399,14 +1421,15 @@ function renderSlide2(rows){
 
 function renderSlide3(rows){
   const {curr, prev} = getLatestTwoPeriods(rows);
-  document.getElementById('slide3Sub').textContent = (curr && prev) ? `Periode ${curr} dibandingkan ${prev}` : '-';
+  document.getElementById('slide3Sub').textContent = (curr && prev) ? `Owner: MR · Periode ${curr} dibandingkan ${prev}` : '-';
   updateHighlight(rows, 'slideHighlightBox');
 }
 
 function updateSlideReport(rows){
-  renderSlide1(rows);
+  const mrRows = rows.filter(r=>r.Owner==='MR');
+  renderSlide1(mrRows);
   renderSlide2(rows);
-  renderSlide3(rows);
+  renderSlide3(mrRows);
 }
 
 function sortRows(rows){
