@@ -230,6 +230,13 @@ body{
 .hi-value{font-size:16px;font-weight:700;}
 .highlight-lists{display:flex;flex-direction:column;gap:10px;font-size:12.5px;line-height:1.6;}
 .highlight-lists strong{font-size:12.5px;}
+.hl-more-btn{
+  border:none;background:var(--accent-soft);color:var(--accent);
+  font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;
+  cursor:pointer;font-family:inherit;
+}
+.hl-more-btn:hover{opacity:.8;}
+.hl-more-content.hidden{display:none;}
 @media (max-width:700px){.highlight-grid{grid-template-columns:1fr;}}
 
 /* ---------- table ---------- */
@@ -1166,11 +1173,18 @@ function updateHighlight(rows, containerId){
   const pctDpp = prevDpp>0 ? (deltaDpp/prevDpp*100) : 0;
   const dppColor = deltaDpp>=0 ? 'var(--bad)' : 'var(--good)';
 
-  function listPreview(arr, max=8){
+  const currSiteMap = new Map(currRows.map(r=>[r.NOPOL, r['Site Name']]));
+  const prevSiteMap = new Map(prevRows.map(r=>[r.NOPOL, r['Site Name']]));
+
+  function listPreview(arr, siteMap, uid, max=8){
     if(arr.length===0) return '<span class="hint">Tidak ada</span>';
-    const shown = arr.slice(0,max).join(', ');
-    const more = arr.length>max ? ` <span class="hint">+${arr.length-max} lainnya</span>` : '';
-    return `<span class="mono">${escapeHtml(shown)}</span>${more}`;
+    const renderItem = (n)=> `<span class="mono">${escapeHtml(n)}</span><span class="hint"> (${escapeHtml(siteMap.get(n)||'-')})</span>`;
+    const shown = arr.slice(0,max).map(renderItem).join(', ');
+    const rest = arr.slice(max);
+    if(rest.length===0) return shown;
+    const moreLabel = `+${rest.length} lainnya`;
+    const restHtml = rest.map(renderItem).join(', ');
+    return `${shown}, <button type="button" class="hl-more-btn" data-more-label="${escapeHtml(moreLabel)}" onclick="toggleMoreHighlight(this)">${moreLabel}</button><span class="hl-more-content hidden">, ${restHtml}</span>`;
   }
 
   box.innerHTML = `
@@ -1185,10 +1199,17 @@ function updateHighlight(rows, containerId){
       </div>
     </div>
     <div class="highlight-lists">
-      <div><strong>🟢 Unit Baru (${added.length})</strong> muncul di ${curr}:<br>${listPreview(added)}</div>
-      <div><strong>🔴 Unit Hilang (${removed.length})</strong> ada di ${prev} tapi tidak di ${curr}:<br>${listPreview(removed)}</div>
+      <div><strong>🟢 Unit Baru (${added.length})</strong> muncul di ${curr}:<br>${listPreview(added, currSiteMap, containerId+'-added')}</div>
+      <div><strong>🔴 Unit Hilang (${removed.length})</strong> ada di ${prev} tapi tidak di ${curr}:<br>${listPreview(removed, prevSiteMap, containerId+'-removed')}</div>
     </div>
   `;
+}
+
+function toggleMoreHighlight(btn){
+  const content = btn.nextElementSibling;
+  if(!content) return;
+  const hidden = content.classList.toggle('hidden');
+  btn.textContent = hidden ? btn.dataset.moreLabel : 'Sembunyikan';
 }
 
 function updateChartTrend(rows){
