@@ -205,13 +205,18 @@ body{
 /* ---------- overview summary mini tables ---------- */
 .mini-tables{display:flex;flex-direction:column;gap:16px;}
 .mini-table-block h4{font-size:12px;margin:0 0 8px 0;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
-.mini-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.mini-table{width:100%;min-width:760px;border-collapse:collapse;font-size:12px;}
 .mini-table th{
-  text-align:left;padding:6px 6px;background:var(--bg);color:var(--muted);
-  font-weight:700;font-size:10.5px;text-transform:uppercase;border-bottom:1px solid var(--line);
+  text-align:left;padding:6px 8px;background:var(--bg);color:var(--muted);
+  font-weight:700;font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--line);
+  white-space:nowrap;
 }
 .mini-table th.num, .mini-table td.num{text-align:right;}
-.mini-table td{padding:6px 6px;border-bottom:1px solid var(--line);}
+.mini-table td{padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap;}
+.mini-table th:nth-child(2), .mini-table td:nth-child(2),
+.mini-table th:nth-child(5), .mini-table td:nth-child(5),
+.mini-table th:nth-child(8), .mini-table td:nth-child(8),
+.mini-table th:nth-child(11), .mini-table td:nth-child(11){border-left:2px solid var(--line);}
 
 /* ---------- trend narrative ---------- */
 .narrative-list{max-height:270px;overflow-y:auto;}
@@ -445,21 +450,56 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
           <p class="hint">MR = milik rental, BU = milik Business Unit, MR CDP = skema CDP</p>
           <div class="chart-holder"><canvas id="chartOwner"></canvas></div>
         </div>
+      </div>
+
+      <div class="chart-row full">
         <div class="panel">
-          <h3>Perbandingan Unit Antar Periode</h3>
+          <h3>Perbandingan Unit, DPP, Downtime & DPP Net Antar Periode</h3>
           <p class="hint" id="overviewPeriodLabel">-</p>
-          <div class="mini-tables">
-            <div class="mini-table-block">
-              <h4>Unit per BU Site</h4>
+
+          <div class="mini-table-block">
+            <h4>Per BU Site</h4>
+            <div class="table-scroll">
               <table class="mini-table">
-                <thead><tr><th>BU Site</th><th class="num">Bulan Ini</th><th class="num">Bulan Lalu</th><th class="num">Delta</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th rowspan="2">BU Site</th>
+                    <th colspan="3" style="text-align:center;">Unit</th>
+                    <th colspan="3" style="text-align:center;">DPP</th>
+                    <th colspan="3" style="text-align:center;">Downtime</th>
+                    <th colspan="3" style="text-align:center;">DPP Net</th>
+                  </tr>
+                  <tr>
+                    <th class="num">Ini</th><th class="num">Lalu</th><th class="num">Δ</th>
+                    <th class="num">Ini</th><th class="num">Lalu</th><th class="num">Δ</th>
+                    <th class="num">Ini</th><th class="num">Lalu</th><th class="num">Δ</th>
+                    <th class="num">Ini</th><th class="num">Lalu</th><th class="num">Δ</th>
+                  </tr>
+                </thead>
                 <tbody id="tblBuSiteBody"></tbody>
               </table>
             </div>
-            <div class="mini-table-block">
-              <h4>Unit per Kategori Site</h4>
+          </div>
+
+          <div class="mini-table-block" style="margin-top:20px;">
+            <h4>Per Kategori Site</h4>
+            <div class="table-scroll">
               <table class="mini-table">
-                <thead><tr><th>Kategori</th><th class="num">Bulan Ini</th><th class="num">Bulan Lalu</th><th class="num">Delta</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th rowspan="2">Kategori</th>
+                    <th colspan="3" style="text-align:center;">Unit</th>
+                    <th colspan="3" style="text-align:center;">DPP</th>
+                    <th colspan="3" style="text-align:center;">Downtime</th>
+                    <th colspan="3" style="text-align:center;">DPP Net</th>
+                  </tr>
+                  <tr>
+                    <th class="num">Ini</th><th class="num">Lalu</th><th class="num">Δ</th>
+                    <th class="num">Ini</th><th class="num">Lalu</th><th class="num">Δ</th>
+                    <th class="num">Ini</th><th class="num">Lalu</th><th class="num">Δ</th>
+                    <th class="num">Ini</th><th class="num">Lalu</th><th class="num">Δ</th>
+                  </tr>
+                </thead>
                 <tbody id="tblKategoriBody"></tbody>
               </table>
             </div>
@@ -1097,20 +1137,53 @@ function unitCountByKey(rows, keyFn, bulan){
   return result;
 }
 
-function renderMiniTable(tbodyId, currMap, prevMap){
-  const keys = uniqueSorted(Array.from(new Set([...currMap.keys(), ...prevMap.keys()])));
+function sumByKey(rows, keyFn, valFn, bulan){
+  const result = new Map();
+  if(!bulan) return result;
+  const subset = rows.filter(r=>r.Bulan===bulan);
+  subset.forEach(r=>{
+    const k = keyFn(r);
+    if(!k) return;
+    result.set(k, (result.get(k)||0) + valFn(r));
+  });
+  return result;
+}
+
+function fmtDeltaNum(delta){
+  const str = delta===0 ? '0' : (delta>0?'+':'') + delta;
+  const color = delta>0 ? 'var(--bad)' : (delta<0 ? 'var(--good)' : 'var(--muted)');
+  return `<span style="color:${color};">${str}</span>`;
+}
+function fmtDeltaRp(delta){
+  const str = (delta>=0?'+':'') + fmtRp(delta);
+  const color = delta>0 ? 'var(--bad)' : (delta<0 ? 'var(--good)' : 'var(--muted)');
+  return `<span style="color:${color};">${str}</span>`;
+}
+
+function renderMiniTable(tbodyId, maps){
+  const allKeys = new Set();
+  Object.values(maps).forEach(([c,p])=>{
+    c.forEach((_,k)=>allKeys.add(k));
+    p.forEach((_,k)=>allKeys.add(k));
+  });
+  const keys = uniqueSorted(Array.from(allKeys));
   const tbody = document.getElementById(tbodyId);
   if(keys.length===0){
-    tbody.innerHTML = '<tr><td colspan="4" class="hint">Tidak ada data</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="13" class="hint">Tidak ada data</td></tr>';
     return;
   }
   tbody.innerHTML = keys.map(k=>{
-    const c = currMap.get(k)||0;
-    const p = prevMap.get(k)||0;
-    const delta = c-p;
-    const deltaStr = delta===0 ? '0' : (delta>0?'+':'') + delta;
-    const color = delta>0 ? 'var(--good)' : (delta<0 ? 'var(--bad)' : 'var(--muted)');
-    return `<tr><td>${k}</td><td class="num mono">${c}</td><td class="num mono">${p}</td><td class="num mono" style="color:${color};">${deltaStr}</td></tr>`;
+    const uC = maps.unit[0].get(k)||0, uP = maps.unit[1].get(k)||0, uD = uC-uP;
+    const dC = maps.dpp[0].get(k)||0, dP = maps.dpp[1].get(k)||0, dD = dC-dP;
+    const tC = maps.downtime[0].get(k)||0, tP = maps.downtime[1].get(k)||0, tD = tC-tP;
+    const nC = maps.net[0].get(k)||0, nP = maps.net[1].get(k)||0, nD = nC-nP;
+    return `<tr>
+      <td>${k}</td>
+      <td class="num mono">${uC}</td><td class="num mono">${uP}</td><td class="num mono">${fmtDeltaNum(uD)}</td>
+      <td class="num mono">${fmtRp(dC)}</td><td class="num mono">${fmtRp(dP)}</td><td class="num mono">${fmtDeltaRp(dD)}</td>
+      <td class="num mono">${fmtRp(tC)}</td><td class="num mono">${fmtRp(tP)}</td><td class="num mono">${fmtDeltaRp(tD)}</td>
+      <td class="num mono">${fmtRp(nC)}</td><td class="num mono">${fmtRp(nP)}</td><td class="num mono">${fmtDeltaRp(nD)}</td>
+    </tr>`;
   }).join('');
 }
 
@@ -1119,13 +1192,25 @@ function updateOverviewSummary(rows){
   const label = document.getElementById('overviewPeriodLabel');
   label.textContent = curr ? (prev ? `Bulan Ini: ${curr}  •  Bulan Lalu: ${prev}` : `Hanya tersedia data ${curr}`) : 'Tidak ada data';
 
-  const buCurr = unitCountByKey(rows, r=>r['BU Site'], curr);
-  const buPrev = unitCountByKey(rows, r=>r['BU Site'], prev);
-  const katCurr = unitCountByKey(rows, r=>r['Kategori Site'], curr);
-  const katPrev = unitCountByKey(rows, r=>r['Kategori Site'], prev);
+  const dppFn = r=>r.DPP||0;
+  const dtFn = r=>r['Nominal Downtime']||0;
+  const netFn = r=>r['DPP Net (setelah downtime)']||0;
+  const buKey = r=>r['BU Site'];
+  const katKey = r=>r['Kategori Site'];
 
-  renderMiniTable('tblBuSiteBody', buCurr, buPrev);
-  renderMiniTable('tblKategoriBody', katCurr, katPrev);
+  renderMiniTable('tblBuSiteBody', {
+    unit: [unitCountByKey(rows, buKey, curr), unitCountByKey(rows, buKey, prev)],
+    dpp: [sumByKey(rows, buKey, dppFn, curr), sumByKey(rows, buKey, dppFn, prev)],
+    downtime: [sumByKey(rows, buKey, dtFn, curr), sumByKey(rows, buKey, dtFn, prev)],
+    net: [sumByKey(rows, buKey, netFn, curr), sumByKey(rows, buKey, netFn, prev)],
+  });
+
+  renderMiniTable('tblKategoriBody', {
+    unit: [unitCountByKey(rows, katKey, curr), unitCountByKey(rows, katKey, prev)],
+    dpp: [sumByKey(rows, katKey, dppFn, curr), sumByKey(rows, katKey, dppFn, prev)],
+    downtime: [sumByKey(rows, katKey, dtFn, curr), sumByKey(rows, katKey, dtFn, prev)],
+    net: [sumByKey(rows, katKey, netFn, curr), sumByKey(rows, katKey, netFn, prev)],
+  });
 }
 
 function updateTrendNarrative(rows, containerId){
