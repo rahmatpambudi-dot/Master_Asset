@@ -470,6 +470,19 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
         </div>
       </div>
 
+      <div class="chart-row">
+        <div class="panel">
+          <h3>Unit vs DPP per BU Site</h3>
+          <p class="hint">Bar kiri (Unit, sumbu kiri) & bar kanan (DPP, sumbu kanan) — Bulan Ini vs Bulan Lalu</p>
+          <div class="chart-holder"><canvas id="chartUnitDppBu"></canvas></div>
+        </div>
+        <div class="panel">
+          <h3>Unit vs DPP per Kategori Site</h3>
+          <p class="hint">Bar kiri (Unit, sumbu kiri) & bar kanan (DPP, sumbu kanan) — Bulan Ini vs Bulan Lalu</p>
+          <div class="chart-holder"><canvas id="chartUnitDppKategori"></canvas></div>
+        </div>
+      </div>
+
       <div class="chart-row full">
         <div class="panel">
           <h3>Perbandingan Unit, DPP, Downtime & DPP Net Antar Periode</h3>
@@ -702,7 +715,7 @@ let sortState = {key:'Bulan', dir:'desc'};
 let page = 1;
 const PAGE_SIZE = 50;
 
-let chartTrend, chartOwner, chartBuSite, chartTopDowntime, chartTrendSlide, chartOwnerSlide, chartDppByBu, chartDppBySite;
+let chartTrend, chartOwner, chartBuSite, chartTopDowntime, chartTrendSlide, chartOwnerSlide, chartDppByBu, chartDppBySite, chartUnitDppBu, chartUnitDppKategori;
 if (typeof ChartDataLabels !== 'undefined') {
   Chart.register(ChartDataLabels);
 }
@@ -1105,6 +1118,7 @@ function applyFilters(){
   updateChartOwner(filtered);
   updateChartDppByBu(filtered);
   updateChartDppBySite(filtered);
+  updateUnitDppCombo(dateIgnored);
   updateOverviewSummary(dateIgnored);
 
   updateChartTrend(dateIgnored);
@@ -1216,6 +1230,64 @@ function renderMiniTable(tbodyId, maps){
       <td class="num mono">${fmtRp(nC)}</td><td class="num mono">${fmtRp(nP)}</td><td class="num mono">${fmtDeltaRp(nD)}</td>
     </tr>`;
   }).join('');
+}
+
+function renderUnitDppCombo(canvasId, chartRefSetter, chartRefGetter, labels, unitCurr, unitPrev, dppCurr, dppPrev){
+  const ctx = document.getElementById(canvasId);
+  const existing = chartRefGetter();
+  if(existing) existing.destroy();
+
+  const chart = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Unit (Ini)', data:unitCurr, backgroundColor:'#2f6fed', borderRadius:4, yAxisID:'yUnit',
+          datalabels:{display:true, anchor:'end', align:'top', color:'#2f6fed', font:{size:9,weight:600}}},
+        {label:'Unit (Lalu)', data:unitPrev, backgroundColor:'#a9c3f7', borderRadius:4, yAxisID:'yUnit',
+          datalabels:{display:true, anchor:'end', align:'top', color:'#7ca3e8', font:{size:9,weight:600}}},
+        {label:'DPP (Ini)', data:dppCurr, backgroundColor:'#c98a1c', borderRadius:4, yAxisID:'yDpp',
+          datalabels:{display:true, anchor:'end', align:'top', color:'#c98a1c', font:{size:9,weight:600}, formatter:jtLabel}},
+        {label:'DPP (Lalu)', data:dppPrev, backgroundColor:'#f0d09f', borderRadius:4, yAxisID:'yDpp',
+          datalabels:{display:true, anchor:'end', align:'top', color:'#c9a35c', font:{size:9,weight:600}, formatter:jtLabel}},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:10}}}},
+      scales:{
+        yUnit:{position:'left', ticks:{font:{size:10}}, grid:{color:'#eef1f7'}, title:{display:true,text:'Unit',font:{size:10}}},
+        yDpp:{position:'right', ticks:{callback:v=>(v/1e6).toFixed(0)+'jt', font:{size:10}}, grid:{display:false}, title:{display:true,text:'DPP',font:{size:10}}},
+        x:{ticks:{font:{size:10}}, grid:{display:false}}
+      }
+    }
+  });
+  chartRefSetter(chart);
+}
+
+function updateUnitDppCombo(rows){
+  const {curr, prev} = getLatestTwoPeriods(rows);
+  const buKey = r=>r['BU Site'];
+  const katKey = r=>r['Kategori Site'];
+  const dppFn = r=>r.DPP||0;
+
+  const buUnitCurr = unitCountByKey(rows, buKey, curr);
+  const buUnitPrev = unitCountByKey(rows, buKey, prev);
+  const buDppCurr = sumByKey(rows, buKey, dppFn, curr);
+  const buDppPrev = sumByKey(rows, buKey, dppFn, prev);
+  const buLabels = uniqueSorted(Array.from(new Set([...buUnitCurr.keys(), ...buUnitPrev.keys()])));
+  renderUnitDppCombo('chartUnitDppBu', (c)=>chartUnitDppBu=c, ()=>chartUnitDppBu, buLabels,
+    buLabels.map(k=>buUnitCurr.get(k)||0), buLabels.map(k=>buUnitPrev.get(k)||0),
+    buLabels.map(k=>buDppCurr.get(k)||0), buLabels.map(k=>buDppPrev.get(k)||0));
+
+  const katUnitCurr = unitCountByKey(rows, katKey, curr);
+  const katUnitPrev = unitCountByKey(rows, katKey, prev);
+  const katDppCurr = sumByKey(rows, katKey, dppFn, curr);
+  const katDppPrev = sumByKey(rows, katKey, dppFn, prev);
+  const katLabels = uniqueSorted(Array.from(new Set([...katUnitCurr.keys(), ...katUnitPrev.keys()])));
+  renderUnitDppCombo('chartUnitDppKategori', (c)=>chartUnitDppKategori=c, ()=>chartUnitDppKategori, katLabels,
+    katLabels.map(k=>katUnitCurr.get(k)||0), katLabels.map(k=>katUnitPrev.get(k)||0),
+    katLabels.map(k=>katDppCurr.get(k)||0), katLabels.map(k=>katDppPrev.get(k)||0));
 }
 
 function updateOverviewSummary(rows){
@@ -1380,11 +1452,20 @@ function updateChartOwner(rows){
     data:{labels, datasets:[{data, backgroundColor:colors, borderWidth:2, borderColor:'#fff'}]},
     options:{
       responsive:true, maintainAspectRatio:false,
+      layout:{padding:24},
       plugins:{
         legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}},
         tooltip:{callbacks:{label:(c)=>c.label+': '+fmtRp(c.raw)}},
         datalabels:{
-          color:'#fff', font:{size:11,weight:700},
+          color:(ctx)=>colors[ctx.dataIndex % colors.length],
+          backgroundColor:'#fff',
+          borderColor:(ctx)=>colors[ctx.dataIndex % colors.length],
+          borderWidth:1.5,
+          borderRadius:4,
+          padding:{top:3,bottom:3,left:5,right:5},
+          font:{size:10,weight:700},
+          anchor:'end', align:'end', offset:8,
+          clip:false,
           formatter:(v)=> total>0 ? (v/total*100).toFixed(1)+'%' : ''
         }
       }
@@ -1512,11 +1593,20 @@ function renderOwnershipDonutUnits(rows, bulan){
     data:{labels, datasets:[{data, backgroundColor:colors, borderWidth:2, borderColor:'#fff'}]},
     options:{
       responsive:true, maintainAspectRatio:false,
+      layout:{padding:24},
       plugins:{
         legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}},
         tooltip:{callbacks:{label:(c)=>c.label+': '+c.raw+' unit'}},
         datalabels:{
-          color:'#fff', font:{size:11,weight:700},
+          color:(ctx)=>colors[ctx.dataIndex % colors.length],
+          backgroundColor:'#fff',
+          borderColor:(ctx)=>colors[ctx.dataIndex % colors.length],
+          borderWidth:1.5,
+          borderRadius:4,
+          padding:{top:3,bottom:3,left:5,right:5},
+          font:{size:9,weight:700},
+          anchor:'end', align:'end', offset:8,
+          clip:false,
           formatter:(v)=> totalUnits>0 ? v+' ('+(v/totalUnits*100).toFixed(0)+'%)' : v
         }
       }
