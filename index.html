@@ -233,7 +233,8 @@ body{
   padding:7px 4px;border-bottom:1px solid var(--line);font-size:12.5px;
 }
 .narrative-row .nr-month{font-weight:600;flex:1;}
-.narrative-row .nr-val{font-size:12.5px;}
+.narrative-row .nr-unit{font-size:11.5px;color:var(--muted);min-width:70px;text-align:right;}
+.narrative-row .nr-val{font-size:12.5px;min-width:130px;text-align:right;}
 .narrative-row .nr-delta{font-size:11px;min-width:64px;text-align:right;}
 
 /* ---------- highlight card ---------- */
@@ -560,7 +561,7 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
       <div class="chart-row full">
         <div class="panel">
           <h3>Ringkasan Bulanan</h3>
-          <p class="hint">Total DPP tiap bulan beserta perubahan (%) dibanding bulan sebelumnya</p>
+          <p class="hint">Qty armada & Total DPP tiap bulan beserta perubahan (%) dibanding bulan sebelumnya</p>
           <div class="narrative-list" id="trendNarrative"></div>
         </div>
       </div>
@@ -1323,6 +1324,11 @@ function updateOverviewSummary(rows){
 function updateTrendNarrative(rows, containerId){
   containerId = containerId || 'trendNarrative';
   const dppMap = groupSum(rows, r=>r.Bulan, r=>r.DPP||0);
+  const unitMap = new Map();
+  rows.forEach(r=>{
+    if(!unitMap.has(r.Bulan)) unitMap.set(r.Bulan, new Set());
+    unitMap.get(r.Bulan).add(r.NOPOL);
+  });
   const labels = Array.from(new Set(rows.map(r=>r.Bulan))).sort((a,b)=>bulanSortKey(a)-bulanSortKey(b));
   const box = document.getElementById(containerId);
   if(labels.length===0){
@@ -1330,11 +1336,10 @@ function updateTrendNarrative(rows, containerId){
     return;
   }
   let html = '';
-  let prevVal = null;
-  labels.slice().reverse().forEach(l=>{}); // no-op guard
   let running = null;
   labels.forEach(l=>{
     const val = dppMap.get(l)||0;
+    const unitCount = unitMap.get(l) ? unitMap.get(l).size : 0;
     let deltaHtml = '<span class="nr-delta hint">-</span>';
     if(running!==null && running!==0){
       const pct = ((val-running)/running*100);
@@ -1342,7 +1347,7 @@ function updateTrendNarrative(rows, containerId){
       const color = pct>=0 ? 'var(--bad)' : 'var(--good)';
       deltaHtml = `<span class="nr-delta mono" style="color:${color};">${sign}${pct.toFixed(2)}%</span>`;
     }
-    html += `<div class="narrative-row"><span class="nr-month">${l}</span><span class="nr-val mono">${fmtRp(val)}</span>${deltaHtml}</div>`;
+    html += `<div class="narrative-row"><span class="nr-month">${l}</span><span class="nr-unit mono">${unitCount} unit</span><span class="nr-val mono">${fmtRp(val)}</span>${deltaHtml}</div>`;
     running = val;
   });
   box.innerHTML = html;
