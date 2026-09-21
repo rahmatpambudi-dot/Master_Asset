@@ -364,6 +364,10 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
         <div class="msel" id="mselSite"></div>
       </div>
       <div class="fgroup-v">
+        <label>Wilayah</label>
+        <div class="msel" id="mselWilayah"></div>
+      </div>
+      <div class="fgroup-v">
         <label>Kategori Site</label>
         <div class="msel" id="mselKategori"></div>
       </div>
@@ -725,6 +729,7 @@ const filterState = {
   owner: new Set(),
   armada: new Set(),
   jenis: new Set(),
+  wilayah: new Set(),
 };
 const resetters = [];
 
@@ -967,6 +972,7 @@ function initFilters(){
   buildMultiSelect('mselOwner', 'Semua Owner', uniqueSorted(RAW.map(r=>r.Owner)), filterState.owner, onFilterChange);
   buildMultiSelect('mselArmada', 'Semua Type', uniqueSorted(RAW.map(r=>r['Type Armada'])), filterState.armada, onFilterChange);
   buildMultiSelect('mselJenis', 'Semua Klasifikasi', uniqueSorted(RAW.map(r=>r['Klasifikasi Kendaraan'])), filterState.jenis, onFilterChange);
+  buildMultiSelect('mselWilayah', 'Semua Wilayah', uniqueSorted(RAW.map(r=>r.Wilayah)), filterState.wilayah, onFilterChange);
 
   document.getElementById('fDowntime').addEventListener('change', onFilterChange);
   document.getElementById('fSearch').addEventListener('input', onFilterChange);
@@ -1011,6 +1017,7 @@ function getFiltered(opts={}){
     if(!matches(filterState.owner, r.Owner)) return false;
     if(!matches(filterState.armada, r['Type Armada'])) return false;
     if(!matches(filterState.jenis, r['Klasifikasi Kendaraan'])) return false;
+    if(!matches(filterState.wilayah, r.Wilayah)) return false;
     if(downtimeStatus==='ada' && !(r['Nominal Downtime']>0)) return false;
     if(downtimeStatus==='tidak' && (r['Nominal Downtime']>0)) return false;
     if(search){
