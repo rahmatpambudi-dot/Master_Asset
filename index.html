@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <style>
 
@@ -196,6 +197,13 @@ body{
 /* ---------- charts / panels ---------- */
 .chart-row{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:16px;}
 .chart-row.full{grid-template-columns:1fr;}
+.chart-row.chart-row-3{grid-template-columns:1fr 1fr 1fr;}
+@media (max-width:1200px){
+  .chart-row.chart-row-3{grid-template-columns:1fr 1fr;}
+}
+@media (max-width:700px){
+  .chart-row.chart-row-3{grid-template-columns:1fr;}
+}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;}
 .panel h3{font-size:14px;margin:0 0 2px 0;font-weight:700;}
 .panel p.hint{font-size:11.5px;color:var(--muted);margin:0 0 14px 0;}
@@ -444,11 +452,21 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
         </div>
       </div>
 
-      <div class="chart-row">
+      <div class="chart-row chart-row-3">
         <div class="panel">
           <h3>Komposisi DPP per Owner</h3>
           <p class="hint">MR = milik rental, BU = milik Business Unit, MR CDP = skema CDP</p>
           <div class="chart-holder"><canvas id="chartOwner"></canvas></div>
+        </div>
+        <div class="panel">
+          <h3>DPP per BU Site</h3>
+          <p class="hint">Sesuai filter aktif</p>
+          <div class="chart-holder"><canvas id="chartDppByBu"></canvas></div>
+        </div>
+        <div class="panel">
+          <h3>Top 10 Site by DPP</h3>
+          <p class="hint">Sesuai filter aktif</p>
+          <div class="chart-holder"><canvas id="chartDppBySite"></canvas></div>
         </div>
       </div>
 
@@ -684,7 +702,14 @@ let sortState = {key:'Bulan', dir:'desc'};
 let page = 1;
 const PAGE_SIZE = 50;
 
-let chartTrend, chartOwner, chartBuSite, chartTopDowntime, chartTrendSlide, chartOwnerSlide;
+let chartTrend, chartOwner, chartBuSite, chartTopDowntime, chartTrendSlide, chartOwnerSlide, chartDppByBu, chartDppBySite;
+if (typeof ChartDataLabels !== 'undefined') {
+  Chart.register(ChartDataLabels);
+}
+function jtLabel(v){
+  if (Math.abs(v) < 1) return '';
+  return (v/1e6).toFixed(1).replace(/\.0$/,'') + 'jt';
+}
 
 /* ---------------- navigation & sidebar collapse ---------------- */
 document.querySelectorAll('.nav-item').forEach(btn=>{
@@ -1074,6 +1099,8 @@ function applyFilters(){
 
   updateKpis(filtered);
   updateChartOwner(filtered);
+  updateChartDppByBu(filtered);
+  updateChartDppBySite(filtered);
   updateOverviewSummary(dateIgnored);
 
   updateChartTrend(dateIgnored);
@@ -1318,8 +1345,10 @@ function updateChartTrend(rows){
     data:{
       labels,
       datasets:[
-        {label:'DPP', data:dppData, borderColor:'#2f6fed', backgroundColor:'rgba(47,111,237,.08)', tension:.3, fill:true, pointRadius:2},
-        {label:'DPP Net', data:netData, borderColor:'#1a9b6c', backgroundColor:'rgba(26,155,108,.08)', tension:.3, fill:true, pointRadius:2},
+        {label:'DPP', data:dppData, borderColor:'#2f6fed', backgroundColor:'rgba(47,111,237,.08)', tension:.3, fill:true, pointRadius:2,
+          datalabels:{display:true, align:'top', anchor:'end', color:'#2f6fed', font:{size:8,weight:600}, formatter:jtLabel}},
+        {label:'DPP Net', data:netData, borderColor:'#1a9b6c', backgroundColor:'rgba(26,155,108,.08)', tension:.3, fill:true, pointRadius:2,
+          datalabels:{display:false}},
       ]
     },
     options:{
@@ -1337,6 +1366,7 @@ function updateChartOwner(rows){
   const map = groupSum(rows, r=>r.Owner, r=>r.DPP||0);
   const labels = Array.from(map.keys());
   const data = labels.map(l=>map.get(l));
+  const total = data.reduce((a,b)=>a+b,0);
   const colors = ['#2f6fed','#c98a1c','#1a9b6c','#d64545'];
 
   const ctx = document.getElementById('chartOwner');
@@ -1346,8 +1376,61 @@ function updateChartOwner(rows){
     data:{labels, datasets:[{data, backgroundColor:colors, borderWidth:2, borderColor:'#fff'}]},
     options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}},
-        tooltip:{callbacks:{label:(c)=>c.label+': '+fmtRp(c.raw)}}}
+      plugins:{
+        legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}},
+        tooltip:{callbacks:{label:(c)=>c.label+': '+fmtRp(c.raw)}},
+        datalabels:{
+          color:'#fff', font:{size:11,weight:700},
+          formatter:(v)=> total>0 ? (v/total*100).toFixed(1)+'%' : ''
+        }
+      }
+    }
+  });
+}
+
+function updateChartDppByBu(rows){
+  const map = groupSum(rows, r=>r['BU Site'], r=>r.DPP||0);
+  const entries = Array.from(map.entries()).sort((a,b)=>b[1]-a[1]);
+  const labels = entries.map(e=>e[0]);
+  const data = entries.map(e=>e[1]);
+
+  const ctx = document.getElementById('chartDppByBu');
+  if(chartDppByBu) chartDppByBu.destroy();
+  chartDppByBu = new Chart(ctx, {
+    type:'bar',
+    data:{labels, datasets:[{label:'DPP', data, backgroundColor:'#2f6fed', borderRadius:4,
+      datalabels:{display:true, anchor:'end', align:'top', color:'#2f6fed', font:{size:9,weight:600}, formatter:jtLabel}}]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>fmtRp(c.raw)}}},
+      scales:{
+        y:{ticks:{callback:v=>(v/1e6).toFixed(0)+'jt', font:{size:10}}, grid:{color:'#eef1f7'}},
+        x:{ticks:{font:{size:10}}, grid:{display:false}}
+      }
+    }
+  });
+}
+
+function updateChartDppBySite(rows){
+  const map = groupSum(rows, r=>r['Site Name'], r=>r.DPP||0);
+  const entries = Array.from(map.entries()).filter(e=>e[0]).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const labels = entries.map(e=>e[0]);
+  const data = entries.map(e=>e[1]);
+
+  const ctx = document.getElementById('chartDppBySite');
+  if(chartDppBySite) chartDppBySite.destroy();
+  chartDppBySite = new Chart(ctx, {
+    type:'bar',
+    data:{labels, datasets:[{label:'DPP', data, backgroundColor:'#2f6fed', borderRadius:4,
+      datalabels:{display:true, anchor:'end', align:'right', color:'#2f6fed', font:{size:9,weight:600}, formatter:jtLabel}}]},
+    options:{
+      indexAxis:'y',
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>fmtRp(c.raw)}}},
+      scales:{
+        x:{ticks:{callback:v=>(v/1e6).toFixed(0)+'jt', font:{size:10}}, grid:{color:'#eef1f7'}},
+        y:{ticks:{font:{size:9}}, grid:{display:false}}
+      }
     }
   });
 }
@@ -1366,8 +1449,10 @@ function updateChartBuSite(rows){
     data:{
       labels,
       datasets:[
-        {label:'DPP', data:dppData, backgroundColor:'#2f6fed', borderRadius:4},
-        {label:'Downtime', data:dtData, backgroundColor:'#d64545', borderRadius:4},
+        {label:'DPP', data:dppData, backgroundColor:'#2f6fed', borderRadius:4,
+          datalabels:{display:true, anchor:'end', align:'top', color:'#2f6fed', font:{size:9,weight:600}, formatter:jtLabel}},
+        {label:'Downtime', data:dtData, backgroundColor:'#d64545', borderRadius:4,
+          datalabels:{display:true, anchor:'end', align:'top', color:'#d64545', font:{size:9,weight:600}, formatter:jtLabel}},
       ]
     },
     options:{
@@ -1391,7 +1476,8 @@ function updateChartTopDowntime(rows){
   if(chartTopDowntime) chartTopDowntime.destroy();
   chartTopDowntime = new Chart(ctx, {
     type:'bar',
-    data:{labels, datasets:[{label:'Downtime', data, backgroundColor:'#d64545', borderRadius:4}]},
+    data:{labels, datasets:[{label:'Downtime', data, backgroundColor:'#d64545', borderRadius:4,
+      datalabels:{display:true, anchor:'end', align:'right', color:'#d64545', font:{size:9,weight:600}, formatter:jtLabel}}]},
     options:{
       indexAxis:'y',
       responsive:true, maintainAspectRatio:false,
@@ -1416,13 +1502,20 @@ function renderOwnershipDonutUnits(rows, bulan){
 
   const ctx = document.getElementById('chartOwnerSlide');
   if(chartOwnerSlide) chartOwnerSlide.destroy();
+  const totalUnits = data.reduce((a,b)=>a+b,0);
   chartOwnerSlide = new Chart(ctx, {
     type:'doughnut',
     data:{labels, datasets:[{data, backgroundColor:colors, borderWidth:2, borderColor:'#fff'}]},
     options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}},
-        tooltip:{callbacks:{label:(c)=>c.label+': '+c.raw+' unit'}}}
+      plugins:{
+        legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}},
+        tooltip:{callbacks:{label:(c)=>c.label+': '+c.raw+' unit'}},
+        datalabels:{
+          color:'#fff', font:{size:11,weight:700},
+          formatter:(v)=> totalUnits>0 ? v+' ('+(v/totalUnits*100).toFixed(0)+'%)' : v
+        }
+      }
     }
   });
 }
@@ -1436,7 +1529,8 @@ function renderChartTrendSlide(rows){
   if(chartTrendSlide) chartTrendSlide.destroy();
   chartTrendSlide = new Chart(ctx, {
     type:'bar',
-    data:{labels, datasets:[{label:'DPP', data:dppData, backgroundColor:'#2f6fed', borderRadius:4}]},
+    data:{labels, datasets:[{label:'DPP', data:dppData, backgroundColor:'#2f6fed', borderRadius:4,
+      datalabels:{display:true, anchor:'end', align:'top', color:'#2f6fed', font:{size:8,weight:600}, formatter:jtLabel}}]},
     options:{
       responsive:true, maintainAspectRatio:false,
       plugins:{legend:{display:false}},
