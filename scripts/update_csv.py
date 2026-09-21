@@ -83,6 +83,105 @@ def clean_site_name(site, bu):
     return SITE_NAME_FIXES.get((site, bu), site)
 
 
+CITY_REGION = [
+    ('ALAM SUTERA', 'Jakarta (Alam Sutera)', 'Jabodetabek'),
+    ('PURI MALL', 'Jakarta (Puri)', 'Jabodetabek'),
+    ('HUB AHI PURI', 'Jakarta (Puri)', 'Jabodetabek'),
+    ('HUB PURI', 'Jakarta (Puri)', 'Jabodetabek'),
+    ('GANDARIA', 'Jakarta (Gandaria)', 'Jabodetabek'),
+    ('KASABLANKA', 'Jakarta (Kasablanka)', 'Jabodetabek'),
+    ('ARTHA GADING', 'Jakarta (Artha Gading)', 'Jabodetabek'),
+    (' MAG', 'Jakarta (Artha Gading)', 'Jabodetabek'),
+    ('CIBUBUR', 'Jakarta (Cibubur)', 'Jabodetabek'),
+    ('BINTARO', 'Jakarta (Bintaro)', 'Jabodetabek'),
+    ('AYB', 'Bekasi (Ahmad Yani)', 'Jabodetabek'),
+    ('AHMAD YANI BEKASI', 'Bekasi (Ahmad Yani)', 'Jabodetabek'),
+    ('HUB UTARA', 'Jakarta Utara', 'Jabodetabek'),
+    ('LIVING WORLD', 'Jakarta (Living World)', 'Jabodetabek'),
+    ('LIVING PLAZA', 'Jakarta (Living Plaza)', 'Jabodetabek'),
+    ('LIPPO PLAZA', 'Jakarta (Lippo Plaza)', 'Jabodetabek'),
+    ('NDC KLS HO', 'Head Office', 'Head Office'),
+    ('BDG LP PASKAL', 'Bandung (Paskal)', 'Bandung Raya'),
+    ('PASKAL', 'Bandung (Paskal)', 'Bandung Raya'),
+    ('BANDUNG', 'Bandung', 'Bandung Raya'),
+    ('GARUT', 'Garut', 'Bandung Raya'),
+    ('TASIKMALAYA', 'Tasikmalaya', 'Bandung Raya'),
+    ('CIREBON', 'Cirebon', 'Bandung Raya'),
+    ('SAWOJAJAR', 'Malang (Sawojajar)', 'Jawa Timur'),
+    ('JUANDA', 'Surabaya (Juanda)', 'Jawa Timur'),
+    ('SURABAYA', 'Surabaya', 'Jawa Timur'),
+    ('SIDOARJO', 'Sidoarjo', 'Jawa Timur'),
+    ('MALANG', 'Malang', 'Jawa Timur'),
+    ('KEDIRI', 'Kediri', 'Jawa Timur'),
+    ('JEMBER', 'Jember', 'Jawa Timur'),
+    ('BANYUWANGI', 'Banyuwangi', 'Jawa Timur'),
+    ('JAKARTA', 'Jakarta', 'Jabodetabek'),
+    ('BEKASI', 'Bekasi', 'Jabodetabek'),
+    ('BOGOR', 'Bogor', 'Jabodetabek'),
+    ('DEPOK', 'Depok', 'Jabodetabek'),
+    ('TANGERANG', 'Tangerang', 'Jabodetabek'),
+    ('CIKARANG', 'Cikarang', 'Jabodetabek'),
+    ('CIKUPA', 'Cikupa', 'Jabodetabek'),
+    ('JABABEKA', 'Cikarang (Jababeka)', 'Jabodetabek'),
+    ('TAMORA', 'Cikarang (Tamora)', 'Jabodetabek'),
+    ('SEMARANG', 'Semarang', 'Jawa Tengah & DIY'),
+    ('PURWOKERTO', 'Purwokerto', 'Jawa Tengah & DIY'),
+    ('TEGAL', 'Tegal', 'Jawa Tengah & DIY'),
+    ('YOGYA', 'Yogyakarta', 'Jawa Tengah & DIY'),
+    ('PRAMBANAN', 'Yogyakarta (Prambanan)', 'Jawa Tengah & DIY'),
+    ('DENPASAR', 'Denpasar', 'Bali & Nusra'),
+    ('KUTA', 'Kuta', 'Bali & Nusra'),
+    ('BALI', 'Bali', 'Bali & Nusra'),
+    ('MEDAN', 'Medan', 'Sumatera'),
+    ('TANJUNG MORAWA', 'Tanjung Morawa', 'Sumatera'),
+    ('SIANTAR', 'Pematang Siantar', 'Sumatera'),
+    ('PALEMBANG', 'Palembang', 'Sumatera'),
+    ('LAMPUNG', 'Lampung', 'Sumatera'),
+    ('PEKANBAR', 'Pekanbaru', 'Sumatera'),
+    ('BATAM', 'Batam', 'Sumatera'),
+    ('JAMBI', 'Jambi', 'Sumatera'),
+    ('ACEH', 'Aceh', 'Sumatera'),
+    ('BENGKULU', 'Bengkulu', 'Sumatera'),
+    ('PADANG', 'Padang', 'Sumatera'),
+    ('DUMAI', 'Dumai', 'Sumatera'),
+    ('PANGKAL PINANG', 'Pangkal Pinang', 'Sumatera'),
+    ('BANJAR MASIN', 'Banjarmasin', 'Kalimantan'),
+    ('BANJARMASIN', 'Banjarmasin', 'Kalimantan'),
+    ('BALIKPAPAN', 'Balikpapan', 'Kalimantan'),
+    ('PONTIANAK', 'Pontianak', 'Kalimantan'),
+    ('SAMARINDA', 'Samarinda', 'Kalimantan'),
+    ('PALANGKARAYA', 'Palangkaraya', 'Kalimantan'),
+    ('PALNGKARAYA', 'Palangkaraya', 'Kalimantan'),
+    ('TARAKAN', 'Tarakan', 'Kalimantan'),
+    ('SINGKAWANG', 'Singkawang', 'Kalimantan'),
+    ('MKS', 'Makassar', 'Sulawesi'),
+    ('MAKASSAR', 'Makassar', 'Sulawesi'),
+    ('MAKASAR', 'Makassar', 'Sulawesi'),
+    ('TALLO', 'Makassar (Tallo)', 'Sulawesi'),
+    ('MANADO', 'Manado', 'Sulawesi'),
+    ('KENDARI', 'Kendari', 'Sulawesi'),
+    ('PALU', 'Palu', 'Sulawesi'),
+    ('PALOPO', 'Palopo', 'Sulawesi'),
+    ('DC MALUKU', 'Maluku', 'Maluku & Papua'),
+    ('AMBON', 'Ambon', 'Maluku & Papua'),
+    ('JAYAPURA', 'Jayapura', 'Maluku & Papua'),
+    ('ABEPURA', 'Abepura', 'Maluku & Papua'),
+    ('SORONG', 'Sorong', 'Maluku & Papua'),
+    ('TERNATE', 'Ternate', 'Maluku & Papua'),
+    ('HEAD OFFICE', 'Head Office', 'Head Office'),
+]
+
+
+def classify_city(raw):
+    if not raw:
+        return ('Tidak diketahui', 'Lainnya')
+    up = ' ' + str(raw).upper() + ' '
+    for kw, city, region in CITY_REGION:
+        if kw in up:
+            return (city, region)
+    return (str(raw).strip(), 'Lainnya')
+
+
 def main():
     creds_json = os.environ['GOOGLE_CREDENTIALS']
     creds_dict = json.loads(creds_json)
@@ -119,6 +218,7 @@ def main():
         dpp = to_num(r.get('DPP\n ( Nilai Yg ditagihkan )', r.get('DPP', 0)))
         downtime_val = downtime_agg.get((nopol, bln), 0.0)
         dpp_net = dpp - downtime_val
+        city_clean, region = classify_city(r.get('CITY', ''))
         out_rows.append({
             'Bulan': bln,
             'NOPOL': str(r.get('NOPOL', '')).strip(),
@@ -127,6 +227,8 @@ def main():
             'BU Site': str(r.get('BU Site', '')).strip(),
             'Type Armada': str(r.get('Type Armada', '')).strip(),
             'Klasifikasi Kendaraan': str(r.get('JENIS', '')).strip(),
+            'City': city_clean,
+            'Wilayah': region,
             'Usia (Year)': r.get('Usia (Year)', ''),
             'Owner': str(r.get('OWNER', '')).strip(),
             'DPP': dpp,
