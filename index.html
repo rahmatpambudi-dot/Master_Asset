@@ -774,7 +774,11 @@ function closeAllPanels(except){
   document.querySelectorAll('.msel-panel').forEach(p=>{ if(p!==except) p.classList.add('hidden'); });
 }
 document.addEventListener('click', ()=>closeAllPanels(null));
-window.addEventListener('scroll', ()=>closeAllPanels(null), true);
+window.addEventListener('scroll', (e)=>{
+  const openPanel = document.querySelector('.msel-panel:not(.hidden)');
+  if(openPanel && openPanel.contains(e.target)) return;
+  closeAllPanels(null);
+}, true);
 window.addEventListener('resize', ()=>closeAllPanels(null));
 
 function positionPanel(btn, panel){
