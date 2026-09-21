@@ -456,7 +456,7 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
         <div class="panel">
           <h3>Komposisi DPP per Owner</h3>
           <p class="hint">MR = milik rental, BU = milik Business Unit, MR CDP = skema CDP</p>
-          <div class="chart-holder"><canvas id="chartOwner"></canvas></div>
+          <div class="chart-holder" style="height:310px;"><canvas id="chartOwner"></canvas></div>
         </div>
         <div class="panel">
           <h3>DPP per BU Site</h3>
@@ -474,12 +474,12 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
         <div class="panel">
           <h3>Unit vs DPP per BU Site</h3>
           <p class="hint">Bar kiri (Unit, sumbu kiri) & bar kanan (DPP, sumbu kanan) — Bulan Ini vs Bulan Lalu</p>
-          <div class="chart-holder"><canvas id="chartUnitDppBu"></canvas></div>
+          <div class="chart-holder" style="height:320px;"><canvas id="chartUnitDppBu"></canvas></div>
         </div>
         <div class="panel">
           <h3>Unit vs DPP per Kategori Site</h3>
           <p class="hint">Bar kiri (Unit, sumbu kiri) & bar kanan (DPP, sumbu kanan) — Bulan Ini vs Bulan Lalu</p>
-          <div class="chart-holder"><canvas id="chartUnitDppKategori"></canvas></div>
+          <div class="chart-holder" style="height:320px;"><canvas id="chartUnitDppKategori"></canvas></div>
         </div>
       </div>
 
@@ -655,7 +655,7 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
             </div>
             <div>
               <h4 style="font-size:12px;text-transform:uppercase;color:var(--muted);margin:0 0 8px;">Kepemilikan Armada</h4>
-              <div class="chart-holder" style="height:200px;"><canvas id="chartOwnerSlide"></canvas></div>
+              <div class="chart-holder" style="height:240px;"><canvas id="chartOwnerSlide"></canvas></div>
               <div class="hint" style="text-align:center;margin-top:8px;" id="slide1DonutCaption">-</div>
             </div>
           </div>
@@ -1243,13 +1243,13 @@ function renderUnitDppCombo(canvasId, chartRefSetter, chartRefGetter, labels, un
       labels,
       datasets:[
         {label:'Unit (Ini)', data:unitCurr, backgroundColor:'#2f6fed', borderRadius:4, yAxisID:'yUnit',
-          datalabels:{display:true, anchor:'end', align:'top', color:'#2f6fed', font:{size:9,weight:600}}},
+          datalabels:{display:'auto', anchor:'end', align:'top', color:'#2f6fed', font:{size:9,weight:600}}},
         {label:'Unit (Lalu)', data:unitPrev, backgroundColor:'#a9c3f7', borderRadius:4, yAxisID:'yUnit',
-          datalabels:{display:true, anchor:'end', align:'top', color:'#7ca3e8', font:{size:9,weight:600}}},
+          datalabels:{display:'auto', anchor:'end', align:'top', color:'#7ca3e8', font:{size:9,weight:600}}},
         {label:'DPP (Ini)', data:dppCurr, backgroundColor:'#c98a1c', borderRadius:4, yAxisID:'yDpp',
-          datalabels:{display:true, anchor:'end', align:'top', color:'#c98a1c', font:{size:9,weight:600}, formatter:jtLabel}},
+          datalabels:{display:'auto', anchor:'end', align:'top', color:'#c98a1c', font:{size:9,weight:600}, formatter:jtLabel}},
         {label:'DPP (Lalu)', data:dppPrev, backgroundColor:'#f0d09f', borderRadius:4, yAxisID:'yDpp',
-          datalabels:{display:true, anchor:'end', align:'top', color:'#c9a35c', font:{size:9,weight:600}, formatter:jtLabel}},
+          datalabels:{display:'auto', anchor:'end', align:'top', color:'#c9a35c', font:{size:9,weight:600}, formatter:jtLabel}},
       ]
     },
     options:{
@@ -1452,7 +1452,7 @@ function updateChartOwner(rows){
     data:{labels, datasets:[{data, backgroundColor:colors, borderWidth:2, borderColor:'#fff'}]},
     options:{
       responsive:true, maintainAspectRatio:false,
-      layout:{padding:24},
+      layout:{padding:{top:20,bottom:20,left:50,right:50}},
       plugins:{
         legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}},
         tooltip:{callbacks:{label:(c)=>c.label+': '+fmtRp(c.raw)}},
@@ -1464,9 +1464,9 @@ function updateChartOwner(rows){
           borderRadius:4,
           padding:{top:3,bottom:3,left:5,right:5},
           font:{size:10,weight:700},
-          anchor:'end', align:'end', offset:8,
+          anchor:'end', align:'end', offset:4,
           clip:false,
-          formatter:(v)=> total>0 ? (v/total*100).toFixed(1)+'%' : ''
+          formatter:(v)=> (total>0 && v/total>=0.01) ? (v/total*100).toFixed(1)+'%' : ''
         }
       }
     }
@@ -1593,7 +1593,7 @@ function renderOwnershipDonutUnits(rows, bulan){
     data:{labels, datasets:[{data, backgroundColor:colors, borderWidth:2, borderColor:'#fff'}]},
     options:{
       responsive:true, maintainAspectRatio:false,
-      layout:{padding:24},
+      layout:{padding:{top:20,bottom:20,left:50,right:50}},
       plugins:{
         legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}},
         tooltip:{callbacks:{label:(c)=>c.label+': '+c.raw+' unit'}},
@@ -1605,9 +1605,9 @@ function renderOwnershipDonutUnits(rows, bulan){
           borderRadius:4,
           padding:{top:3,bottom:3,left:5,right:5},
           font:{size:9,weight:700},
-          anchor:'end', align:'end', offset:8,
+          anchor:'end', align:'end', offset:4,
           clip:false,
-          formatter:(v)=> totalUnits>0 ? v+' ('+(v/totalUnits*100).toFixed(0)+'%)' : v
+          formatter:(v)=> (totalUnits>0 && v/totalUnits>=0.01) ? v+' ('+(v/totalUnits*100).toFixed(0)+'%)' : ''
         }
       }
     }
