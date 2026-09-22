@@ -549,7 +549,7 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
       <div class="chart-row">
         <div class="panel">
           <h3>Trend DPP vs DPP Net per Bulan</h3>
-          <p class="hint">Mengikuti filter Site/Kategori/Owner/Armada, tidak mengikuti filter Tahun & Bulan agar trend tetap terlihat</p>
+          <p class="hint">Mengikuti filter Tahun/Site/Kategori/Owner/Armada, tidak mengikuti filter Bulan agar trend bulanan tetap terlihat</p>
           <div class="chart-holder"><canvas id="chartTrend"></canvas></div>
         </div>
         <div class="panel">
@@ -1124,14 +1124,15 @@ function resetFilters(){
 
 function getFiltered(opts={}){
   const ignoreDate = !!opts.ignoreBulan;
+  const ignoreMonthOnly = !!opts.ignoreMonthOnly;
   const downtimeStatus = document.getElementById('fDowntime').value;
   const search = document.getElementById('fSearch').value.trim().toLowerCase();
 
   return RAW.filter(r=>{
+    const [monName, yr2] = String(r.Bulan||'').split('-');
     if(!ignoreDate){
-      const [monName, yr2] = String(r.Bulan||'').split('-');
       if(!matches(filterState.tahun, '20'+yr2)) return false;
-      if(!matches(filterState.bulanNama, monName)) return false;
+      if(!ignoreMonthOnly && !matches(filterState.bulanNama, monName)) return false;
     }
     if(!matches(filterState.site, r['Site Name'])) return false;
     if(!matches(filterState.kategori, r['Kategori Site'])) return false;
@@ -1152,6 +1153,7 @@ function getFiltered(opts={}){
 function applyFilters(){
   const filtered = getFiltered();
   const dateIgnored = getFiltered({ignoreBulan:true});
+  const trendRows = getFiltered({ignoreMonthOnly:true});
 
   updateKpis(filtered);
   updateChartOwner(filtered);
@@ -1160,9 +1162,9 @@ function applyFilters(){
   updateUnitDppCombo(dateIgnored);
   updateOverviewSummary(dateIgnored);
 
-  updateChartTrend(dateIgnored);
+  updateChartTrend(trendRows);
   updateChartBuSite(filtered);
-  updateTrendNarrative(dateIgnored);
+  updateTrendNarrative(trendRows);
 
   updateHighlight(dateIgnored);
   updateChartTopDowntime(filtered);
