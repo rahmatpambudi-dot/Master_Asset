@@ -754,6 +754,17 @@ function showError(msg){
      Pastikan CONFIG.CSV_URL di file HTML ini sudah diarahkan ke raw CSV GitHub yang benar dan repo bersifat public.</div>`;
 }
 
+function cleanRow(r){
+  const textFields = ['Kategori Site','Site Name','BU Site','Type Armada','Klasifikasi Kendaraan','City','Wilayah','Owner'];
+  textFields.forEach(f=>{
+    if(r[f]===null || r[f]===undefined || r[f]==='') r[f] = 'Tidak Diketahui';
+  });
+  ['DPP','Nominal Downtime','DPP Net (setelah downtime)','Usia (Year)'].forEach(f=>{
+    if(r[f]===null || r[f]===undefined || r[f]==='') r[f] = 0;
+  });
+  return r;
+}
+
 function loadData(){
   Papa.parse(CONFIG.CSV_URL, {
     download:true,
@@ -761,7 +772,7 @@ function loadData(){
     dynamicTyping:true,
     skipEmptyLines:true,
     complete:function(res){
-      RAW = (res.data||[]).filter(r => r.NOPOL);
+      RAW = (res.data||[]).filter(r => r.NOPOL).map(cleanRow);
       if(RAW.length===0){
         showError('CSV berhasil diakses tapi tidak ada baris data yang terbaca.');
         return;
