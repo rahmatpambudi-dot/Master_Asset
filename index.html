@@ -144,6 +144,7 @@ body{
   background:#fff;border:1px solid var(--line);border-radius:10px;
   box-shadow:0 8px 24px rgba(21,36,81,.16);padding:8px;
   min-width:230px;max-width:290px;z-index:200;
+  overflow:hidden;
 }
 .msel-panel.hidden{display:none;}
 .msel-actions{display:flex;gap:6px;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--line);}
@@ -794,11 +795,17 @@ window.addEventListener('scroll', (e)=>{
   closeAllPanels(null);
 }, true);
 window.addEventListener('resize', ()=>closeAllPanels(null));
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', ()=>closeAllPanels(null));
+  window.visualViewport.addEventListener('scroll', ()=>closeAllPanels(null));
+}
 
 function positionPanel(btn, panel){
   const rect = btn.getBoundingClientRect();
+  const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+  const vw = (window.visualViewport ? window.visualViewport.width : window.innerWidth);
   const margin = 12;
-  const spaceBelow = window.innerHeight - rect.bottom - margin;
+  const spaceBelow = vh - rect.bottom - margin;
   const spaceAbove = rect.top - margin;
   const inner = panel.querySelector('.msel-options, .msel-tree');
   const actionsEl = panel.querySelector('.msel-actions');
@@ -810,14 +817,16 @@ function positionPanel(btn, panel){
 
   if(spaceBelow>=150 || spaceBelow>=spaceAbove){
     panel.style.top = (rect.bottom+6) + 'px';
-    if(inner) inner.style.maxHeight = Math.max(120, spaceBelow-chrome) + 'px';
+    panel.style.maxHeight = Math.max(100, spaceBelow) + 'px';
+    if(inner) inner.style.maxHeight = Math.max(100, spaceBelow-chrome-8) + 'px';
   } else {
-    panel.style.bottom = (window.innerHeight-rect.top+6) + 'px';
-    if(inner) inner.style.maxHeight = Math.max(120, spaceAbove-chrome) + 'px';
+    panel.style.bottom = (vh-rect.top+6) + 'px';
+    panel.style.maxHeight = Math.max(100, spaceAbove) + 'px';
+    if(inner) inner.style.maxHeight = Math.max(100, spaceAbove-chrome-8) + 'px';
   }
 
   let left = rect.left;
-  const maxLeft = window.innerWidth - 300;
+  const maxLeft = vw - 300;
   if(left>maxLeft) left = Math.max(8, maxLeft);
   panel.style.left = left + 'px';
 }
