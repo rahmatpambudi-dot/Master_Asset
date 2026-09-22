@@ -230,13 +230,14 @@ body{
 /* ---------- trend narrative ---------- */
 .narrative-list{max-height:270px;overflow-y:auto;}
 .narrative-row{
-  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  display:flex;justify-content:flex-start;align-items:center;gap:14px;
   padding:7px 4px;border-bottom:1px solid var(--line);font-size:12.5px;
+  max-width:420px;
 }
-.narrative-row .nr-month{font-weight:600;flex:1;}
-.narrative-row .nr-unit{font-size:11.5px;color:var(--muted);min-width:70px;text-align:right;}
-.narrative-row .nr-val{font-size:12.5px;min-width:130px;text-align:right;}
-.narrative-row .nr-delta{font-size:11px;min-width:64px;text-align:right;}
+.narrative-row .nr-month{font-weight:600;width:56px;flex-shrink:0;}
+.narrative-row .nr-unit{font-size:11.5px;color:var(--muted);width:56px;flex-shrink:0;text-align:right;}
+.narrative-row .nr-val{font-size:12.5px;width:130px;flex-shrink:0;text-align:right;}
+.narrative-row .nr-delta{font-size:11px;width:56px;flex-shrink:0;text-align:right;}
 
 /* ---------- highlight card ---------- */
 .highlight-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px;}
@@ -553,13 +554,18 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
           <div class="chart-holder"><canvas id="chartTrend"></canvas></div>
         </div>
         <div class="panel">
+          <h3>Trend Qty Armada per Bulan</h3>
+          <p class="hint">Mengikuti filter Tahun/Site/Kategori/Owner/Armada, tidak mengikuti filter Bulan</p>
+          <div class="chart-holder"><canvas id="chartUnitTrend"></canvas></div>
+        </div>
+      </div>
+
+      <div class="chart-row">
+        <div class="panel">
           <h3>DPP vs Downtime per BU Site</h3>
           <p class="hint">Sesuai filter aktif (termasuk filter Bulan)</p>
           <div class="chart-holder"><canvas id="chartBuSite"></canvas></div>
         </div>
-      </div>
-
-      <div class="chart-row full">
         <div class="panel">
           <h3>Ringkasan Bulanan</h3>
           <p class="hint">Qty armada & Total DPP tiap bulan beserta perubahan (%) dibanding bulan sebelumnya</p>
@@ -717,7 +723,7 @@ let sortState = {key:'Bulan', dir:'desc'};
 let page = 1;
 const PAGE_SIZE = 50;
 
-let chartTrend, chartOwner, chartBuSite, chartTopDowntime, chartTrendSlide, chartOwnerSlide, chartDppByBu, chartDppBySite, chartUnitDppBu, chartUnitDppKategori;
+let chartTrend, chartOwner, chartBuSite, chartTopDowntime, chartTrendSlide, chartOwnerSlide, chartDppByBu, chartDppBySite, chartUnitDppBu, chartUnitDppKategori, chartUnitTrend;
 if (typeof ChartDataLabels !== 'undefined') {
   Chart.register(ChartDataLabels);
 }
@@ -1163,6 +1169,7 @@ function applyFilters(){
   updateOverviewSummary(dateIgnored);
 
   updateChartTrend(trendRows);
+  updateChartUnitTrend(trendRows);
   updateChartBuSite(filtered);
   updateTrendNarrative(trendRows);
 
@@ -1481,6 +1488,37 @@ function updateChartTrend(rows){
       plugins:{legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}}},
       scales:{
         y:{ticks:{callback:v=>(v/1e6).toFixed(0)+'jt', font:{size:10}}, grid:{color:'#eef1f7'}},
+        x:{ticks:{font:{size:10}}, grid:{display:false}}
+      }
+    }
+  });
+}
+
+function updateChartUnitTrend(rows){
+  const unitMap = new Map();
+  rows.forEach(r=>{
+    if(!unitMap.has(r.Bulan)) unitMap.set(r.Bulan, new Set());
+    unitMap.get(r.Bulan).add(r.NOPOL);
+  });
+  const labels = Array.from(new Set(rows.map(r=>r.Bulan))).sort((a,b)=>bulanSortKey(a)-bulanSortKey(b));
+  const unitData = labels.map(l=>unitMap.get(l) ? unitMap.get(l).size : 0);
+
+  const ctx = document.getElementById('chartUnitTrend');
+  if(chartUnitTrend) chartUnitTrend.destroy();
+  chartUnitTrend = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels,
+      datasets:[
+        {label:'Unit', data:unitData, borderColor:'#c98a1c', backgroundColor:'rgba(201,138,28,.1)', tension:.3, fill:true, pointRadius:2,
+          datalabels:{display:true, align:'top', anchor:'end', color:'#c98a1c', font:{size:8,weight:600}}},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{ticks:{font:{size:10}}, grid:{color:'#eef1f7'}},
         x:{ticks:{font:{size:10}}, grid:{display:false}}
       }
     }
