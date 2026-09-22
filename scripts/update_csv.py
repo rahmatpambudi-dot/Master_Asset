@@ -230,7 +230,7 @@ def main():
             'City': city_clean,
             'Wilayah': region,
             'Usia (Year)': r.get('Usia (Year)', ''),
-            'Owner': str(r.get('OWNER', '')).strip(),
+            'Owner': str(r.get('OWNER', '')).strip() or 'Tidak Diketahui',
             'DPP': dpp,
             'Nominal Downtime': downtime_val,
             'DPP Net (setelah downtime)': dpp_net,
