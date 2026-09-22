@@ -797,7 +797,25 @@ window.addEventListener('resize', ()=>closeAllPanels(null));
 
 function positionPanel(btn, panel){
   const rect = btn.getBoundingClientRect();
-  panel.style.top = Math.min(rect.bottom+6, window.innerHeight-40) + 'px';
+  const margin = 12;
+  const spaceBelow = window.innerHeight - rect.bottom - margin;
+  const spaceAbove = rect.top - margin;
+  const inner = panel.querySelector('.msel-options, .msel-tree');
+  const actionsEl = panel.querySelector('.msel-actions');
+  const searchEl = panel.querySelector('.tree-search');
+  const chrome = (actionsEl?actionsEl.offsetHeight:0) + (searchEl?searchEl.offsetHeight:0) + 24;
+
+  panel.style.top = '';
+  panel.style.bottom = '';
+
+  if(spaceBelow>=150 || spaceBelow>=spaceAbove){
+    panel.style.top = (rect.bottom+6) + 'px';
+    if(inner) inner.style.maxHeight = Math.max(120, spaceBelow-chrome) + 'px';
+  } else {
+    panel.style.bottom = (window.innerHeight-rect.top+6) + 'px';
+    if(inner) inner.style.maxHeight = Math.max(120, spaceAbove-chrome) + 'px';
+  }
+
   let left = rect.left;
   const maxLeft = window.innerWidth - 300;
   if(left>maxLeft) left = Math.max(8, maxLeft);
