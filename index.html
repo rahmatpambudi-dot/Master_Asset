@@ -613,6 +613,7 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
                 <th data-key="Owner">Owner</th>
                 <th data-key="DPP" class="num">DPP</th>
                 <th data-key="Nominal Downtime" class="num">Downtime</th>
+                <th data-key="Downtime (Hari)" class="num">Hari</th>
                 <th data-key="DPP Net (setelah downtime)" class="num">DPP Net</th>
               </tr>
             </thead>
@@ -622,6 +623,7 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
                 <td colspan="9">Total (halaman ini tidak dihitung — total = seluruh data ter-filter)</td>
                 <td class="num" id="footDpp">-</td>
                 <td class="num" id="footDowntime">-</td>
+                <td class="num" id="footDowntimeDays">-</td>
                 <td class="num" id="footDppNet">-</td>
               </tr>
             </tfoot>
@@ -799,7 +801,7 @@ function cleanRow(r){
   if(r.State===null || r.State===undefined || r.State===''){
     r.State = '(Blanks)';
   }
-  ['DPP','Nominal Downtime','DPP Net (setelah downtime)','Usia (Year)'].forEach(f=>{
+  ['DPP','Nominal Downtime','Downtime (Hari)','DPP Net (setelah downtime)','Usia (Year)'].forEach(f=>{
     if(r[f]===null || r[f]===undefined || r[f]==='') r[f] = 0;
   });
   return r;
@@ -1972,6 +1974,7 @@ function renderTable(filtered){
   const tbody = document.getElementById('tableBody');
   tbody.innerHTML = pageRows.map(r=>{
     const dt = r['Nominal Downtime']||0;
+    const hari = r['Downtime (Hari)']||0;
     const badgeClass = dt>0 ? 'nonzero' : 'zero';
     return `<tr>
       <td class="mono">${r.NOPOL||''}</td>
@@ -1985,15 +1988,18 @@ function renderTable(filtered){
       <td>${r.Owner||''}</td>
       <td class="num mono">${fmtRp(r.DPP)}</td>
       <td class="num"><span class="badge ${badgeClass}">${fmtRp(dt)}</span></td>
+      <td class="num mono">${hari || ''}</td>
       <td class="num mono">${fmtRp(r['DPP Net (setelah downtime)'])}</td>
     </tr>`;
   }).join('');
 
   const totalDpp = filtered.reduce((s,r)=>s+(r.DPP||0),0);
   const totalDt = filtered.reduce((s,r)=>s+(r['Nominal Downtime']||0),0);
+  const totalHari = filtered.reduce((s,r)=>s+(r['Downtime (Hari)']||0),0);
   const totalNet = filtered.reduce((s,r)=>s+(r['DPP Net (setelah downtime)']||0),0);
   document.getElementById('footDpp').textContent = fmtRp(totalDpp);
   document.getElementById('footDowntime').textContent = fmtRp(totalDt);
+  document.getElementById('footDowntimeDays').textContent = fmtNum(totalHari);
   document.getElementById('footDppNet').textContent = fmtRp(totalNet);
 
   renderPagination(sorted.length, totalPages);
