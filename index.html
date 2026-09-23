@@ -961,9 +961,10 @@ function buildMultiSelect(containerId, placeholderText, items, selectedSet, onCh
 
 function buildSiteTree(containerId, groupedMap, selectedSet, onChange){
   const container = document.getElementById(containerId);
-  const allSites = Array.from(groupedMap.values()).flat();
+  const allKeys = [];
+  Array.from(groupedMap.entries()).forEach(([bu, sites])=>sites.forEach(s=>allKeys.push(bu+'|||'+s)));
   const groupsHtml = Array.from(groupedMap.entries()).sort((a,b)=>a[0].localeCompare(b[0])).map(([bu, sites])=>{
-    const siteLabels = sites.map(s=>`<label><input type="checkbox" class="site-cb" data-bu="${escapeHtml(bu)}" value="${escapeHtml(s)}"> ${escapeHtml(s)}</label>`).join('');
+    const siteLabels = sites.map(s=>`<label><input type="checkbox" class="site-cb" data-bu="${escapeHtml(bu)}" value="${escapeHtml(bu+'|||'+s)}"> ${escapeHtml(s)}</label>`).join('');
     return `<div class="tree-group">
       <div class="tree-group-header">
         <span class="tree-caret">▸</span>
@@ -990,6 +991,11 @@ function buildSiteTree(containerId, groupedMap, selectedSet, onChange){
   document.body.appendChild(panel);
   const searchInput = panel.querySelector('.tree-search');
 
+  function displayName(key){
+    const idx = key.indexOf('|||');
+    return idx>=0 ? key.slice(idx+3) : key;
+  }
+
   searchInput.addEventListener('input', () => {
     const q = searchInput.value.trim().toLowerCase();
     panel.querySelectorAll('.tree-group').forEach(group => {
@@ -999,7 +1005,7 @@ function buildSiteTree(containerId, groupedMap, selectedSet, onChange){
       let groupHasMatch = false;
       siteLabels.forEach(cb => {
         const labelEl = cb.closest('label');
-        const match = !q || cb.value.toLowerCase().includes(q);
+        const match = !q || displayName(cb.value).toLowerCase().includes(q);
         labelEl.style.display = match ? '' : 'none';
         if (match) groupHasMatch = true;
       });
@@ -1021,10 +1027,10 @@ function buildSiteTree(containerId, groupedMap, selectedSet, onChange){
   searchInput.addEventListener('click', e => e.stopPropagation());
 
   function updateLabel(){
-    if(selectedSet.size===0 || selectedSet.size===allSites.length){
+    if(selectedSet.size===0 || selectedSet.size===allKeys.length){
       btn.textContent = 'Semua Site ▾';
     } else if(selectedSet.size<=2){
-      btn.textContent = Array.from(selectedSet).join(', ') + ' ▾';
+      btn.textContent = Array.from(selectedSet).map(displayName).join(', ') + ' ▾';
     } else {
       btn.textContent = selectedSet.size + ' Site dipilih ▾';
     }
@@ -1077,7 +1083,7 @@ function buildSiteTree(containerId, groupedMap, selectedSet, onChange){
   });
 
   panel.querySelector('[data-act="all"]').addEventListener('click', ()=>{
-    allSites.forEach(s=>selectedSet.add(s));
+    allKeys.forEach(k=>selectedSet.add(k));
     panel.querySelectorAll('.site-cb').forEach(cb=>cb.checked=true);
     panel.querySelectorAll('.grp-cb').forEach(cb=>{cb.checked=true; cb.indeterminate=false;});
     updateLabel(); onChange();
@@ -1175,7 +1181,7 @@ function getFiltered(opts={}){
       if(!matches(filterState.tahun, '20'+yr2)) return false;
       if(!ignoreMonthOnly && !matches(filterState.bulanNama, monName)) return false;
     }
-    if(!matches(filterState.site, r['Site Name'])) return false;
+    if(!matches(filterState.site, r['BU Site']+'|||'+r['Site Name'])) return false;
     if(!matches(filterState.kategori, r['Kategori Site'])) return false;
     if(!matches(filterState.owner, r.Owner)) return false;
     if(!matches(filterState.armada, r['Type Armada'])) return false;
