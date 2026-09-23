@@ -231,6 +231,7 @@ def main():
             'Wilayah': region,
             'Usia (Year)': r.get('Usia (Year)', ''),
             'Owner': str(r.get('OWNER', '')).strip() or 'Tidak Diketahui',
+            'State': (str(r.get('State', '') or r.get('STATE', '') or r.get('state', '')).strip()),
             'DPP': dpp,
             'Nominal Downtime': downtime_val,
             'DPP Net (setelah downtime)': dpp_net,
