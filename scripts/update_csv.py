@@ -199,16 +199,19 @@ def main():
     # --- Master: buang baris kosong (tanpa Bulan) ---
     master = [r for r in master_records if str(r.get('Bulan', '')).strip()]
 
-    # --- Downtime: agregasi Potongan sewa per (NOPOL upper, Periode ternormalisasi) ---
+    # --- Downtime: agregasi Potongan sewa & Lift Time Downtime per (NOPOL upper, Periode ternormalisasi) ---
     downtime_agg = {}
+    downtime_days_agg = {}
     for r in downtime_records:
         nopol = str(r.get('Nopol', '')).strip().upper()
         if not nopol:
             continue
         bln = normalize_periode(r.get('Periode', ''))
         potongan = to_num(r.get('Potongan sewa', 0))
+        hari = to_num(r.get('Lift Time Downtime', 0))
         key = (nopol, bln)
         downtime_agg[key] = downtime_agg.get(key, 0.0) + potongan
+        downtime_days_agg[key] = downtime_days_agg.get(key, 0.0) + hari
 
     # --- Join ke master ---
     out_rows = []
@@ -217,6 +220,7 @@ def main():
         bln = str(r.get('Bulan', '')).strip()
         dpp = to_num(r.get('DPP\n ( Nilai Yg ditagihkan )', r.get('DPP', 0)))
         downtime_val = downtime_agg.get((nopol, bln), 0.0)
+        downtime_days = downtime_days_agg.get((nopol, bln), 0.0)
         dpp_net = dpp - downtime_val
         city_clean, region = classify_city(r.get('CITY', ''))
         out_rows.append({
@@ -234,6 +238,7 @@ def main():
             'State': (str(r.get('State', '') or r.get('STATE', '') or r.get('state', '')).strip()),
             'DPP': dpp,
             'Nominal Downtime': downtime_val,
+            'Downtime (Hari)': downtime_days,
             'DPP Net (setelah downtime)': dpp_net,
         })
 
