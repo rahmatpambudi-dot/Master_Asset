@@ -360,6 +360,7 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
       <button class="nav-item" data-page="trend"><span class="nav-icon">📈</span><span class="nav-label">Trend Tagihan</span></button>
       <button class="nav-item" data-page="detail"><span class="nav-icon">📋</span><span class="nav-label">Detail & Highlight</span></button>
       <button class="nav-item" data-page="slide"><span class="nav-icon">🖼️</span><span class="nav-label">Laporan Slide</span></button>
+      <button class="nav-item" data-page="onhand"><span class="nav-icon">🚚</span><span class="nav-label">Armada On Hand</span></button>
     </nav>
 
     <div class="sidebar-filters">
@@ -688,6 +689,36 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
         </div>
       </div>
     </section>
+
+    <!-- ============ PAGE 5: ARMADA ON HAND ============ -->
+    <section class="page" id="page-onhand">
+      <h2 class="page-title">Armada On Hand</h2>
+      <p class="page-sub">Qty armada per Site berdasarkan status On Hand (kolom State) — baru mulai terisi Agustus 2026, mengikuti filter di sidebar</p>
+
+      <div class="chart-row full">
+        <div class="panel">
+          <div class="table-head">
+            <h3>Qty Armada per Site × Type Armada</h3>
+            <div class="fgroup-v" style="min-width:220px;">
+              <label>Status</label>
+              <select id="fOnHandState">
+                <option value="all">On Hand + On Hand - Tagihan</option>
+                <option value="On Hand">On Hand saja</option>
+                <option value="On Hand - Tagihan">On Hand - Tagihan saja</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table class="mini-table" id="onHandTable">
+              <thead id="onHandTableHead"></thead>
+              <tbody id="onHandTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-note">
       Data ditarik otomatis dari CSV di GitHub. Update data cukup replace file CSV di repo — dashboard ini tidak perlu diubah.
     </div>
   </main>
@@ -765,6 +796,9 @@ function cleanRow(r){
   textFields.forEach(f=>{
     if(r[f]===null || r[f]===undefined || r[f]==='') r[f] = 'Tidak Diketahui';
   });
+  if(r.State===null || r.State===undefined || r.State===''){
+    r.State = '(Blanks)';
+  }
   ['DPP','Nominal Downtime','DPP Net (setelah downtime)','Usia (Year)'].forEach(f=>{
     if(r[f]===null || r[f]===undefined || r[f]==='') r[f] = 0;
   });
@@ -1102,6 +1136,7 @@ function initFilters(){
   buildMultiSelect('mselWilayah', 'Semua Wilayah', uniqueSorted(RAW.map(r=>r.Wilayah)), filterState.wilayah, onFilterChange);
 
   document.getElementById('fDowntime').addEventListener('change', onFilterChange);
+  document.getElementById('fOnHandState').addEventListener('change', ()=>updateOnHandTable(getFiltered()));
   document.getElementById('fSearch').addEventListener('input', onFilterChange);
   document.getElementById('btnReset').addEventListener('click', resetFilters);
 
@@ -1178,6 +1213,7 @@ function applyFilters(){
   renderTable(filtered);
 
   updateSlideReport(filtered);
+  updateOnHandTable(filtered);
 }
 
 function updateKpis(rows){
@@ -1858,6 +1894,52 @@ function updateSlideReport(rows){
   renderSlide1(mrRows);
   renderSlide2(rows);
   renderSlide3(mrRows);
+}
+
+function updateOnHandTable(rows){
+  const stateSel = document.getElementById('fOnHandState').value;
+  const targetStates = stateSel==='all' ? ['On Hand','On Hand - Tagihan'] : [stateSel];
+  const subset = rows.filter(r=>targetStates.includes(r.State));
+
+  const thead = document.getElementById('onHandTableHead');
+  const tbody = document.getElementById('onHandTableBody');
+
+  const armadaList = uniqueSorted(subset.map(r=>r['Type Armada']));
+
+  if(subset.length===0){
+    thead.innerHTML = '<tr><th>Site</th></tr>';
+    tbody.innerHTML = `<tr><td class="hint">Belum ada data untuk status/filter ini. Kolom State baru mulai terisi Agustus 2026 — pastikan filter Tahun/Bulan mengarah ke periode itu.</td></tr>`;
+    return;
+  }
+
+  const siteMap = new Map();
+  subset.forEach(r=>{
+    const site = r['Site Name'];
+    if(!siteMap.has(site)) siteMap.set(site, new Map());
+    const m = siteMap.get(site);
+    if(!m.has(r['Type Armada'])) m.set(r['Type Armada'], new Set());
+    m.get(r['Type Armada']).add(r.NOPOL);
+  });
+  const sites = uniqueSorted(Array.from(siteMap.keys()));
+
+  thead.innerHTML = `<tr><th>Site</th>${armadaList.map(a=>`<th class="num">${escapeHtml(a)}</th>`).join('')}<th class="num">Total</th></tr>`;
+
+  const colTotals = new Map(armadaList.map(a=>[a,0]));
+  let grandTotal = 0;
+  const rowsHtml = sites.map(site=>{
+    const m = siteMap.get(site);
+    let rowTotal = 0;
+    const cells = armadaList.map(a=>{
+      const c = m.has(a) ? m.get(a).size : 0;
+      rowTotal += c;
+      colTotals.set(a, colTotals.get(a)+c);
+      return `<td class="num mono">${c || ''}</td>`;
+    }).join('');
+    grandTotal += rowTotal;
+    return `<tr><td>${escapeHtml(site)}</td>${cells}<td class="num mono" style="font-weight:700;">${rowTotal}</td></tr>`;
+  }).join('');
+  const totalRow = `<tr style="font-weight:700;background:var(--bg);"><td>Grand Total</td>${armadaList.map(a=>`<td class="num mono">${colTotals.get(a)}</td>`).join('')}<td class="num mono">${grandTotal}</td></tr>`;
+  tbody.innerHTML = rowsHtml + totalRow;
 }
 
 function sortRows(rows){
