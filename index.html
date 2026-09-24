@@ -719,7 +719,7 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
             </div>
             <div>
               <h4 style="font-size:12px;text-transform:uppercase;color:var(--muted);margin:0 0 8px;">Kepemilikan Armada</h4>
-              <div class="chart-holder" style="height:200px;"><canvas id="chartOwnerOnHand"></canvas></div>
+              <div class="chart-holder" style="height:260px;"><canvas id="chartOwnerOnHand"></canvas></div>
               <div class="hint" style="text-align:center;margin-top:8px;" id="onhandDonutCaption">-</div>
             </div>
           </div>
@@ -1957,8 +1957,11 @@ function renderOnHandSlide1(rows){
     </div>`;
   }).join('') : '<p class="hint">Tidak ada data</p>';
 
+  const hasPrev = !!prev;
+  const colPrevEl = document.getElementById('onhandColPrev');
+  colPrevEl.textContent = prev || '';
+  colPrevEl.style.display = hasPrev ? '' : 'none';
   document.getElementById('onhandColCurr').textContent = curr || 'Bulan Ini';
-  document.getElementById('onhandColPrev').textContent = prev || 'Bulan Lalu';
   const katCurr = unitCountByKey(rows, classifySiteGroup, curr);
   const katPrev = unitCountByKey(rows, classifySiteGroup, prev);
   const katKeys = uniqueSorted(Array.from(new Set([...katCurr.keys(), ...katPrev.keys()])));
@@ -1966,10 +1969,12 @@ function renderOnHandSlide1(rows){
   let rowsHtml2 = katKeys.map(k=>{
     const c = katCurr.get(k)||0; const p = katPrev.get(k)||0;
     totalC+=c; totalP+=p;
-    return `<tr><td>${k}</td><td class="num mono">${c}</td><td class="num mono">${p}</td></tr>`;
+    const prevCell = hasPrev ? `<td class="num mono">${p}</td>` : '';
+    return `<tr><td>${k}</td><td class="num mono">${c}</td>${prevCell}</tr>`;
   }).join('');
-  rowsHtml2 += `<tr style="font-weight:700;"><td>Grand Total</td><td class="num mono">${totalC}</td><td class="num mono">${totalP}</td></tr>`;
-  document.getElementById('onhandKategoriBody').innerHTML = katKeys.length ? rowsHtml2 : '<tr><td colspan="3" class="hint">Tidak ada data</td></tr>';
+  const prevTotalCell = hasPrev ? `<td class="num mono">${totalP}</td>` : '';
+  rowsHtml2 += `<tr style="font-weight:700;"><td>Grand Total</td><td class="num mono">${totalC}</td>${prevTotalCell}</tr>`;
+  document.getElementById('onhandKategoriBody').innerHTML = katKeys.length ? rowsHtml2 : `<tr><td colspan="${hasPrev?3:2}" class="hint">Tidak ada data</td></tr>`;
 
   const seen = new Map();
   currRows.forEach(r=>{ if(!seen.has(r.NOPOL)) seen.set(r.NOPOL, r.Owner); });
@@ -1992,9 +1997,21 @@ function renderOnHandSlide1(rows){
         legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}},
         tooltip:{callbacks:{label:(c)=>c.label+': '+c.raw+' unit'}},
         datalabels:{
-          color:(ctx2)=>oColors[ctx2.dataIndex % oColors.length],
-          backgroundColor:'#fff',
-          borderColor:(ctx2)=>oColors[ctx2.dataIndex % oColors.length],
+          color:(ctx2)=>{
+            const v = ctx2.dataset.data[ctx2.dataIndex];
+            const pct = totalUnitsO>0 ? v/totalUnitsO : 0;
+            return pct>=0.12 ? '#fff' : oColors[ctx2.dataIndex % oColors.length];
+          },
+          backgroundColor:(ctx2)=>{
+            const v = ctx2.dataset.data[ctx2.dataIndex];
+            const pct = totalUnitsO>0 ? v/totalUnitsO : 0;
+            return pct>=0.12 ? 'transparent' : '#fff';
+          },
+          borderColor:(ctx2)=>{
+            const v = ctx2.dataset.data[ctx2.dataIndex];
+            const pct = totalUnitsO>0 ? v/totalUnitsO : 0;
+            return pct>=0.12 ? 'transparent' : oColors[ctx2.dataIndex % oColors.length];
+          },
           borderWidth:1.5, borderRadius:4,
           padding:{top:3,bottom:3,left:5,right:5},
           font:{size:10,weight:700},
@@ -2008,9 +2025,9 @@ function renderOnHandSlide1(rows){
     }
   });
 
-  const siteCount = new Set(currRows.map(r=>r['Site Name'])).size;
+  const siteCount = katKeys.length;
   const buCount = new Set(currRows.map(r=>r['BU Site'])).size;
-  document.getElementById('onhandDonutCaption').textContent = curr ? `${siteCount} Sites · ${buCount} BU` : '-';
+  document.getElementById('onhandDonutCaption').textContent = curr ? `${siteCount} Kelompok Site · ${buCount} BU` : '-';
 }
 
 function updateOnHandTable(rows){
