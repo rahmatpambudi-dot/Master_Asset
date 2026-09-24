@@ -698,6 +698,35 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
       <p class="page-sub">Qty armada per Site berdasarkan status On Hand (kolom State) — baru mulai terisi Agustus 2026, mengikuti filter di sidebar</p>
 
       <div class="chart-row full">
+        <div class="slide-block" style="margin-bottom:20px;">
+          <div class="slide-block-title">Total Assets Armada Nasional</div>
+          <div class="slide-block-sub" id="onhandSub">-</div>
+          <div class="slide1-grid">
+            <div class="slide1-hero">
+              <div class="big-num mono" id="onhandBigNum">-</div>
+              <div class="big-label">Total Unit Armada</div>
+              <div class="big-sub" id="onhandBigSub">-</div>
+            </div>
+            <div class="bu-bars" id="onhandBuBars"></div>
+          </div>
+          <div class="slide1-bottom">
+            <div>
+              <h4 style="font-size:12px;text-transform:uppercase;color:var(--muted);margin:0 0 8px;">Unit per Site</h4>
+              <table class="mini-table">
+                <thead><tr><th>Site</th><th class="num" id="onhandColCurr">Bulan Ini</th><th class="num" id="onhandColPrev">Bulan Lalu</th></tr></thead>
+                <tbody id="onhandKategoriBody"></tbody>
+              </table>
+            </div>
+            <div>
+              <h4 style="font-size:12px;text-transform:uppercase;color:var(--muted);margin:0 0 8px;">Kepemilikan Armada</h4>
+              <div class="chart-holder" style="height:200px;"><canvas id="chartOwnerOnHand"></canvas></div>
+              <div class="hint" style="text-align:center;margin-top:8px;" id="onhandDonutCaption">-</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-row full">
         <div class="panel">
           <div class="table-head">
             <h3>Qty Armada per Site × Type Armada</h3>
@@ -756,7 +785,7 @@ let sortState = {key:'Bulan', dir:'desc'};
 let page = 1;
 const PAGE_SIZE = 50;
 
-let chartTrend, chartOwner, chartBuSite, chartTopDowntime, chartTrendSlide, chartOwnerSlide, chartDppByBu, chartDppBySite, chartUnitDppBu, chartUnitDppKategori, chartUnitTrend;
+let chartTrend, chartOwner, chartBuSite, chartTopDowntime, chartTrendSlide, chartOwnerSlide, chartDppByBu, chartDppBySite, chartUnitDppBu, chartUnitDppKategori, chartUnitTrend, chartOwnerOnHand;
 if (typeof ChartDataLabels !== 'undefined') {
   Chart.register(ChartDataLabels);
 }
@@ -1904,10 +1933,92 @@ function updateSlideReport(rows){
   renderSlide3(mrRows);
 }
 
+function renderOnHandSlide1(rows){
+  const {curr, prev} = getLatestTwoPeriods(rows);
+  document.getElementById('onhandSub').textContent = curr ? `Active On-Hand · ${curr}` : 'Belum ada data periode';
+
+  const currRows = rows.filter(r=>r.Bulan===curr);
+  const prevRows = rows.filter(r=>r.Bulan===prev);
+  const currTotal = new Set(currRows.map(r=>r.NOPOL)).size;
+  const prevTotal = new Set(prevRows.map(r=>r.NOPOL)).size;
+  document.getElementById('onhandBigNum').textContent = curr ? fmtNum(currTotal) : '-';
+  document.getElementById('onhandBigSub').textContent = prev ? `${prevTotal} unit di ${prev}` : '';
+
+  const buCurr = unitCountByKey(rows, r=>r['BU Site'], curr);
+  const buList = Array.from(buCurr.entries()).sort((a,b)=>b[1]-a[1]);
+  const maxVal = buList.length ? buList[0][1] : 1;
+  document.getElementById('onhandBuBars').innerHTML = buList.length ? buList.map(([bu,count])=>{
+    const pct = currTotal>0 ? (count/currTotal*100) : 0;
+    const widthPct = maxVal>0 ? (count/maxVal*100) : 0;
+    return `<div class="bu-bar-row">
+      <div class="bu-bar-name">${escapeHtml(bu)}</div>
+      <div class="bu-bar-track"><div class="bu-bar-fill" style="width:${widthPct}%;"></div></div>
+      <div class="bu-bar-val mono">${count} (${pct.toFixed(1)}%)</div>
+    </div>`;
+  }).join('') : '<p class="hint">Tidak ada data</p>';
+
+  document.getElementById('onhandColCurr').textContent = curr || 'Bulan Ini';
+  document.getElementById('onhandColPrev').textContent = prev || 'Bulan Lalu';
+  const katCurr = unitCountByKey(rows, classifySiteGroup, curr);
+  const katPrev = unitCountByKey(rows, classifySiteGroup, prev);
+  const katKeys = uniqueSorted(Array.from(new Set([...katCurr.keys(), ...katPrev.keys()])));
+  let totalC=0, totalP=0;
+  let rowsHtml2 = katKeys.map(k=>{
+    const c = katCurr.get(k)||0; const p = katPrev.get(k)||0;
+    totalC+=c; totalP+=p;
+    return `<tr><td>${k}</td><td class="num mono">${c}</td><td class="num mono">${p}</td></tr>`;
+  }).join('');
+  rowsHtml2 += `<tr style="font-weight:700;"><td>Grand Total</td><td class="num mono">${totalC}</td><td class="num mono">${totalP}</td></tr>`;
+  document.getElementById('onhandKategoriBody').innerHTML = katKeys.length ? rowsHtml2 : '<tr><td colspan="3" class="hint">Tidak ada data</td></tr>';
+
+  const seen = new Map();
+  currRows.forEach(r=>{ if(!seen.has(r.NOPOL)) seen.set(r.NOPOL, r.Owner); });
+  const ownerMap = new Map();
+  seen.forEach(owner=>{ ownerMap.set(owner, (ownerMap.get(owner)||0)+1); });
+  const oLabels = Array.from(ownerMap.keys());
+  const oData = oLabels.map(l=>ownerMap.get(l));
+  const oColors = ['#2f6fed','#c98a1c','#1a9b6c','#d64545'];
+  const totalUnitsO = oData.reduce((a,b)=>a+b,0);
+
+  const ctx = document.getElementById('chartOwnerOnHand');
+  if(chartOwnerOnHand) chartOwnerOnHand.destroy();
+  chartOwnerOnHand = new Chart(ctx, {
+    type:'doughnut',
+    data:{labels:oLabels, datasets:[{data:oData, backgroundColor:oColors, borderWidth:2, borderColor:'#fff'}]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      layout:{padding:{top:20,bottom:20,left:50,right:50}},
+      plugins:{
+        legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}},
+        tooltip:{callbacks:{label:(c)=>c.label+': '+c.raw+' unit'}},
+        datalabels:{
+          color:(ctx2)=>oColors[ctx2.dataIndex % oColors.length],
+          backgroundColor:'#fff',
+          borderColor:(ctx2)=>oColors[ctx2.dataIndex % oColors.length],
+          borderWidth:1.5, borderRadius:4,
+          padding:{top:3,bottom:3,left:5,right:5},
+          font:{size:10,weight:700},
+          anchor:(ctx2)=>{ const v=ctx2.dataset.data[ctx2.dataIndex]; return totalUnitsO>0 && v/totalUnitsO>=0.12 ? 'center':'end'; },
+          align:(ctx2)=>{ const v=ctx2.dataset.data[ctx2.dataIndex]; return totalUnitsO>0 && v/totalUnitsO>=0.12 ? 'center':'end'; },
+          offset:(ctx2)=>{ const v=ctx2.dataset.data[ctx2.dataIndex]; return totalUnitsO>0 && v/totalUnitsO>=0.12 ? 0:6; },
+          clip:false,
+          formatter:(v)=> totalUnitsO>0 ? (v/totalUnitsO*100).toFixed(1)+'%' : ''
+        }
+      }
+    }
+  });
+
+  const siteCount = new Set(currRows.map(r=>r['Site Name'])).size;
+  const buCount = new Set(currRows.map(r=>r['BU Site'])).size;
+  document.getElementById('onhandDonutCaption').textContent = curr ? `${siteCount} Sites · ${buCount} BU` : '-';
+}
+
 function updateOnHandTable(rows){
   const stateSel = document.getElementById('fOnHandState').value;
   const targetStates = stateSel==='all' ? ['On Hand','On Hand - Tagihan'] : [stateSel];
   const subset = rows.filter(r=>targetStates.includes(r.State));
+
+  renderOnHandSlide1(subset);
 
   const thead = document.getElementById('onHandTableHead');
   const tbody = document.getElementById('onHandTableBody');
