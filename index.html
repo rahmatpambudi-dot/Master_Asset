@@ -1927,7 +1927,8 @@ function renderSlide3(rows){
 }
 
 function updateSlideReport(rows){
-  const mrRows = rows.filter(r=>r.Owner==='MR');
+  const ON_HAND = ['On Hand','On Hand - Tagihan'];
+  const mrRows = rows.filter(r=>r.Owner==='MR' && ON_HAND.includes(r.State));
   renderSlide1(mrRows);
   renderSlide2(rows);
   renderSlide3(mrRows);
