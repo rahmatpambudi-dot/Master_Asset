@@ -1845,7 +1845,7 @@ function classifySiteGroup(row){
   const armada = row['Type Armada'];
 
   if(kat==='NDC' && site.includes('JABABEKA')){
-    return TRUCKING_ARMADA.includes(armada) ? 'Inbound Trucking' : 'NDC Jababeka';
+    return site.includes('HCI CDP') ? 'Inbound Trucking' : 'NDC Jababeka';
   }
   if(kat==='NDC' && site.includes('CIKUPA')) return 'NDC Cikupa';
   if(kat==='NDC' && site.includes('SIDOARJO')) return 'NDC Sidoarjo';
