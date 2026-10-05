@@ -12,17 +12,17 @@
 <style>
 
 :root{
-  --bg:#f2f4f9;
+  --bg:#f3f5fa;
   --surface:#ffffff;
-  --navy:#152451;
-  --navy-soft:#1f3168;
-  --accent:#2f6fed;
-  --accent-soft:#e8f0ff;
-  --good:#1a9b6c;
+  --navy:#16224a;
+  --navy-soft:#1d2c5c;
+  --accent:#2448d8;
+  --accent-soft:#e6ecfb;
+  --good:#139a9a;
   --good-soft:#e5f7ef;
-  --warn:#c98a1c;
+  --warn:#e3a21a;
   --warn-soft:#fbf1de;
-  --bad:#d64545;
+  --bad:#c8202f;
   --bad-soft:#fbe9e9;
   --text:#1b2440;
   --muted:#6b7690;
@@ -326,6 +326,69 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
 .spinner{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .error-box{background:var(--bad-soft);color:var(--bad);border:1px solid #f3caca;border-radius:10px;padding:14px 16px;font-size:13px;margin-bottom:18px;}
+
+/* ================= THEME: Executive (gaya Accident Armada) ================= */
+:root{--gold:#f5b82e;--red-solid:#b91c2c;--blue-solid:#2448d8;--teal-solid:#128a8a;}
+.topbar{background:#fff;color:var(--navy);padding:20px 28px 16px;align-items:center;border-bottom:1px solid var(--line);}
+.brand{font-size:30px;color:#111a3a;letter-spacing:-.5px;line-height:1.1;}
+.brand strong{font-weight:800;}
+.brand-line{height:2px;background:var(--navy);width:min(560px,60vw);margin-top:10px;}
+.topbar .status-pill{background:var(--accent-soft);border:none;color:var(--navy);font-weight:600;margin-top:10px;}
+.status-dot{background:#139a9a;}
+.title-box{background:var(--navy);color:#fff;border-radius:10px;padding:14px 26px;text-align:center;}
+.title-box h1{font-size:24px;font-weight:800;margin:0;letter-spacing:.3px;color:#fff;}
+.title-box p{margin:4px 0 0;font-size:13.5px;color:#c9d2ee;}
+.title-box #periodeRange{color:#fff;font-weight:600;}
+.app-shell{min-height:calc(100vh - 110px);}
+
+/* sidebar */
+.nav-item.active{background:var(--navy);color:#fff;}
+.nav-item.active .nav-icon{filter:none;}
+
+/* page headings */
+.page-title{font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:.2px;color:#111a3a;}
+.page-sub{font-size:13px;}
+
+/* KPI solid cards */
+.kpi{border:none;border-radius:12px;color:#fff;padding:18px 18px 16px;background:var(--navy);box-shadow:0 6px 16px rgba(22,34,74,.18);position:relative;overflow:hidden;}
+.kpi .label{color:#fff;font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;margin-bottom:10px;}
+.kpi .value{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(16px,1.3vw,22px);overflow-wrap:anywhere;color:#fff !important;letter-spacing:-.3px;}
+.kpi .sub{color:var(--gold);font-weight:600;font-size:11.5px;margin-top:8px;}
+.kpi-row .kpi:nth-child(1){border-left:6px solid var(--gold);}
+.kpi-row .kpi:nth-child(3){background:var(--blue-solid);}
+.kpi.bad{background:var(--red-solid);}
+.kpi.good{background:var(--teal-solid);}
+.kpi-row .kpi:nth-child(6){background:#fff;color:var(--navy);border:1px solid var(--line);box-shadow:var(--shadow);}
+.kpi-row .kpi:nth-child(6) .label{color:var(--navy);}
+.kpi-row .kpi:nth-child(6) .value{color:var(--navy) !important;}
+.kpi-row .kpi:nth-child(6) .sub{color:var(--muted);}
+
+/* panels & cards */
+.panel,.table-panel,.slide-block{border-radius:12px;border:1px solid #e3e7f1;box-shadow:0 1px 3px rgba(22,34,74,.05);}
+.panel h3,.table-head h3{font-size:15.5px;font-weight:800;text-transform:uppercase;letter-spacing:.2px;color:#111a3a;}
+.panel p.hint{font-size:12px;}
+.slide-block-title{font-size:18px;text-transform:uppercase;color:#111a3a;}
+.mini-table-block h4{color:var(--navy);background:var(--accent-soft);display:inline-block;padding:6px 12px;border-radius:6px;font-weight:800;}
+
+/* tables */
+thead th{background:var(--navy);color:#fff;border-bottom:none;}
+thead th:hover{color:var(--gold);}
+.mini-table th{background:var(--accent-soft);color:var(--navy);}
+tfoot td{background:var(--accent-soft);color:var(--navy);}
+tbody tr:hover{background:#f5f8ff;}
+
+/* highlight & slide */
+.highlight-item{background:var(--accent-soft);border-left:4px solid var(--blue-solid);}
+.hi-label{color:var(--navy);}
+.slide-tab-btn{border-radius:8px;}
+.slide1-hero{background:var(--navy);border-left:6px solid var(--gold);border-radius:12px;}
+.slide1-hero .big-num{font-family:'Plus Jakarta Sans',sans-serif;font-size:44px;}
+.slide1-hero .big-label{color:#fff;font-weight:800;}
+.slide1-hero .big-sub{color:var(--gold);font-weight:600;}
+.bu-bar-name{color:#111a3a;font-weight:800;}
+.bu-bar-track{background:#edf0f7;}
+.slide2-summary-line{background:var(--accent-soft);color:var(--navy);border-left:4px solid var(--blue-solid);}
+@media (max-width:900px){.title-box{width:100%;}.brand{font-size:24px;}}
 </style>
 </head>
 <body>
@@ -336,14 +399,14 @@ tfoot td{padding:10px;font-weight:700;font-family:'JetBrains Mono',monospace;bor
 </div>
 
 <div class="topbar">
-  <div>
-    <h1>Dashboard Asset & Downtime — Kawan Lama Group</h1>
-    <p>Seluruh armada (own fleet sewa maupun milik Business Unit) beserta biaya sewa (DPP) dan potongan downtime</p>
+  <div class="brand-block">
+    <div class="brand"><strong>Kawan Lama</strong> Group</div>
+    <div class="brand-line"></div>
     <div class="status-pill"><span class="status-dot"></span> Data live dari GitHub CSV</div>
   </div>
-  <div class="meta">
-    Periode data
-    <span class="mono" id="periodeRange">-</span>
+  <div class="title-box">
+    <h1>OWN FLEET — ASSET &amp; DOWNTIME</h1>
+    <p>Executive Dashboard | Periode <span id="periodeRange">-</span></p>
   </div>
 </div>
 
@@ -786,6 +849,8 @@ let page = 1;
 const PAGE_SIZE = 50;
 
 let chartTrend, chartOwner, chartBuSite, chartTopDowntime, chartTrendSlide, chartOwnerSlide, chartDppByBu, chartDppBySite, chartUnitDppBu, chartUnitDppKategori, chartUnitTrend, chartOwnerOnHand;
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+Chart.defaults.color = '#4a5576';
 if (typeof ChartDataLabels !== 'undefined') {
   Chart.register(ChartDataLabels);
 }
@@ -1366,12 +1431,12 @@ function renderUnitDppCombo(canvasId, chartRefSetter, chartRefGetter, labels, un
     data:{
       labels,
       datasets:[
-        {label:'Unit (Ini)', data:unitCurr, backgroundColor:'#2f6fed', borderRadius:4, yAxisID:'yUnit',
-          datalabels:{display:'auto', clip:false, anchor:'end', align:'top', color:'#2f6fed', font:{size:9,weight:600}}},
+        {label:'Unit (Ini)', data:unitCurr, backgroundColor:'#2448d8', borderRadius:4, yAxisID:'yUnit',
+          datalabels:{display:'auto', clip:false, anchor:'end', align:'top', color:'#2448d8', font:{size:9,weight:600}}},
         {label:'Unit (Lalu)', data:unitPrev, backgroundColor:'#a9c3f7', borderRadius:4, yAxisID:'yUnit',
           datalabels:{display:'auto', clip:false, anchor:'end', align:'top', color:'#7ca3e8', font:{size:9,weight:600}}},
-        {label:'DPP (Ini)', data:dppCurr, backgroundColor:'#c98a1c', borderRadius:4, yAxisID:'yDpp',
-          datalabels:{display:'auto', clip:false, anchor:'end', align:'top', color:'#c98a1c', font:{size:9,weight:600}, formatter:jtLabel}},
+        {label:'DPP (Ini)', data:dppCurr, backgroundColor:'#e3a21a', borderRadius:4, yAxisID:'yDpp',
+          datalabels:{display:'auto', clip:false, anchor:'end', align:'top', color:'#e3a21a', font:{size:9,weight:600}, formatter:jtLabel}},
         {label:'DPP (Lalu)', data:dppPrev, backgroundColor:'#f0d09f', borderRadius:4, yAxisID:'yDpp',
           datalabels:{display:'auto', clip:false, anchor:'end', align:'top', color:'#c9a35c', font:{size:9,weight:600}, formatter:jtLabel}},
       ]
@@ -1550,9 +1615,9 @@ function updateChartTrend(rows){
     data:{
       labels,
       datasets:[
-        {label:'DPP', data:dppData, borderColor:'#2f6fed', backgroundColor:'rgba(47,111,237,.08)', tension:.3, fill:true, pointRadius:2,
-          datalabels:{display:true, align:'top', anchor:'end', color:'#2f6fed', font:{size:8,weight:600}, formatter:jtLabel}},
-        {label:'DPP Net', data:netData, borderColor:'#1a9b6c', backgroundColor:'rgba(26,155,108,.08)', tension:.3, fill:true, pointRadius:2,
+        {label:'DPP', data:dppData, borderColor:'#2448d8', backgroundColor:'rgba(36,72,216,.08)', tension:.3, fill:true, pointRadius:2,
+          datalabels:{display:true, align:'top', anchor:'end', color:'#2448d8', font:{size:8,weight:600}, formatter:jtLabel}},
+        {label:'DPP Net', data:netData, borderColor:'#139a9a', backgroundColor:'rgba(19,154,154,.08)', tension:.3, fill:true, pointRadius:2,
           datalabels:{display:false}},
       ]
     },
@@ -1583,8 +1648,8 @@ function updateChartUnitTrend(rows){
     data:{
       labels,
       datasets:[
-        {label:'Unit', data:unitData, borderColor:'#c98a1c', backgroundColor:'rgba(201,138,28,.1)', tension:.3, fill:true, pointRadius:2,
-          datalabels:{display:true, align:'top', anchor:'end', color:'#c98a1c', font:{size:8,weight:600}}},
+        {label:'Unit', data:unitData, borderColor:'#e3a21a', backgroundColor:'rgba(227,162,26,.1)', tension:.3, fill:true, pointRadius:2,
+          datalabels:{display:true, align:'top', anchor:'end', color:'#e3a21a', font:{size:8,weight:600}}},
       ]
     },
     options:{
@@ -1603,7 +1668,7 @@ function updateChartOwner(rows){
   const labels = Array.from(map.keys());
   const data = labels.map(l=>map.get(l));
   const total = data.reduce((a,b)=>a+b,0);
-  const colors = ['#2f6fed','#c98a1c','#1a9b6c','#d64545'];
+  const colors = ['#2448d8','#e3a21a','#139a9a','#c8202f'];
 
   const ctx = document.getElementById('chartOwner');
   if(chartOwner) chartOwner.destroy();
@@ -1663,8 +1728,8 @@ function updateChartDppByBu(rows){
   if(chartDppByBu) chartDppByBu.destroy();
   chartDppByBu = new Chart(ctx, {
     type:'bar',
-    data:{labels, datasets:[{label:'DPP', data, backgroundColor:'#2f6fed', borderRadius:4,
-      datalabels:{display:true, anchor:'end', align:'top', color:'#2f6fed', font:{size:9,weight:600}, formatter:jtLabel}}]},
+    data:{labels, datasets:[{label:'DPP', data, backgroundColor:'#2448d8', borderRadius:4,
+      datalabels:{display:true, anchor:'end', align:'top', color:'#2448d8', font:{size:9,weight:600}, formatter:jtLabel}}]},
     options:{
       responsive:true, maintainAspectRatio:false,
       plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>fmtRp(c.raw)}}},
@@ -1686,8 +1751,8 @@ function updateChartDppBySite(rows){
   if(chartDppBySite) chartDppBySite.destroy();
   chartDppBySite = new Chart(ctx, {
     type:'bar',
-    data:{labels, datasets:[{label:'DPP', data, backgroundColor:'#2f6fed', borderRadius:4,
-      datalabels:{display:true, anchor:'end', align:'right', color:'#2f6fed', font:{size:9,weight:600}, formatter:jtLabel}}]},
+    data:{labels, datasets:[{label:'DPP', data, backgroundColor:'#2448d8', borderRadius:4,
+      datalabels:{display:true, anchor:'end', align:'right', color:'#2448d8', font:{size:9,weight:600}, formatter:jtLabel}}]},
     options:{
       indexAxis:'y',
       responsive:true, maintainAspectRatio:false,
@@ -1714,10 +1779,10 @@ function updateChartBuSite(rows){
     data:{
       labels,
       datasets:[
-        {label:'DPP', data:dppData, backgroundColor:'#2f6fed', borderRadius:4,
-          datalabels:{display:true, anchor:'end', align:'top', color:'#2f6fed', font:{size:9,weight:600}, formatter:jtLabel}},
-        {label:'Downtime', data:dtData, backgroundColor:'#d64545', borderRadius:4,
-          datalabels:{display:true, anchor:'end', align:'top', color:'#d64545', font:{size:9,weight:600}, formatter:jtLabel}},
+        {label:'DPP', data:dppData, backgroundColor:'#2448d8', borderRadius:4,
+          datalabels:{display:true, anchor:'end', align:'top', color:'#2448d8', font:{size:9,weight:600}, formatter:jtLabel}},
+        {label:'Downtime', data:dtData, backgroundColor:'#c8202f', borderRadius:4,
+          datalabels:{display:true, anchor:'end', align:'top', color:'#c8202f', font:{size:9,weight:600}, formatter:jtLabel}},
       ]
     },
     options:{
@@ -1741,8 +1806,8 @@ function updateChartTopDowntime(rows){
   if(chartTopDowntime) chartTopDowntime.destroy();
   chartTopDowntime = new Chart(ctx, {
     type:'bar',
-    data:{labels, datasets:[{label:'Downtime', data, backgroundColor:'#d64545', borderRadius:4,
-      datalabels:{display:true, anchor:'end', align:'right', color:'#d64545', font:{size:9,weight:600}, formatter:jtLabel}}]},
+    data:{labels, datasets:[{label:'Downtime', data, backgroundColor:'#c8202f', borderRadius:4,
+      datalabels:{display:true, anchor:'end', align:'right', color:'#c8202f', font:{size:9,weight:600}, formatter:jtLabel}}]},
     options:{
       indexAxis:'y',
       responsive:true, maintainAspectRatio:false,
@@ -1763,7 +1828,7 @@ function renderOwnershipDonutUnits(rows, bulan){
   seen.forEach(owner=>{ map.set(owner, (map.get(owner)||0)+1); });
   const labels = Array.from(map.keys());
   const data = labels.map(l=>map.get(l));
-  const colors = ['#2f6fed','#c98a1c','#1a9b6c','#d64545'];
+  const colors = ['#2448d8','#e3a21a','#139a9a','#c8202f'];
 
   const ctx = document.getElementById('chartOwnerSlide');
   if(chartOwnerSlide) chartOwnerSlide.destroy();
@@ -1823,8 +1888,8 @@ function renderChartTrendSlide(rows){
   if(chartTrendSlide) chartTrendSlide.destroy();
   chartTrendSlide = new Chart(ctx, {
     type:'bar',
-    data:{labels, datasets:[{label:'DPP', data:dppData, backgroundColor:'#2f6fed', borderRadius:4,
-      datalabels:{display:true, anchor:'end', align:'top', color:'#2f6fed', font:{size:8,weight:600}, formatter:jtLabel}}]},
+    data:{labels, datasets:[{label:'DPP', data:dppData, backgroundColor:'#2448d8', borderRadius:4,
+      datalabels:{display:true, anchor:'end', align:'top', color:'#2448d8', font:{size:8,weight:600}, formatter:jtLabel}}]},
     options:{
       responsive:true, maintainAspectRatio:false,
       plugins:{legend:{display:false}},
@@ -1983,7 +2048,7 @@ function renderOnHandSlide1(rows){
   seen.forEach(owner=>{ ownerMap.set(owner, (ownerMap.get(owner)||0)+1); });
   const oLabels = Array.from(ownerMap.keys());
   const oData = oLabels.map(l=>ownerMap.get(l));
-  const oColors = ['#2f6fed','#c98a1c','#1a9b6c','#d64545'];
+  const oColors = ['#2448d8','#e3a21a','#139a9a','#c8202f'];
   const totalUnitsO = oData.reduce((a,b)=>a+b,0);
 
   const ctx = document.getElementById('chartOwnerOnHand');
