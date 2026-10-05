@@ -462,6 +462,23 @@ tbody tr:hover{background:#f5f8ff;}
 .ohx-table tr.gt td.cur{color:#14214d;}
 @media (max-width:1300px){.ohx-bottom{grid-template-columns:1fr;}}
 @media (max-width:1100px){.ohx{grid-template-columns:1fr;}.ohx-cards{grid-template-columns:repeat(2,1fr) !important;}.ohx-dots{display:none;}}
+
+/* tabel Site x Type expandable */
+.oh-tools{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;}
+.oh-tools button{border:1px solid var(--line);background:#fff;color:var(--navy);font-family:inherit;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:7px;cursor:pointer;}
+.oh-tools button:hover{background:var(--accent-soft);}
+.oh-tools span{font-size:11.5px;color:var(--muted);}
+#onHandTable th,#onHandTable td{border-left:none !important;}
+#onHandTable th:first-child,#onHandTable td:first-child{border-right:2px solid var(--line);}
+#onHandTable th:last-child,#onHandTable td:last-child{border-left:2px solid var(--line) !important;}
+#onHandTable tr.oh-grp td{font-weight:700;color:#14214d;}
+#onHandTable tr.oh-exp{cursor:pointer;}
+#onHandTable tr.oh-exp:hover td{background:#eef3fe;}
+#onHandTable .oh-caret{display:inline-block;width:16px;color:var(--accent);font-size:12px;}
+#onHandTable .oh-cnt{font-weight:600;font-size:10.5px;color:var(--muted);background:var(--bg);padding:1px 7px;border-radius:10px;margin-left:6px;}
+#onHandTable tr.oh-child td{background:#fafbfe;color:#3b4560;font-size:11.5px;}
+#onHandTable tr.oh-child td:first-child{padding-left:34px;}
+#onHandTable tr.oh-total td{font-weight:800;background:var(--accent-soft);color:#14214d;}
 </style>
 </head>
 <body>
@@ -878,7 +895,8 @@ tbody tr:hover{background:#f5f8ff;}
       <div class="chart-row full">
         <div class="panel">
           <div class="table-head">
-            <h3>Qty Armada per Site × Type Armada</h3>
+            <div><h3>Qty Armada per Site × Type Armada <span id="ohTblPeriod" style="color:var(--muted);font-weight:600;text-transform:none;"></span></h3>
+              <div class="oh-tools"><button type="button" data-oh-expand="all">▾ Expand semua</button><button type="button" data-oh-expand="none">▸ Collapse semua</button><span>Klik baris grup untuk lihat detail site</span></div></div>
             <div class="fgroup-v" style="min-width:220px;">
               <label>Status</label>
               <select id="fOnHandState">
@@ -2268,7 +2286,7 @@ function updateOnHandTable(rows){
   const thead = document.getElementById('onHandTableHead');
   const tbody = document.getElementById('onHandTableBody');
 
-  const armadaList = uniqueSorted(subset.map(r=>r['Type Armada']));
+  const armadaList = uniqueSorted(subset.filter(r=>r.Bulan===getLatestTwoPeriods(subset).curr).map(r=>r['Type Armada']));
 
   if(subset.length===0){
     thead.innerHTML = '<tr><th>Site</th></tr>';
@@ -2276,35 +2294,92 @@ function updateOnHandTable(rows){
     return;
   }
 
-  const siteMap = new Map();
-  subset.forEach(r=>{
-    const site = r['Site Name'];
-    if(!siteMap.has(site)) siteMap.set(site, new Map());
-    const m = siteMap.get(site);
-    if(!m.has(r['Type Armada'])) m.set(r['Type Armada'], new Set());
-    m.get(r['Type Armada']).add(r.NOPOL);
+  /* kelompokkan: Grup lokasi -> Site Name -> Type Armada -> set NOPOL (periode terakhir saja, konsisten dgn ringkasan di atas) */
+  const {curr: tblCurr} = getLatestTwoPeriods(subset);
+  const tblRows = subset.filter(r=>r.Bulan===tblCurr);
+  const tblTitle = document.getElementById('ohTblPeriod'); if(tblTitle) tblTitle.textContent = tblCurr ? '· '+bulanPanjang(tblCurr) : '';
+  const groups = new Map();
+  tblRows.forEach(r=>{
+    const g = siteDetailGroup(r);
+    const site = String(r['Site Name']||'-').trim();
+    if(!groups.has(g)) groups.set(g, new Map());
+    const sm = groups.get(g);
+    if(!sm.has(site)) sm.set(site, new Map());
+    const tm = sm.get(site);
+    if(!tm.has(r['Type Armada'])) tm.set(r['Type Armada'], new Set());
+    tm.get(r['Type Armada']).add(r.NOPOL);
   });
-  const sites = uniqueSorted(Array.from(siteMap.keys()));
+  const ord = g=>{ const i=DETAIL_GROUP_ORDER.indexOf(g); return i<0?99:i; };
+  const gKeys = Array.from(groups.keys()).sort((x,y)=>ord(x)-ord(y) || x.localeCompare(y));
 
   thead.innerHTML = `<tr><th>Site</th>${armadaList.map(a=>`<th class="num">${escapeHtml(a)}</th>`).join('')}<th class="num">Total</th></tr>`;
 
   const colTotals = new Map(armadaList.map(a=>[a,0]));
   let grandTotal = 0;
-  const rowsHtml = sites.map(site=>{
-    const m = siteMap.get(site);
-    let rowTotal = 0;
-    const cells = armadaList.map(a=>{
-      const c = m.has(a) ? m.get(a).size : 0;
-      rowTotal += c;
-      colTotals.set(a, colTotals.get(a)+c);
-      return `<td class="num mono">${c || ''}</td>`;
-    }).join('');
-    grandTotal += rowTotal;
-    return `<tr><td>${escapeHtml(site)}</td>${cells}<td class="num mono" style="font-weight:700;">${rowTotal}</td></tr>`;
-  }).join('');
-  const totalRow = `<tr style="font-weight:700;background:var(--bg);"><td>Grand Total</td>${armadaList.map(a=>`<td class="num mono">${colTotals.get(a)}</td>`).join('')}<td class="num mono">${grandTotal}</td></tr>`;
+  let rowsHtml = '';
+  gKeys.forEach(g=>{
+    const sm = groups.get(g);
+    const sites = Array.from(sm.keys()).sort((x,y)=>x.localeCompare(y));
+    const expandable = sites.length>1;
+    const open = expandable && OH_EXPANDED.has(g);
+    // agregat grup (NOPOL unik per type)
+    const gType = new Map(armadaList.map(a=>[a,new Set()]));
+    const gAll = new Set();
+    sites.forEach(st=>sm.get(st).forEach((set,a)=>set.forEach(n=>{ gType.get(a).add(n); gAll.add(n); })));
+    const gCells = armadaList.map(a=>{ const c=gType.get(a).size; colTotals.set(a, colTotals.get(a)+c); return `<td class="num mono">${c||''}</td>`; }).join('');
+    grandTotal += gAll.size;
+    const caret = expandable ? `<span class="oh-caret">${open?'▾':'▸'}</span>` : '<span class="oh-caret"></span>';
+    const cnt = expandable ? ` <span class="oh-cnt">${sites.length} site</span>` : '';
+    rowsHtml += `<tr class="oh-grp${expandable?' oh-exp':''}" data-grp="${escapeHtml(g)}"><td>${caret}${escapeHtml(g)}${cnt}</td>${gCells}<td class="num mono" style="font-weight:800;">${gAll.size}</td></tr>`;
+    if(open){
+      sites.forEach(st=>{
+        const tm = sm.get(st); let rt = new Set();
+        const cells = armadaList.map(a=>{ const set=tm.get(a); const c=set?set.size:0; if(set) set.forEach(n=>rt.add(n)); return `<td class="num mono">${c||''}</td>`; }).join('');
+        rowsHtml += `<tr class="oh-child"><td>${escapeHtml(st)}</td>${cells}<td class="num mono">${rt.size}</td></tr>`;
+      });
+    }
+  });
+  const totalRow = `<tr class="oh-total"><td>Grand Total</td>${armadaList.map(a=>`<td class="num mono">${colTotals.get(a)}</td>`).join('')}<td class="num mono">${grandTotal}</td></tr>`;
   tbody.innerHTML = rowsHtml + totalRow;
 }
+
+/* grup detail untuk tabel Site × Type Armada */
+const DETAIL_GROUP_ORDER = ['HUB AHI','HUB HCI','HUB KLS','HUB FBI','SDC HCI','SDC FBI','SDC AHI','SDC KLS','NDC AHI JABABEKA','NDC HCI JABABEKA','NDC FBI JABABEKA','NDC KLS JABABEKA','NDC HCI CIKUPA','NDC SIDOARJO','RDC TALLO','RDC TAMORA','HO'];
+const OH_EXPANDED = new Set();
+function siteDetailGroup(r){
+  const kat = String(r['Kategori Site']||'').toUpperCase().trim();
+  const site = String(r['Site Name']||'').toUpperCase();
+  const bu = String(r['BU Site']||'').toUpperCase().trim();
+  if(kat==='HUB') return 'HUB ' + (bu||'LAINNYA');
+  if(kat==='SDC') return 'SDC ' + (bu||'LAINNYA');
+  if(kat==='HO') return 'HO';
+  if(kat==='NDC'){
+    if(site.includes('JABABEKA')){
+      const b = ['AHI','HCI','FBI','KLS'].find(x=>site.includes(x)) || bu;
+      return `NDC ${b} JABABEKA`;
+    }
+    if(site.includes('CIKUPA')) return 'NDC HCI CIKUPA';
+    if(site.includes('SIDOARJO')) return 'NDC SIDOARJO';
+    return 'NDC ' + site.trim();
+  }
+  if(kat==='RDC'){
+    if(site.includes('TAMORA')) return 'RDC TAMORA';
+    if(site.includes('TALLO')||site.includes('MAKASAR')||site.includes('MAKASSAR')) return 'RDC TALLO';
+    return 'RDC ' + site.trim();
+  }
+  return (kat ? kat+' ' : '') + site.trim();
+}
+document.addEventListener('click', (e)=>{
+  const tr = e.target.closest('#onHandTableBody tr.oh-exp');
+  if(tr){ const g=tr.dataset.grp; OH_EXPANDED.has(g)?OH_EXPANDED.delete(g):OH_EXPANDED.add(g); updateOnHandTable(getFiltered()); return; }
+  const btn = e.target.closest('[data-oh-expand]');
+  if(btn){
+    const mode = btn.dataset.ohExpand;
+    if(mode==='all') document.querySelectorAll('#onHandTableBody tr.oh-exp').forEach(t=>OH_EXPANDED.add(t.dataset.grp));
+    else OH_EXPANDED.clear();
+    updateOnHandTable(getFiltered());
+  }
+});
 
 function sortRows(rows){
   const {key, dir} = sortState;
