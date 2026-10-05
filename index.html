@@ -1852,7 +1852,7 @@ function classifySiteGroup(row){
   if(kat==='HUB') return 'HUB ' + (bu||'Lainnya');
   if(kat==='SDC') return 'SDC';
   if(kat==='RDC' && site.includes('TAMORA')) return 'RDC Tamora';
-  if(kat==='RDC' && site.includes('TALLO')) return 'RDC Tallo';
+  if(kat==='RDC' && (site.includes('TALLO') || site.includes('MAKASAR') || site.includes('MAKASSAR'))) return 'RDC Tallo';
   if(kat==='RDC') return 'RDC Lainnya';
   if(kat==='NDC') return 'NDC Lainnya';
   return kat || 'Lainnya';
