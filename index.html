@@ -389,6 +389,79 @@ tbody tr:hover{background:#f5f8ff;}
 .bu-bar-track{background:#edf0f7;}
 .slide2-summary-line{background:var(--accent-soft);color:var(--navy);border-left:4px solid var(--blue-solid);}
 @media (max-width:900px){.title-box{width:100%;}.brand{font-size:24px;}}
+
+/* ================= Armada On Hand — poster layout ================= */
+.ohx{display:grid;grid-template-columns:290px 1fr;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #e3e7f1;box-shadow:0 6px 24px rgba(22,34,74,.10);margin-bottom:20px;font-family:'Plus Jakarta Sans',sans-serif;}
+.ohx-left{position:relative;background:linear-gradient(180deg,#1b3170 0%,#142555 45%,#0e1a3f 100%);color:#fff;padding:30px 26px 22px;display:flex;flex-direction:column;overflow:hidden;}
+.ohx-brand strong{display:block;font-size:27px;font-weight:800;line-height:1.1;letter-spacing:-.3px;}
+.ohx-brand span{display:block;font-size:27px;font-weight:400;color:#b8c6ee;line-height:1.15;}
+.ohx-rule{height:1.5px;background:rgba(255,255,255,.45);margin:18px 0;}
+.ohx-period em{display:block;font-size:15px;color:#dce3f7;line-height:1.5;}
+.ohx-truck{width:118px;color:#5d8dff;margin:26px 0 4px;}
+.ohx-big{font-size:104px;font-weight:800;line-height:.95;letter-spacing:-4px;}
+.ohx-big-label{font-size:17px;font-weight:800;letter-spacing:.2px;margin-top:10px;}
+.ohx-big-sub{font-size:12.5px;color:#f5b82e;font-weight:700;margin-top:6px;min-height:15px;}
+.ohx-own-title{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15.5px;margin-bottom:16px;}
+.ohx-own-title svg{color:#9db8ff;}
+.ohx-own{margin-bottom:16px;}
+.ohx-own-top{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;color:#dce3f7;}
+.ohx-own-top b{font-size:21px;color:#fff;font-weight:800;}
+.ohx-own-row{display:flex;align-items:center;gap:10px;margin-top:6px;}
+.ohx-own-track{flex:1;height:16px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden;}
+.ohx-own-fill{height:100%;border-radius:9px;}
+.ohx-own-pct{font-size:12.5px;color:#c9d4f2;width:44px;text-align:right;}
+.ohx-fleet{position:absolute;left:0;right:0;bottom:8px;height:150px;opacity:.30;pointer-events:none;}
+.ohx-fleet-fade{position:absolute;left:0;right:0;bottom:0;height:170px;background:linear-gradient(180deg,#0e1a3f 0%,rgba(14,26,63,.25) 40%,rgba(14,26,63,.75) 100%);pointer-events:none;}
+.ohx-foot{position:relative;margin-top:auto;padding-top:120px;font-size:13.5px;color:#e4e9f8;display:flex;align-items:center;gap:7px;z-index:1;}
+.ohx-right{position:relative;padding:28px 26px 24px;min-width:0;background:linear-gradient(180deg,#f1f4fa 0,#f8fafd 120px,#fff 220px);}
+.ohx-title{font-size:40px;font-weight:800;color:#14214d;letter-spacing:-1px;line-height:1.08;}
+.ohx-subtitle{font-size:18px;color:#2b3756;margin:10px 0 18px;}
+.ohx-subtitle span{margin:0 10px;color:#8a94ad;}
+.ohx-dots{position:absolute;right:26px;top:18px;width:300px;height:110px;opacity:.5;pointer-events:none;}
+.ohx-banner{position:relative;background:linear-gradient(90deg,#0d6b6b,#139088);color:#fff;font-weight:800;font-size:20px;padding:10px 20px;border-radius:9px;margin-bottom:16px;box-shadow:0 3px 10px rgba(13,107,107,.18);}
+.ohx-cards{display:grid;gap:14px;margin-bottom:18px;}
+.ohx-total{background:linear-gradient(160deg,#138582,#0e6c6a);color:#fff;border-radius:12px;padding:18px 18px;display:flex;flex-direction:column;justify-content:center;box-shadow:0 4px 12px rgba(14,108,106,.22);}
+.ohx-total-head{display:flex;align-items:center;gap:10px;font-weight:800;font-size:13.5px;line-height:1.35;}.ohx-total-head svg{flex-shrink:0;width:38px;}
+.ohx-total-num{font-size:40px;font-weight:800;margin-top:14px;text-align:center;letter-spacing:-1px;}
+.ohx-total-num small{font-size:24px;font-weight:700;letter-spacing:0;}
+.ohx-bu{border-radius:12px;padding:0 16px 14px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(22,34,74,.06);}
+.ohx-bu-bar{height:10px;border-radius:6px;margin:8px 0 12px;}
+.ohx-bu-head{display:flex;gap:10px;align-items:flex-start;position:relative;z-index:1;}
+.ohx-bu-ico{width:32px;height:32px;border-radius:8px;border:1.8px solid;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ohx-bu-name{font-size:21px;font-weight:800;line-height:1;}
+.ohx-bu-pt{font-size:11.5px;color:#3b4560;line-height:1.3;margin-top:5px;}
+.ohx-bu-num{position:relative;z-index:1;font-size:36px;font-weight:800;color:#14214d;margin-top:12px;line-height:1;letter-spacing:-1px;}
+.ohx-bu-pct{position:relative;z-index:1;font-size:15px;font-weight:800;margin-top:6px;}
+.ohx-bu-deco{position:absolute;right:8px;bottom:6px;width:62px;height:62px;opacity:.22;}
+.ohx-bottom{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:stretch;}
+.ohx-col{display:flex;flex-direction:column;gap:14px;min-width:0;}
+.ohx-card{background:#fff;border:1px solid #e3e7f1;border-radius:14px;padding:18px 20px 8px;box-shadow:0 2px 8px rgba(22,34,74,.05);}
+.ohx-alloc-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+.ohx-alloc-head h3{margin:0;font-size:23px;font-weight:800;color:#14214d;letter-spacing:-.3px;}
+.ohx-alloc-head span{font-size:14px;color:#2b3756;font-weight:500;}
+.ohx-pie{position:relative;height:260px;margin-top:4px;}
+.ohx-pie canvas{width:100%;height:100%;display:block;}
+.ohx-note{border:1.6px dashed #9aa6c4;border-radius:12px;padding:12px 18px 12px 56px;font-size:12.5px;color:#14214d;background:#fff;position:relative;}
+.ohx-note svg{position:absolute;left:16px;top:14px;color:#2b3f86;}
+.ohx-note b.t{display:block;font-size:13.5px;margin-bottom:5px;}
+.ohx-note ol{margin:0;padding-left:18px;}
+.ohx-note ol>li{font-weight:800;margin-bottom:3px;line-height:1.5;}
+.ohx-note ol>li span{font-weight:600;}
+.ohx-note i{font-weight:700;}
+.ohx-table{table-layout:fixed;width:100%;min-width:0;border-collapse:separate;border-spacing:0;font-size:14px;border-radius:12px;overflow:hidden;border:1px solid #e3e7f1;box-shadow:0 2px 8px rgba(22,34,74,.05);height:100%;}
+.ohx-table thead th{background:#1d2b57;color:#fff;font-size:13.5px;font-weight:700;text-transform:none;letter-spacing:0;padding:13px 12px;cursor:default;border:none;}
+.ohx-table thead th:hover{color:#fff;}
+.ohx-table thead th{white-space:normal;}.ohx-table thead th:first-child{width:40%;}.ohx-table td:first-child{white-space:normal;}
+.ohx-table thead th.cur{background:#14214d;text-align:center;}
+.ohx-table thead th.prv{background:#525c72;text-align:center;}
+.ohx-table td{padding:8px 12px;white-space:nowrap;border-bottom:1px solid #e7eaf2;color:#14214d;}
+.ohx-table tbody tr:hover{background:transparent;}
+.ohx-table td.num{text-align:center;}
+.ohx-table td.cur{color:#2448d8;font-weight:800;border-left:1px solid #e7eaf2;border-right:1px solid #e7eaf2;}
+.ohx-table tr.gt td{background:#dfe8fb;font-weight:800;color:#14214d;font-size:15.5px;padding:13px 16px;border-bottom:none;}
+.ohx-table tr.gt td.cur{color:#14214d;}
+@media (max-width:1300px){.ohx-bottom{grid-template-columns:1fr;}}
+@media (max-width:1100px){.ohx{grid-template-columns:1fr;}.ohx-cards{grid-template-columns:repeat(2,1fr) !important;}.ohx-dots{display:none;}}
 </style>
 </head>
 <body>
@@ -757,33 +830,46 @@ tbody tr:hover{background:#f5f8ff;}
 
     <!-- ============ PAGE 5: ARMADA ON HAND ============ -->
     <section class="page" id="page-onhand">
-      <h2 class="page-title">Armada On Hand</h2>
-      <p class="page-sub">Qty armada per Site berdasarkan status On Hand (kolom State) — baru mulai terisi Agustus 2026, mengikuti filter di sidebar</p>
 
-      <div class="chart-row full">
-        <div class="slide-block" style="margin-bottom:20px;">
-          <div class="slide-block-title">Total Assets Armada Nasional</div>
-          <div class="slide-block-sub" id="onhandSub">-</div>
-          <div class="slide1-grid">
-            <div class="slide1-hero">
-              <div class="big-num mono" id="onhandBigNum">-</div>
-              <div class="big-label">Total Unit Armada</div>
-              <div class="big-sub" id="onhandBigSub">-</div>
+      <div class="ohx">
+        <aside class="ohx-left">
+          <div class="ohx-brand"><strong>Kawan Lama</strong><span>Group</span></div>
+          <div class="ohx-rule"></div>
+          <div class="ohx-period"><em>Active On-Hand</em><em id="ohxPeriodLeft">-</em></div>
+          <svg class="ohx-truck" viewBox="0 0 120 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round"><rect x="6" y="8" width="66" height="38" rx="3"/><path d="M72 20h22l14 14v12H72z"/><path d="M80 24h11l9 9H80z"/></g><g fill="currentColor"><circle cx="26" cy="50" r="7"/><circle cx="92" cy="50" r="7"/></g><g fill="#0d1838"><circle cx="26" cy="50" r="3"/><circle cx="92" cy="50" r="3"/></g><path d="M0 60h120" stroke="currentColor" stroke-width="3" opacity=".35"/></svg>
+          <div class="ohx-big" id="onhandBigNum">-</div>
+          <div class="ohx-big-label">TOTAL UNIT ARMADA</div>
+          <div class="ohx-big-sub" id="onhandBigSub"></div>
+          <div class="ohx-rule"></div>
+          <div class="ohx-own-title"><svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M2 6h12v9H2zm12 3h4l3 3v3h-7zM6 18a2 2 0 1 0 0-.01zm11 0a2 2 0 1 0 0-.01z"/></svg>Kepemilikan Armada</div>
+          <div id="ohxOwnerBars"></div>
+          <svg class="ohx-fleet" viewBox="0 0 290 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><symbol id="ohxTruck" viewBox="0 0 120 70"><path d="M2 8h74v44H2z"/><path d="M78 22h22c3 0 5 1 6 3l10 14v13H78z"/><path d="M84 27h14l8 11H84z" fill="#0e1a3f" opacity=".55"/><rect x="0" y="52" width="118" height="6" rx="2"/><circle cx="20" cy="60" r="9"/><circle cx="96" cy="60" r="9"/><circle cx="20" cy="60" r="3.5" fill="#0e1a3f"/><circle cx="96" cy="60" r="3.5" fill="#0e1a3f"/></symbol></defs><g fill="#a9bbea">
+            <use href="#ohxTruck" x="-6" y="52" width="150" height="88"/><use href="#ohxTruck" x="118" y="70" width="104" height="61" opacity=".8"/><use href="#ohxTruck" x="210" y="82" width="76" height="45" opacity=".6"/></g></svg>
+          <div class="ohx-fleet-fade"></div>
+          <div class="ohx-foot" id="onhandDonutCaption">-</div>
+        </aside>
+
+        <div class="ohx-right">
+          
+          <div class="ohx-title">Total Assets Armada Nasional</div>
+          <div class="ohx-subtitle">SCM-BU <span>|</span> Type &amp; Site</div>
+          <div class="ohx-banner" id="onhandSub">-</div>
+
+          <div class="ohx-cards" id="ohxCards"></div>
+
+          <div class="ohx-bottom">
+            <div class="ohx-col">
+              <div class="ohx-card ohx-alloc">
+                <div class="ohx-alloc-head"><h3>Alokasi Armada by BU</h3><span id="ohxAllocTotal">-</span></div>
+                <div class="ohx-pie"><canvas id="ohxPie"></canvas></div>
+              </div>
+              <div class="ohx-note" id="ohxNote"></div>
             </div>
-            <div class="bu-bars" id="onhandBuBars"></div>
-          </div>
-          <div class="slide1-bottom">
-            <div>
-              <h4 style="font-size:12px;text-transform:uppercase;color:var(--muted);margin:0 0 8px;">Unit per Site</h4>
-              <table class="mini-table">
-                <thead><tr><th>Site</th><th class="num" id="onhandColCurr">Bulan Ini</th><th class="num" id="onhandColPrev">Bulan Lalu</th></tr></thead>
+            <div class="ohx-col">
+              <table class="ohx-table">
+                <thead><tr><th>📍 Site</th><th class="num cur" id="onhandColCurr">Bulan Ini</th><th class="num prv" id="onhandColPrev">Bulan Lalu</th></tr></thead>
                 <tbody id="onhandKategoriBody"></tbody>
               </table>
-            </div>
-            <div>
-              <h4 style="font-size:12px;text-transform:uppercase;color:var(--muted);margin:0 0 8px;">Kepemilikan Armada</h4>
-              <div class="chart-holder" style="height:260px;"><canvas id="chartOwnerOnHand"></canvas></div>
-              <div class="hint" style="text-align:center;margin-top:8px;" id="onhandDonutCaption">-</div>
             </div>
           </div>
         </div>
@@ -1999,101 +2085,177 @@ function updateSlideReport(rows){
   renderSlide3(mrRows);
 }
 
+const BU_ICON = {
+  AHI:'<path d="M7 3h10v8H7z"/><path d="M5 11h14v3H5z"/><path d="M7 14v7M17 14v7"/>',
+  HCI:'<path d="M5 10V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3"/><path d="M3 12a2 2 0 0 1 4 0v2h10v-2a2 2 0 0 1 4 0v5H3z"/><path d="M5 17v2M19 17v2"/>',
+  KLS:'<path d="M3 4h2l2.5 11h11L21 8H6.2"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>',
+  FBI:'<path d="M9 2h4M10 2v3L8 8v13h6V8l-2-3V2"/><path d="M16 11h5l-1 5a2 2 0 0 1-3 0z"/><path d="M18.5 16v5M17 21h3"/>',
+  TGI:'<rect x="4" y="11" width="7" height="7" rx="1"/><rect x="13" y="11" width="7" height="7" rx="1"/><rect x="8.5" y="3" width="7" height="7" rx="1"/>'
+};
+const BU_META = {
+  AHI:{pt:'PT. Aspirasi Hidup Indonesia', color:'#dc2638', tint:'#fdeef0', pie:'#1c2f6e'},
+  HCI:{pt:'PT. Home Center Indonesia', color:'#2659e6', tint:'#eef3fe', pie:'#3d82f2'},
+  KLS:{pt:'PT. Kawan Lama Sejahtera', color:'#eaa60c', tint:'#fef7e4', pie:'#f1b318'},
+  FBI:{pt:'PT. Food Beverages Ind.', color:'#11a37f', tint:'#e8f8f2', pie:'#16c49a', bar:'#8a4fd1'},
+  TGI:{pt:'PT. Toys Games Indonesia', color:'#8a4fd1', tint:'#f3edfb', pie:'#a77be0'}
+};
+const BU_ORDER = ['AHI','HCI','KLS','FBI','TGI'];
+const SITE_ORDER = ['NDC Jababeka','Inbound Trucking','HUB HCI','HUB AHI','HUB KLS','HUB FBI','NDC Cikupa','NDC Sidoarjo','SDC','RDC Tamora','RDC Tallo','HO'];
+const OWNER_META = {MR:{label:'MR (Vendor)', color:'linear-gradient(90deg,#3d6ff0,#5b8cff)'}, BU:{label:'BU (Own)', color:'linear-gradient(90deg,#12b08c,#2fd3a8)'}, 'MR CDP':{label:'MR CDP', color:'#f5b82e'}};
+const BULAN_ID = {Jan:'Januari',Feb:'Februari',Mar:'Maret',Apr:'April',May:'Mei',Jun:'Juni',Jul:'Juli',Aug:'Agustus',Sep:'September',Oct:'Oktober',Nov:'November',Dec:'Desember'};
+function bulanPanjang(b){ if(!b) return '-'; const [m,y]=b.split('-'); return (BULAN_ID[m]||m)+' 20'+y; }
+function pct2(v,t){ return t>0 ? (v/t*100).toFixed(2)+'%' : '0%'; }
+function svgIcon(key, size, color, sw){ return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="${sw||1.8}" stroke-linecap="round" stroke-linejoin="round">${BU_ICON[key]||BU_ICON.TGI}</svg>`; }
+
+function shade(hex, f){ const n=parseInt(hex.slice(1),16); let r=n>>16,g=(n>>8)&255,b=n&255; r=Math.round(r*f);g=Math.round(g*f);b=Math.round(b*f); return `rgb(${r},${g},${b})`; }
+
+/* Pie 3D dengan callout */
+function draw3DPie(canvas, items, total){
+  const dpr = window.devicePixelRatio||1;
+  const W = canvas.clientWidth, H = canvas.clientHeight;
+  if(!W||!H) return;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  const c = canvas.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); c.clearRect(0,0,W,H);
+  if(!total){ return; }
+  const LBL=116; const rx = Math.max(80, Math.min(W/2-LBL-18, 175)), ry = rx*0.62, depth = Math.max(18, rx*0.19);
+  const cx = W/2, cy = H/2 - depth/2;
+  const holeRx = rx*0.36, holeRy = ry*0.36;
+  let ang = -Math.PI/2;
+  const slices = items.map(it=>{ const a0=ang, a1=ang+it.v/total*Math.PI*2; ang=a1; return {...it,a0,a1}; });
+  const pt=(a,dy=0)=>[cx+rx*Math.cos(a), cy+ry*Math.sin(a)+dy];
+  // sisi (ketebalan) - hanya bagian depan
+  for(let d=depth; d>0; d--){
+    slices.forEach(s=>{
+      c.beginPath(); c.moveTo(cx,cy+d); c.ellipse(cx,cy+d,rx,ry,0,s.a0,s.a1); c.closePath();
+      c.fillStyle = shade(s.color,0.68); c.fill();
+    });
+  }
+  // permukaan atas
+  slices.forEach(s=>{
+    c.beginPath(); c.moveTo(cx,cy); c.ellipse(cx,cy,rx,ry,0,s.a0,s.a1); c.closePath();
+    c.fillStyle = s.color; c.fill(); c.strokeStyle='rgba(255,255,255,.9)'; c.lineWidth=1.5; c.stroke();
+  });
+  // lubang tengah
+  c.beginPath(); c.ellipse(cx,cy+2,holeRx,holeRy,0,0,Math.PI*2); c.fillStyle='rgba(0,0,0,.08)'; c.fill();
+  c.beginPath(); c.ellipse(cx,cy,holeRx,holeRy,0,0,Math.PI*2); c.fillStyle='#fff'; c.fill();
+  c.textAlign='center'; c.fillStyle='#14214d';
+  c.font="800 26px 'Plus Jakarta Sans',sans-serif"; c.fillText(fmtNum(total), cx, cy+3);
+  c.font="500 12px 'Plus Jakarta Sans',sans-serif"; c.fillText('Unit', cx, cy+19);
+  // callout: hitung posisi, lalu rapikan agar tidak tumpang tindih
+  const labs = slices.map(s=>{
+    const mid=(s.a0+s.a1)/2; const side = Math.cos(mid)>=0 ? 'R':'L';
+    const ix = cx+(rx*0.7)*Math.cos(mid), iy = cy+(ry*0.7)*Math.sin(mid);
+    const ey = cy + (ry+ (Math.sin(mid)>0?depth:0))*Math.sin(mid);
+    return {s, side, ix, iy, ly: ey};
+  });
+  ['L','R'].forEach(side=>{
+    const arr = labs.filter(l=>l.side===side).sort((a,b)=>a.ly-b.ly);
+    const gap=42, top=22, bot=H-26;
+    arr.forEach((l,i)=>{ l.ly = Math.max(l.ly, top); if(i>0) l.ly = Math.max(l.ly, arr[i-1].ly+gap); });
+    const over = arr.length ? arr[arr.length-1].ly - bot : 0;
+    if(over>0) arr.forEach(l=>l.ly-=over);
+  });
+  labs.forEach(({s,side,ix,iy,ly})=>{
+    const lx = side==='R' ? cx+rx+12 : cx-rx-12;
+    c.strokeStyle = s.dot; c.lineWidth = 1.2;
+    c.beginPath(); c.moveTo(ix,iy); c.lineTo(lx, ly-6); c.lineTo(lx + (side==='R'?10:-10), ly-6); c.stroke();
+    c.beginPath(); c.arc(ix,iy,2.8,0,Math.PI*2); c.fillStyle='#fff'; c.fill(); c.stroke();
+    const dx = lx + (side==='R'?18:-18);
+    c.beginPath(); c.arc(dx, ly-6, 5.5, 0, Math.PI*2); c.fillStyle = s.dot; c.fill();
+    const tx = dx + (side==='R'?11:-11);
+    c.textAlign = side==='R' ? 'left' : 'right';
+    c.fillStyle='#14214d'; c.font="800 15px 'Plus Jakarta Sans',sans-serif"; c.fillText(s.k, tx, ly-1);
+    c.textAlign = side==='R' ? 'left' : 'right';
+    c.font="600 12px 'Plus Jakarta Sans',sans-serif"; c.fillText(`${fmtNum(s.v)} Unit (${pct2(s.v,total)})`, side==='R'? dx-5 : dx+5, ly+15);
+  });
+}
+let ohxPieState = null;
+window.addEventListener('resize', ()=>{ if(ohxPieState) draw3DPie(document.getElementById('ohxPie'), ohxPieState.items, ohxPieState.total); });
+document.querySelectorAll('.nav-item[data-page="onhand"]').forEach(b=>b.addEventListener('click', ()=>setTimeout(()=>{ if(ohxPieState) draw3DPie(document.getElementById('ohxPie'), ohxPieState.items, ohxPieState.total); }, 30)));
+
 function renderOnHandSlide1(rows){
   const {curr, prev} = getLatestTwoPeriods(rows);
-  document.getElementById('onhandSub').textContent = curr ? `Active On-Hand · ${curr}` : 'Belum ada data periode';
+  const currLabel = bulanPanjang(curr), prevLabel = bulanPanjang(prev);
+  document.getElementById('onhandSub').textContent = curr ? `Asset Armada ${currLabel}` : 'Belum ada data periode';
+  document.getElementById('ohxPeriodLeft').textContent = curr ? currLabel : '-';
 
   const currRows = rows.filter(r=>r.Bulan===curr);
   const prevRows = rows.filter(r=>r.Bulan===prev);
-  const currTotal = new Set(currRows.map(r=>r.NOPOL)).size;
-  const prevTotal = new Set(prevRows.map(r=>r.NOPOL)).size;
+  const firstBy = (arr)=>{ const m=new Map(); arr.forEach(r=>{ if(!m.has(r.NOPOL)) m.set(r.NOPOL,r); }); return m; };
+  const cMap = firstBy(currRows), pMap = firstBy(prevRows);
+  const currTotal = cMap.size, prevTotal = pMap.size;
   document.getElementById('onhandBigNum').textContent = curr ? fmtNum(currTotal) : '-';
-  document.getElementById('onhandBigSub').textContent = prev ? `${prevTotal} unit di ${prev}` : '';
+  document.getElementById('onhandBigSub').textContent = prev ? `${fmtNum(prevTotal)} unit di ${prevLabel}` : '';
 
-  const buCurr = unitCountByKey(rows, r=>r['BU Site'], curr);
-  const buList = Array.from(buCurr.entries()).sort((a,b)=>b[1]-a[1]);
-  const maxVal = buList.length ? buList[0][1] : 1;
-  document.getElementById('onhandBuBars').innerHTML = buList.length ? buList.map(([bu,count])=>{
-    const pct = currTotal>0 ? (count/currTotal*100) : 0;
-    const widthPct = maxVal>0 ? (count/maxVal*100) : 0;
-    return `<div class="bu-bar-row">
-      <div class="bu-bar-name">${escapeHtml(bu)}</div>
-      <div class="bu-bar-track"><div class="bu-bar-fill" style="width:${widthPct}%;"></div></div>
-      <div class="bu-bar-val mono">${count} (${pct.toFixed(1)}%)</div>
-    </div>`;
-  }).join('') : '<p class="hint">Tidak ada data</p>';
+  /* kepemilikan */
+  const own = new Map(); cMap.forEach(r=>own.set(r.Owner,(own.get(r.Owner)||0)+1));
+  const ownList = Array.from(own.entries()).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('ohxOwnerBars').innerHTML = ownList.map(([o,c])=>{
+    const m = OWNER_META[o]||{label:o,color:'#9fb3e6'};
+    const p = currTotal>0 ? c/currTotal*100 : 0;
+    return `<div class="ohx-own"><div class="ohx-own-top"><span>${escapeHtml(m.label)}</span><b>${fmtNum(c)}</b></div>
+      <div class="ohx-own-row"><div class="ohx-own-track"><div class="ohx-own-fill" style="width:${Math.max(p,2)}%;background:${m.color};"></div></div><span class="ohx-own-pct">${p.toFixed(1)}%</span></div></div>`;
+  }).join('') || '<p style="color:#c9d4f2;font-size:12px;">Tidak ada data</p>';
 
+  /* kartu BU */
+  const bu = new Map(); cMap.forEach(r=>{ const k=r['BU Site']; if(k) bu.set(k,(bu.get(k)||0)+1); });
+  const buKeys = Array.from(bu.keys()).sort((a,b)=>{ const ia=BU_ORDER.indexOf(a), ib=BU_ORDER.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib) || a.localeCompare(b); });
+  const truckSvg = '<svg width="46" height="34" viewBox="0 0 40 30"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="2" y="4" width="22" height="16" rx="2"/><path d="M24 9h7l6 6v5H24z"/><circle cx="9" cy="23" r="3" fill="#0f7270"/><circle cx="31" cy="23" r="3" fill="#0f7270"/></g></svg>';
+  const cards = document.getElementById('ohxCards');
+  cards.style.gridTemplateColumns = `1.4fr repeat(${Math.max(buKeys.length,1)},1fr)`;
+  cards.innerHTML = `<div class="ohx-total"><div class="ohx-total-head">${truckSvg}<span>ASSET ARMADA<br>${escapeHtml(currLabel)}</span></div><div class="ohx-total-num">${fmtNum(currTotal)} <small>Unit</small></div></div>` +
+    buKeys.map(k=>{
+      const m = BU_META[k]||{pt:'',color:'#6b7690',tint:'#f3f5fa'};
+      const c = bu.get(k);
+      return `<div class="ohx-bu" style="background:${m.tint};"><div class="ohx-bu-bar" style="background:${m.bar||m.color};"></div>
+        <div class="ohx-bu-head"><div class="ohx-bu-ico" style="border-color:${m.color};">${svgIcon(k,19,m.color)}</div><div><div class="ohx-bu-name" style="color:${m.color};">${escapeHtml(k)}</div><div class="ohx-bu-pt">${escapeHtml(m.pt)}</div></div></div>
+        <div class="ohx-bu-num">${fmtNum(c)}</div><div class="ohx-bu-pct" style="color:${m.color};">${pct2(c,currTotal)}</div>
+        <div class="ohx-bu-deco">${svgIcon(k,62,m.color,1.4)}</div></div>`;
+    }).join('');
+
+  /* pie 3D */
+  document.getElementById('ohxAllocTotal').textContent = `Total : ${fmtNum(currTotal)} Unit`;
+  const items = buKeys.map(k=>({k, v:bu.get(k), color:(BU_META[k]||{pie:'#9aa6c4'}).pie, dot:(BU_META[k]||{color:'#9aa6c4'}).color}));
+  ohxPieState = {items, total:currTotal};
+  if(chartOwnerOnHand){ chartOwnerOnHand.destroy(); chartOwnerOnHand=null; }
+  requestAnimationFrame(()=>draw3DPie(document.getElementById('ohxPie'), items, currTotal));
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>draw3DPie(document.getElementById('ohxPie'), items, currTotal));
+
+  /* tabel per site */
   const hasPrev = !!prev;
   const colPrevEl = document.getElementById('onhandColPrev');
-  colPrevEl.textContent = prev || '';
-  colPrevEl.style.display = hasPrev ? '' : 'none';
-  document.getElementById('onhandColCurr').textContent = curr || 'Bulan Ini';
+  colPrevEl.textContent = prevLabel; colPrevEl.style.display = hasPrev ? '' : 'none';
+  document.getElementById('onhandColCurr').textContent = curr ? currLabel : 'Bulan Ini';
   const katCurr = unitCountByKey(rows, classifySiteGroup, curr);
   const katPrev = unitCountByKey(rows, classifySiteGroup, prev);
-  const katKeys = uniqueSorted(Array.from(new Set([...katCurr.keys(), ...katPrev.keys()])));
-  let totalC=0, totalP=0;
-  let rowsHtml2 = katKeys.map(k=>{
-    const c = katCurr.get(k)||0; const p = katPrev.get(k)||0;
-    totalC+=c; totalP+=p;
-    const prevCell = hasPrev ? `<td class="num mono">${p}</td>` : '';
-    return `<tr><td>${k}</td><td class="num mono">${c}</td>${prevCell}</tr>`;
+  const ord = k=>{ const i=SITE_ORDER.indexOf(k); return i<0?99:i; };
+  const katKeys = Array.from(new Set([...katCurr.keys(), ...katPrev.keys()])).sort((a,b)=>ord(a)-ord(b) || a.localeCompare(b));
+  let tC=0,tP=0;
+  let html = katKeys.map(k=>{
+    const c=katCurr.get(k)||0, p=katPrev.get(k)||0; tC+=c; tP+=p;
+    return `<tr><td>${escapeHtml(k)}</td><td class="num cur">${c}</td>${hasPrev?`<td class="num">${p}</td>`:''}</tr>`;
   }).join('');
-  const prevTotalCell = hasPrev ? `<td class="num mono">${totalP}</td>` : '';
-  rowsHtml2 += `<tr style="font-weight:700;"><td>Grand Total</td><td class="num mono">${totalC}</td>${prevTotalCell}</tr>`;
-  document.getElementById('onhandKategoriBody').innerHTML = katKeys.length ? rowsHtml2 : `<tr><td colspan="${hasPrev?3:2}" class="hint">Tidak ada data</td></tr>`;
+  html += `<tr class="gt"><td>Grand Total</td><td class="num cur">${fmtNum(tC)}</td>${hasPrev?`<td class="num">${fmtNum(tP)}</td>`:''}</tr>`;
+  document.getElementById('onhandKategoriBody').innerHTML = katKeys.length ? html : `<tr><td colspan="3" class="hint">Tidak ada data</td></tr>`;
 
-  const seen = new Map();
-  currRows.forEach(r=>{ if(!seen.has(r.NOPOL)) seen.set(r.NOPOL, r.Owner); });
-  const ownerMap = new Map();
-  seen.forEach(owner=>{ ownerMap.set(owner, (ownerMap.get(owner)||0)+1); });
-  const oLabels = Array.from(ownerMap.keys());
-  const oData = oLabels.map(l=>ownerMap.get(l));
-  const oColors = ['#2448d8','#e3a21a','#139a9a','#c8202f'];
-  const totalUnitsO = oData.reduce((a,b)=>a+b,0);
+  /* note ringkas */
+  const noteIcon = '<svg width="26" height="30" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 2h11l5 5v19H4z"/><path d="M15 2v5h5M8 13h8M8 17h8M8 21h5"/></svg>';
+  const note = document.getElementById('ohxNote');
+  if(!hasPrev){ note.innerHTML = `${noteIcon}<b class="t">NOTE :</b><span>Belum ada periode pembanding.</span>`; }
+  else{
+    const added = [...cMap.keys()].filter(n=>!pMap.has(n)).map(n=>cMap.get(n));
+    const removed = [...pMap.keys()].filter(n=>!cMap.has(n)).map(n=>pMap.get(n));
+    const bySite = (arr)=>{ const g=new Map(); arr.forEach(r=>{ const k=classifySiteGroup(r)||'-'; g.set(k,(g.get(k)||0)+1); });
+      return Array.from(g.entries()).sort((a,b)=>b[1]-a[1]).map(([k,c])=>`${escapeHtml(k)} ${c}`).join(', '); };
+    const net = currTotal-prevTotal;
+    let items = '';
+    if(added.length) items += `<li>${added.length} Unit penambahan <span>— ${bySite(added)}</span></li>`;
+    if(removed.length) items += `<li>${removed.length} Unit pengurangan <span>— ${bySite(removed)}</span></li>`;
+    if(!items) items = `<li>Tidak ada perubahan unit</li>`;
+    note.innerHTML = `${noteIcon}<b class="t">NOTE : vs ${escapeHtml(prevLabel)} (net ${net>=0?'+':''}${net} unit)</b><ol>${items}</ol>`;
+  }
 
-  const ctx = document.getElementById('chartOwnerOnHand');
-  if(chartOwnerOnHand) chartOwnerOnHand.destroy();
-  chartOwnerOnHand = new Chart(ctx, {
-    type:'doughnut',
-    data:{labels:oLabels, datasets:[{data:oData, backgroundColor:oColors, borderWidth:2, borderColor:'#fff'}]},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      layout:{padding:{top:20,bottom:20,left:50,right:50}},
-      plugins:{
-        legend:{position:'bottom', labels:{boxWidth:10,font:{size:11}}},
-        tooltip:{callbacks:{label:(c)=>c.label+': '+c.raw+' unit'}},
-        datalabels:{
-          color:(ctx2)=>{
-            const v = ctx2.dataset.data[ctx2.dataIndex];
-            const pct = totalUnitsO>0 ? v/totalUnitsO : 0;
-            return pct>=0.12 ? '#fff' : oColors[ctx2.dataIndex % oColors.length];
-          },
-          backgroundColor:(ctx2)=>{
-            const v = ctx2.dataset.data[ctx2.dataIndex];
-            const pct = totalUnitsO>0 ? v/totalUnitsO : 0;
-            return pct>=0.12 ? 'transparent' : '#fff';
-          },
-          borderColor:(ctx2)=>{
-            const v = ctx2.dataset.data[ctx2.dataIndex];
-            const pct = totalUnitsO>0 ? v/totalUnitsO : 0;
-            return pct>=0.12 ? 'transparent' : oColors[ctx2.dataIndex % oColors.length];
-          },
-          borderWidth:1.5, borderRadius:4,
-          padding:{top:3,bottom:3,left:5,right:5},
-          font:{size:10,weight:700},
-          anchor:(ctx2)=>{ const v=ctx2.dataset.data[ctx2.dataIndex]; return totalUnitsO>0 && v/totalUnitsO>=0.12 ? 'center':'end'; },
-          align:(ctx2)=>{ const v=ctx2.dataset.data[ctx2.dataIndex]; return totalUnitsO>0 && v/totalUnitsO>=0.12 ? 'center':'end'; },
-          offset:(ctx2)=>{ const v=ctx2.dataset.data[ctx2.dataIndex]; return totalUnitsO>0 && v/totalUnitsO>=0.12 ? 0:6; },
-          clip:false,
-          formatter:(v)=> totalUnitsO>0 ? (v/totalUnitsO*100).toFixed(1)+'%' : ''
-        }
-      }
-    }
-  });
-
-  const siteCount = katKeys.length;
-  const buCount = new Set(currRows.map(r=>r['BU Site'])).size;
-  document.getElementById('onhandDonutCaption').textContent = curr ? `${siteCount} Kelompok Site · ${buCount} BU` : '-';
+  document.getElementById('onhandDonutCaption').innerHTML = curr ? `<svg width="14" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg> ${katKeys.length} Sites · ${buKeys.length} BU` : '-';
 }
 
 function updateOnHandTable(rows){
