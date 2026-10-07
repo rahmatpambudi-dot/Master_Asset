@@ -223,18 +223,28 @@ def main():
         downtime_days = downtime_days_agg.get((nopol, bln), 0.0)
         dpp_net = dpp - downtime_val
         city_clean, region = classify_city(r.get('CITY', ''))
+        site_clean = clean_site_name(r.get('Site Name', ''), r.get('BU Site', ''))
+        owner = str(r.get('OWNER', '')).strip() or 'Tidak Diketahui'
+        jenis = str(r.get('JENIS', '')).strip()
+        # Unit CDP (site mengandung 'CDP', mis. JABABEKA HCI CDP / Inbound Trucking)
+        # di sheet masih tertulis OWNER=MR & JENIS=NIAGA -> tandai sebagai CDP
+        if 'CDP' in str(site_clean).upper():
+            if owner.upper() == 'MR':
+                owner = 'MR CDP'
+            if jenis.upper() == 'NIAGA':
+                jenis = 'CDP-NIAGA'
         out_rows.append({
             'Bulan': bln,
             'NOPOL': str(r.get('NOPOL', '')).strip(),
             'Kategori Site': str(r.get('Kategori Site', '')).strip(),
-            'Site Name': clean_site_name(r.get('Site Name', ''), r.get('BU Site', '')),
+            'Site Name': site_clean,
             'BU Site': str(r.get('BU Site', '')).strip(),
             'Type Armada': str(r.get('Type Armada', '')).strip(),
-            'Klasifikasi Kendaraan': str(r.get('JENIS', '')).strip(),
+            'Klasifikasi Kendaraan': jenis,
             'City': city_clean,
             'Wilayah': region,
             'Usia (Year)': r.get('Usia (Year)', ''),
-            'Owner': str(r.get('OWNER', '')).strip() or 'Tidak Diketahui',
+            'Owner': owner,
             'State': (str(r.get('State', '') or r.get('STATE', '') or r.get('state', '')).strip()),
             'DPP': dpp,
             'Nominal Downtime': downtime_val,
