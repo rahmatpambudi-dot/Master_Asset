@@ -479,6 +479,35 @@ tbody tr:hover{background:#f5f8ff;}
 #onHandTable tr.oh-child td{background:#fafbfe;color:#3b4560;font-size:11.5px;}
 #onHandTable tr.oh-child td:first-child{padding-left:34px;}
 #onHandTable tr.oh-total td{font-weight:800;background:var(--accent-soft);color:#14214d;}
+
+/* ===== Laporan Slide = poster ===== */
+#slide-sub-2 .ohx-table thead th:nth-child(1),#slide-sub-3 .ohx-table thead th:nth-child(1){width:36%;}
+#slide-sub-2 .ohx-table thead th:nth-child(2){width:15%;}
+#slide-sub-2 .ohx-table thead th:nth-child(3){width:27%;}
+#slide-sub-2 .ohx-table td,#slide-sub-3 .ohx-table td{padding-left:10px;padding-right:10px;}
+#slide-sub-2 .ohx-table thead th,#slide-sub-3 .ohx-table thead th{padding-left:10px;padding-right:10px;}
+.ohx-list{max-height:300px;}
+#slide-sub-2 .ohx-bu-deco{opacity:.12;}
+.slide-sub .ohx{margin-bottom:6px;}
+.ohx-big-money{font-size:54px;letter-spacing:-2px;line-height:1;margin-top:6px;}
+.ohx-big-money small{font-size:26px;font-weight:700;letter-spacing:0;}
+.ohx-trend{position:relative;height:260px;margin:6px 0 10px;}
+.ohx-table td.num.up{color:#c8202f;font-weight:700;}
+.ohx-table td.num.down{color:#11a37f;font-weight:700;}
+.ohx-table tr.now td{background:#eef3fe;}
+.ohx-dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:9px;vertical-align:1px;}
+.ohx-list-card{padding-bottom:14px;}
+.ohx-list-card .ohx-alloc-head h3{font-size:19px;}
+.ohx-list{max-height:230px;overflow:auto;margin-top:10px;}
+.ohx-list table{width:100%;min-width:0;border-collapse:collapse;font-size:12.5px;}
+.ohx-list thead th{position:sticky;top:0;background:#f1f4fa;color:#4a5576;font-size:11px;padding:7px 10px;text-transform:none;cursor:default;}
+.ohx-list td{padding:7px 10px;border-bottom:1px solid #eef1f7;color:#14214d;white-space:normal;}
+.ohx-list td.np{font-weight:800;white-space:nowrap;}
+.ohx-list .empty{color:var(--muted);font-size:12.5px;padding:8px 2px;}
+.ohx-kpi{border-radius:12px;padding:0 16px 14px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(22,34,74,.06);}
+.ohx-kpi .ohx-bu-name{font-size:17px;}
+.ohx-kpi .ohx-bu-num{font-size:34px;}
+.ohx-kpi .ohx-bu-sub{position:relative;z-index:1;font-size:12px;color:#3b4560;margin-top:6px;font-weight:600;}
 </style>
 </head>
 <body>
@@ -798,50 +827,134 @@ tbody tr:hover{background:#f5f8ff;}
       </div>
 
       <div class="slide-sub active" id="slide-sub-1">
-        <div class="slide-block">
-          <div class="slide-block-title">Total Assets Armada Nasional</div>
-          <div class="slide-block-sub" id="slide1Sub">-</div>
-          <div class="slide1-grid">
-            <div class="slide1-hero">
-              <div class="big-num mono" id="slide1BigNum">-</div>
-              <div class="big-label">Total Unit Armada</div>
-              <div class="big-sub" id="slide1BigSub">-</div>
+        <div class="ohx">
+        <aside class="ohx-left">
+          <div class="ohx-brand"><strong>Kawan Lama</strong><span>Group</span></div>
+          <div class="ohx-rule"></div>
+          <div class="ohx-period"><em id="s1_ohxPeriodTop">Active On-Hand</em><em id="s1_ohxPeriodLeft">-</em></div>
+          <svg class="ohx-truck" viewBox="0 0 120 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round"><rect x="6" y="8" width="66" height="38" rx="3"/><path d="M72 20h22l14 14v12H72z"/><path d="M80 24h11l9 9H80z"/></g><g fill="currentColor"><circle cx="26" cy="50" r="7"/><circle cx="92" cy="50" r="7"/></g><g fill="#0d1838"><circle cx="26" cy="50" r="3"/><circle cx="92" cy="50" r="3"/></g><path d="M0 60h120" stroke="currentColor" stroke-width="3" opacity=".35"/></svg>
+          <div class="ohx-big" id="s1_onhandBigNum">-</div>
+          <div class="ohx-big-label">TOTAL UNIT ARMADA</div>
+          <div class="ohx-big-sub" id="s1_onhandBigSub"></div>
+          <div class="ohx-rule"></div>
+          <div class="ohx-own-title"><svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M2 6h12v9H2zm12 3h4l3 3v3h-7zM6 18a2 2 0 1 0 0-.01zm11 0a2 2 0 1 0 0-.01z"/></svg><span id="s1_ohxOwnTitle">Kepemilikan Armada</span></div>
+          <div id="s1_ohxOwnerBars"></div>
+          <svg class="ohx-fleet" viewBox="0 0 290 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><symbol id="s1_ohxTruck" viewBox="0 0 120 70"><path d="M2 8h74v44H2z"/><path d="M78 22h22c3 0 5 1 6 3l10 14v13H78z"/><path d="M84 27h14l8 11H84z" fill="#0e1a3f" opacity=".55"/><rect x="0" y="52" width="118" height="6" rx="2"/><circle cx="20" cy="60" r="9"/><circle cx="96" cy="60" r="9"/><circle cx="20" cy="60" r="3.5" fill="#0e1a3f"/><circle cx="96" cy="60" r="3.5" fill="#0e1a3f"/></symbol></defs><g fill="#a9bbea">
+            <use href="#s1_ohxTruck" x="-6" y="52" width="150" height="88"/><use href="#s1_ohxTruck" x="118" y="70" width="104" height="61" opacity=".8"/><use href="#s1_ohxTruck" x="210" y="82" width="76" height="45" opacity=".6"/></g></svg>
+          <div class="ohx-fleet-fade"></div>
+          <div class="ohx-foot" id="s1_onhandDonutCaption">-</div>
+        </aside>
+
+        <div class="ohx-right">
+          
+          <div class="ohx-title">Total Assets Armada Nasional</div>
+          <div class="ohx-subtitle">SCM-BU <span>|</span> Type &amp; Site</div>
+          <div class="ohx-banner" id="s1_onhandSub">-</div>
+
+          <div class="ohx-cards" id="s1_ohxCards"></div>
+
+          <div class="ohx-bottom">
+            <div class="ohx-col">
+              <div class="ohx-card ohx-alloc">
+                <div class="ohx-alloc-head"><h3>Alokasi Armada by BU</h3><span id="s1_ohxAllocTotal">-</span></div>
+                <div class="ohx-pie"><canvas id="s1_ohxPie"></canvas></div>
+              </div>
+              <div class="ohx-note" id="s1_ohxNote"></div>
             </div>
-            <div class="bu-bars" id="slide1BuBars"></div>
-          </div>
-          <div class="slide1-bottom">
-            <div>
-              <h4 style="font-size:12px;text-transform:uppercase;color:var(--muted);margin:0 0 8px;">Unit per Kategori Site</h4>
-              <table class="mini-table">
-                <thead><tr><th>Site</th><th class="num" id="slide1ColCurr">Bulan Ini</th><th class="num" id="slide1ColPrev">Bulan Lalu</th></tr></thead>
-                <tbody id="slide1KategoriBody"></tbody>
+            <div class="ohx-col">
+              <table class="ohx-table">
+                <thead><tr><th>📍 Site</th><th class="num cur" id="s1_onhandColCurr">Bulan Ini</th><th class="num prv" id="s1_onhandColPrev">Bulan Lalu</th></tr></thead>
+                <tbody id="s1_onhandKategoriBody"></tbody>
               </table>
-            </div>
-            <div>
-              <h4 style="font-size:12px;text-transform:uppercase;color:var(--muted);margin:0 0 8px;">Kepemilikan Armada</h4>
-              <div class="chart-holder" style="height:240px;"><canvas id="chartOwnerSlide"></canvas></div>
-              <div class="hint" style="text-align:center;margin-top:8px;" id="slide1DonutCaption">-</div>
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       <div class="slide-sub" id="slide-sub-2">
-        <div class="slide-block">
-          <div class="slide-block-title">Tagihan Armada SCM</div>
-          <div class="slide-block-sub" id="slide2Sub">-</div>
-          <div class="chart-holder" style="height:260px;"><canvas id="chartTrendSlide"></canvas></div>
-          <div class="narrative-list" id="slideNarrative" style="margin-top:14px;"></div>
-          <div class="slide2-summary-line" id="slide2Summary">-</div>
+        <div class="ohx">
+        <aside class="ohx-left">
+          <div class="ohx-brand"><strong>Kawan Lama</strong><span>Group</span></div>
+          <div class="ohx-rule"></div>
+          <div class="ohx-period"><em>Tagihan Armada SCM</em><em id="s2_PeriodLeft">-</em></div>
+          <svg class="ohx-truck" viewBox="0 0 120 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round"><path d="M14 4h62v56l-9-6-9 6-9-6-9 6-9-6-9 6-8-6z"/><path d="M26 18h38M26 30h38M26 42h22"/></g><circle cx="98" cy="40" r="18" fill="none" stroke="currentColor" stroke-width="3.2"/><path d="M98 30v20M92 35h9a4 4 0 0 1 0 8h-6a4 4 0 0 0 0 8h9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+          <div class="ohx-big ohx-big-money" id="s2_BigNum">-</div>
+          <div class="ohx-big-label">TOTAL TAGIHAN (DPP)</div>
+          <div class="ohx-big-sub" id="s2_BigSub"></div>
+          <div class="ohx-rule"></div>
+          <div class="ohx-own-title"><svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M3 4h18v3H3zm0 6h12v3H3zm0 6h8v3H3z"/></svg><span>Komposisi Tagihan</span></div>
+          <div id="s2_Bars"></div>
+          <svg class="ohx-fleet" viewBox="0 0 290 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#a9bbea"><use href="#ohxTruck" x="-6" y="52" width="150" height="88"/><use href="#ohxTruck" x="118" y="70" width="104" height="61" opacity=".8"/><use href="#ohxTruck" x="210" y="82" width="76" height="45" opacity=".6"/></g></svg>
+          <div class="ohx-fleet-fade"></div>
+          <div class="ohx-foot" id="s2_Foot">-</div>
+        </aside>
+        <div class="ohx-right">
+          <div class="ohx-title">Tagihan Armada SCM</div>
+          <div class="ohx-subtitle">Biaya Sewa (DPP) <span>|</span> Trend Bulanan</div>
+          <div class="ohx-banner" id="s2_Banner">-</div>
+          <div class="ohx-cards" id="s2_Cards"></div>
+          <div class="ohx-bottom">
+            <div class="ohx-col">
+              <div class="ohx-card">
+                <div class="ohx-alloc-head"><h3>Trend Tagihan Bulanan</h3><span><span id="s2_TrendRange">-</span> · Rp Miliar</span></div>
+                <div class="ohx-trend"><canvas id="chartTrendSlide"></canvas></div>
+              </div>
+              <div class="ohx-note" id="s2_Note"></div>
+            </div>
+            <div class="ohx-col">
+              <table class="ohx-table">
+                <thead><tr><th>📅 Bulan</th><th class="num prv">Unit</th><th class="num cur">Tagihan</th><th class="num prv">Δ MoM</th></tr></thead>
+                <tbody id="s2_Body"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
+      </div>
       </div>
 
       <div class="slide-sub" id="slide-sub-3">
-        <div class="slide-block">
-          <div class="slide-block-title">Highlight Perubahan Terbaru</div>
-          <div class="slide3-sub-note" id="slide3Sub">-</div>
-          <div id="slideHighlightBox"><p class="hint">Memuat...</p></div>
+        <div class="ohx">
+        <aside class="ohx-left">
+          <div class="ohx-brand"><strong>Kawan Lama</strong><span>Group</span></div>
+          <div class="ohx-rule"></div>
+          <div class="ohx-period"><em>Highlight Perubahan</em><em id="s3_PeriodLeft">-</em></div>
+          <svg class="ohx-truck" viewBox="0 0 120 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 22h80"/><path d="M76 8l14 14-14 14"/><path d="M110 46H30"/><path d="M44 32L30 46l14 14"/></g></svg>
+          <div class="ohx-big" id="s3_BigNum">-</div>
+          <div class="ohx-big-label">NET PERUBAHAN UNIT</div>
+          <div class="ohx-big-sub" id="s3_BigSub"></div>
+          <div class="ohx-rule"></div>
+          <div class="ohx-own-title"><svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M4 11h7V4h2v7h7v2h-7v7h-2v-7H4z"/></svg><span>Mutasi Unit</span></div>
+          <div id="s3_Bars"></div>
+          <svg class="ohx-fleet" viewBox="0 0 290 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g fill="#a9bbea"><use href="#ohxTruck" x="-6" y="52" width="150" height="88"/><use href="#ohxTruck" x="118" y="70" width="104" height="61" opacity=".8"/><use href="#ohxTruck" x="210" y="82" width="76" height="45" opacity=".6"/></g></svg>
+          <div class="ohx-fleet-fade"></div>
+          <div class="ohx-foot" id="s3_Foot">-</div>
+        </aside>
+        <div class="ohx-right">
+          <div class="ohx-title">Highlight Perubahan Armada</div>
+          <div class="ohx-subtitle">Owner MR <span>|</span> Unit Masuk &amp; Keluar</div>
+          <div class="ohx-banner" id="s3_Banner">-</div>
+          <div class="ohx-cards" id="s3_Cards"></div>
+          <div class="ohx-bottom">
+            <div class="ohx-col">
+              <div class="ohx-card ohx-list-card">
+                <div class="ohx-alloc-head"><h3><span class="ohx-dot" style="background:#11a37f;"></span>Unit Masuk</h3><span id="s3_InCount">-</span></div>
+                <div class="ohx-list" id="s3_InList"></div>
+              </div>
+              <div class="ohx-card ohx-list-card">
+                <div class="ohx-alloc-head"><h3><span class="ohx-dot" style="background:#dc2638;"></span>Unit Keluar</h3><span id="s3_OutCount">-</span></div>
+                <div class="ohx-list" id="s3_OutList"></div>
+              </div>
+            </div>
+            <div class="ohx-col">
+              <table class="ohx-table">
+                <thead><tr><th>📍 Site</th><th class="num prv" id="s3_ColPrev">Bulan Lalu</th><th class="num cur" id="s3_ColCurr">Bulan Ini</th><th class="num prv">Δ</th></tr></thead>
+                <tbody id="s3_Body"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
+      </div>
       </div>
     </section>
 
@@ -852,13 +965,13 @@ tbody tr:hover{background:#f5f8ff;}
         <aside class="ohx-left">
           <div class="ohx-brand"><strong>Kawan Lama</strong><span>Group</span></div>
           <div class="ohx-rule"></div>
-          <div class="ohx-period"><em>Active On-Hand</em><em id="ohxPeriodLeft">-</em></div>
+          <div class="ohx-period"><em id="ohxPeriodTop">Active On-Hand</em><em id="ohxPeriodLeft">-</em></div>
           <svg class="ohx-truck" viewBox="0 0 120 64" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round"><rect x="6" y="8" width="66" height="38" rx="3"/><path d="M72 20h22l14 14v12H72z"/><path d="M80 24h11l9 9H80z"/></g><g fill="currentColor"><circle cx="26" cy="50" r="7"/><circle cx="92" cy="50" r="7"/></g><g fill="#0d1838"><circle cx="26" cy="50" r="3"/><circle cx="92" cy="50" r="3"/></g><path d="M0 60h120" stroke="currentColor" stroke-width="3" opacity=".35"/></svg>
           <div class="ohx-big" id="onhandBigNum">-</div>
           <div class="ohx-big-label">TOTAL UNIT ARMADA</div>
           <div class="ohx-big-sub" id="onhandBigSub"></div>
           <div class="ohx-rule"></div>
-          <div class="ohx-own-title"><svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M2 6h12v9H2zm12 3h4l3 3v3h-7zM6 18a2 2 0 1 0 0-.01zm11 0a2 2 0 1 0 0-.01z"/></svg>Kepemilikan Armada</div>
+          <div class="ohx-own-title"><svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M2 6h12v9H2zm12 3h4l3 3v3h-7zM6 18a2 2 0 1 0 0-.01zm11 0a2 2 0 1 0 0-.01z"/></svg><span id="ohxOwnTitle">Kepemilikan Armada</span></div>
           <div id="ohxOwnerBars"></div>
           <svg class="ohx-fleet" viewBox="0 0 290 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><symbol id="ohxTruck" viewBox="0 0 120 70"><path d="M2 8h74v44H2z"/><path d="M78 22h22c3 0 5 1 6 3l10 14v13H78z"/><path d="M84 27h14l8 11H84z" fill="#0e1a3f" opacity=".55"/><rect x="0" y="52" width="118" height="6" rx="2"/><circle cx="20" cy="60" r="9"/><circle cx="96" cy="60" r="9"/><circle cx="20" cy="60" r="3.5" fill="#0e1a3f"/><circle cx="96" cy="60" r="3.5" fill="#0e1a3f"/></symbol></defs><g fill="#a9bbea">
             <use href="#ohxTruck" x="-6" y="52" width="150" height="88"/><use href="#ohxTruck" x="118" y="70" width="104" height="61" opacity=".8"/><use href="#ohxTruck" x="210" y="82" width="76" height="45" opacity=".6"/></g></svg>
@@ -2028,78 +2141,195 @@ function classifySiteGroup(row){
 }
 
 function renderSlide1(rows){
-  const {curr, prev} = getLatestTwoPeriods(rows);
-  document.getElementById('slide1Sub').textContent = curr ? `Active On-Hand · ${curr} · Owner: MR` : '-';
+  renderPoster(rows, 's1_', {
+    periodTop:'Active On-Hand · Owner MR',
+    barTitle:'Klasifikasi Kendaraan',
+    barKey:r=>r['Klasifikasi Kendaraan'],
+    barMeta:{NIAGA:{label:'Niaga',color:'linear-gradient(90deg,#3d6ff0,#5b8cff)'},PASSENGER:{label:'Passenger',color:'linear-gradient(90deg,#12b08c,#2fd3a8)'},MOTOR:{label:'Motor',color:'#f5b82e'},'CDP-NIAGA':{label:'CDP Niaga',color:'#a77be0'}}
+  });
+}
 
-  const currRows = rows.filter(r=>r.Bulan===curr);
-  const prevRows = rows.filter(r=>r.Bulan===prev);
-  const currTotal = new Set(currRows.map(r=>r.NOPOL)).size;
-  const prevTotal = new Set(prevRows.map(r=>r.NOPOL)).size;
-  document.getElementById('slide1BigNum').textContent = fmtNum(currTotal);
-  document.getElementById('slide1BigSub').textContent = prev ? `${prevTotal} unit di ${prev}` : '';
-
-  const buCurr = unitCountByKey(rows, r=>r['BU Site'], curr);
-  const buList = Array.from(buCurr.entries()).sort((a,b)=>b[1]-a[1]);
-  const maxVal = buList.length ? buList[0][1] : 1;
-  document.getElementById('slide1BuBars').innerHTML = buList.length ? buList.map(([bu,count])=>{
-    const pct = currTotal>0 ? (count/currTotal*100) : 0;
-    const widthPct = maxVal>0 ? (count/maxVal*100) : 0;
-    return `<div class="bu-bar-row">
-      <div class="bu-bar-name">${escapeHtml(bu)}</div>
-      <div class="bu-bar-track"><div class="bu-bar-fill" style="width:${widthPct}%;"></div></div>
-      <div class="bu-bar-val mono">${count} (${pct.toFixed(1)}%)</div>
-    </div>`;
-  }).join('') : '<p class="hint">Tidak ada data</p>';
-
-  document.getElementById('slide1ColCurr').textContent = curr || 'Bulan Ini';
-  document.getElementById('slide1ColPrev').textContent = prev || 'Bulan Lalu';
-  const katCurr = unitCountByKey(rows, classifySiteGroup, curr);
-  const katPrev = unitCountByKey(rows, classifySiteGroup, prev);
-  const katKeys = uniqueSorted(Array.from(new Set([...katCurr.keys(), ...katPrev.keys()])));
-  let totalC=0, totalP=0;
-  let rowsHtml = katKeys.map(k=>{
-    const c = katCurr.get(k)||0; const p = katPrev.get(k)||0;
-    totalC+=c; totalP+=p;
-    return `<tr><td>${k}</td><td class="num mono">${c}</td><td class="num mono">${p}</td></tr>`;
+function fmtRpShort(n){
+  n = n||0; const a=Math.abs(n), sg=n<0?'-':'';
+  if(a>=1e9) return sg+'Rp '+(a/1e9).toFixed(2)+' M';
+  if(a>=1e6) return sg+'Rp '+(a/1e6).toFixed(a>=1e8?0:1)+' Jt';
+  return sg+fmtRp(a);
+}
+function bigMoney(n){
+  const a=Math.abs(n||0);
+  if(a>=1e9) return `${(a/1e9).toFixed(2)}<small> M</small>`;
+  if(a>=1e6) return `${(a/1e6).toFixed(1)}<small> Jt</small>`;
+  return fmtNum(a);
+}
+function deltaTxt(c,p){ if(!p) return ''; const d=(c-p)/p*100; return `${d>=0?'▲ +':'▼ '}${d.toFixed(1)}%`; }
+const PIN_SVG = '<svg width="14" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>';
+const NOTE_SVG = '<svg width="26" height="30" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 2h11l5 5v19H4z"/><path d="M15 2v5h5M8 13h8M8 17h8M8 21h5"/></svg>';
+function sortBU(keys){ return keys.sort((a,b)=>{ const ia=BU_ORDER.indexOf(a), ib=BU_ORDER.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib) || a.localeCompare(b); }); }
+function buCardHtml(k, numHtml, pctTxt, subTxt){
+  const m = BU_META[k]||{pt:'',color:'#6b7690',tint:'#f3f5fa'};
+  return `<div class="ohx-bu" style="background:${m.tint};"><div class="ohx-bu-bar" style="background:${m.bar||m.color};"></div>
+    <div class="ohx-bu-head"><div class="ohx-bu-ico" style="border-color:${m.color};">${svgIcon(k,19,m.color)}</div><div><div class="ohx-bu-name" style="color:${m.color};">${escapeHtml(k)}</div><div class="ohx-bu-pt">${escapeHtml(m.pt)}</div></div></div>
+    <div class="ohx-bu-num" style="font-size:24px;white-space:nowrap;">${numHtml}</div><div class="ohx-bu-pct" style="color:${m.color};">${pctTxt}</div>${subTxt?`<div class="ohx-bu-sub" style="position:relative;z-index:1;font-size:11.5px;color:#3b4560;margin-top:4px;font-weight:600;">${subTxt}</div>`:''}
+    <div class="ohx-bu-deco">${svgIcon(k,62,m.color,1.4)}</div></div>`;
+}
+function leftBars(list, total){
+  return list.map(([label,val,color,txt])=>{
+    const p = total>0 ? val/total*100 : 0;
+    return `<div class="ohx-own"><div class="ohx-own-top"><span>${escapeHtml(label)}</span><b>${txt}</b></div>
+      <div class="ohx-own-row"><div class="ohx-own-track"><div class="ohx-own-fill" style="width:${Math.max(p,2)}%;background:${color};"></div></div><span class="ohx-own-pct">${p.toFixed(1)}%</span></div></div>`;
   }).join('');
-  rowsHtml += `<tr style="font-weight:700;"><td>Grand Total</td><td class="num mono">${totalC}</td><td class="num mono">${totalP}</td></tr>`;
-  document.getElementById('slide1KategoriBody').innerHTML = katKeys.length ? rowsHtml : '<tr><td colspan="3" class="hint">Tidak ada data</td></tr>';
-
-  renderOwnershipDonutUnits(rows, curr);
-  const siteCount = new Set(currRows.map(r=>r['Site Name'])).size;
-  const buCount = new Set(currRows.map(r=>r['BU Site'])).size;
-  document.getElementById('slide1DonutCaption').textContent = curr ? `${siteCount} Sites · ${buCount} BU` : '-';
 }
 
-function renderSlide2(rows){
-  const bulanList = Array.from(new Set(rows.map(r=>r.Bulan))).sort((a,b)=>bulanSortKey(a)-bulanSortKey(b));
-  const first = bulanList[0], last = bulanList[bulanList.length-1];
-  document.getElementById('slide2Sub').textContent = (first && last) ? `Periode ${first} s/d ${last}` : '-';
-  renderChartTrendSlide(rows);
-  updateTrendNarrative(rows, 'slideNarrative');
+/* ---------- Slide 2: Tagihan ---------- */
+function renderSlide2(rows, trendRows){
+  trendRows = trendRows || rows;
+  const billed = new Map(); rows.forEach(r=>billed.set(r.Bulan,(billed.get(r.Bulan)||0)+(r.DPP||0)));
+  const billedMonths = Array.from(billed.keys()).filter(m=>billed.get(m)>0).sort((a,b)=>bulanSortKey(a)-bulanSortKey(b));
+  const curr = billedMonths.length ? billedMonths[billedMonths.length-1] : getLatestTwoPeriods(rows).curr;
+  const prev = billedMonths.length>1 ? billedMonths[billedMonths.length-2] : null;
+  const latestAll = getLatestTwoPeriods(rows).curr;
+  const $ = k=>document.getElementById('s2_'+k);
+  const currLabel = bulanPanjang(curr);
+  $('Banner').textContent = curr ? `Tagihan ${currLabel}` : 'Belum ada data periode';
+  $('PeriodLeft').textContent = curr ? currLabel : '-';
+  const allMonths = Array.from(new Set(trendRows.map(r=>r.Bulan))).sort((a,b)=>bulanSortKey(a)-bulanSortKey(b));
+  const months = allMonths.filter(m=>!curr || bulanSortKey(m)<=bulanSortKey(curr)).slice(-12);
+  const pendingNote = (latestAll && curr && latestAll!==curr) ? `<li>Tagihan ${escapeHtml(bulanPanjang(latestAll))} <span>belum terisi — slide menampilkan ${escapeHtml(bulanPanjang(curr))}</span></li>` : '';
+  const prevM = months.length>1 ? months[months.length-2] : prev;
+  const prevLabel = bulanPanjang(prevM);
 
-  const dppMap = groupSum(rows, r=>r.Bulan, r=>r.DPP||0);
-  const firstVal = dppMap.get(first)||0;
-  const lastVal = dppMap.get(last)||0;
-  const delta = lastVal-firstVal;
-  const pct = firstVal>0 ? (delta/firstVal*100) : 0;
-  const dir = delta>=0 ? 'kenaikan' : 'penurunan';
-  document.getElementById('slide2Summary').textContent = bulanList.length>1
-    ? `Secara keseluruhan terjadi ${dir} ${fmtRp(Math.abs(delta))} (${pct>=0?'+':''}${pct.toFixed(2)}%) dibandingkan ${first}`
-    : 'Data belum cukup untuk melihat tren (hanya 1 bulan tersedia)';
+  const cr = rows.filter(r=>r.Bulan===curr);
+  const pr = trendRows.filter(r=>r.Bulan===prevM);
+  const sum = (arr,f)=>arr.reduce((s,r)=>s+(f(r)||0),0);
+  const dpp = sum(cr,r=>r.DPP), dppPrev = sum(pr,r=>r.DPP);
+  const dt = sum(cr,r=>r['Nominal Downtime']);
+  const net = dpp-dt;
+  const units = new Set(cr.map(r=>r.NOPOL)).size;
+
+  $('BigNum').innerHTML = curr ? bigMoney(dpp) : '-';
+  $('BigSub').textContent = prevM ? `${fmtRpShort(dppPrev)} di ${prevLabel} (${deltaTxt(dpp,dppPrev)})` : '';
+  $('Bars').innerHTML = leftBars([
+    ['DPP Net', net, 'linear-gradient(90deg,#12b08c,#2fd3a8)', fmtRpShort(net)],
+    ['Potongan Downtime', dt, 'linear-gradient(90deg,#e0384a,#ff6b7a)', fmtRpShort(dt)]
+  ], dpp);
+  const buSet = new Set(cr.map(r=>r['BU Site']).filter(Boolean));
+  $('Foot').innerHTML = curr ? `${PIN_SVG} ${fmtNum(units)} Unit · ${buSet.size} BU` : '-';
+
+  /* cards */
+  const buC = groupSum(cr, r=>r['BU Site'], r=>r.DPP||0);
+  const buP = groupSum(pr, r=>r['BU Site'], r=>r.DPP||0);
+  const buKeys = sortBU(Array.from(buC.keys()).filter(Boolean));
+  const cards = $('Cards');
+  cards.style.gridTemplateColumns = `1.4fr repeat(${Math.max(buKeys.length,1)},1fr)`;
+  const billSvg = '<svg width="38" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"><path d="M5 2h14v20l-2.3-1.6L14.3 22 12 20.4 9.7 22l-2.4-1.6L5 22z"/><path d="M8.5 7h7M8.5 11h7M8.5 15h4"/></svg>';
+  cards.innerHTML = `<div class="ohx-total"><div class="ohx-total-head">${billSvg}<span>TAGIHAN ARMADA<br>${escapeHtml(currLabel)}</span></div><div class="ohx-total-num" style="font-size:32px;">${fmtRpShort(dpp)}</div></div>` +
+    buKeys.map(k=>{ const c=buC.get(k)||0, p=buP.get(k)||0;
+      return buCardHtml(k, fmtRpShort(c), pct2(c,dpp), p?`${deltaTxt(c,p)} vs ${bulanPanjang(prevM).split(' ')[0]}`:''); }).join('');
+
+  /* trend chart */
+  const dppMap = groupSum(trendRows.filter(r=>months.includes(r.Bulan)), r=>r.Bulan, r=>r.DPP||0);
+  const unitMap = new Map(); trendRows.forEach(r=>{ if(!months.includes(r.Bulan)) return; if(!unitMap.has(r.Bulan)) unitMap.set(r.Bulan,new Set()); unitMap.get(r.Bulan).add(r.NOPOL); });
+  const vals = months.map(m=>dppMap.get(m)||0);
+  $('TrendRange').textContent = months.length ? `${months[0]} – ${months[months.length-1]}` : '-';
+  const ctx = document.getElementById('chartTrendSlide');
+  if(chartTrendSlide) chartTrendSlide.destroy();
+  chartTrendSlide = new Chart(ctx, {
+    type:'bar',
+    data:{labels:months.map(m=>{ const [mm,yy]=m.split('-'); return [(BULAN_ID[mm]||mm).slice(0,3), "'"+yy]; }), datasets:[{data:vals, borderRadius:6, maxBarThickness:42,
+      backgroundColor:months.map(m=>m===curr?'#14214d':'#9db8f5'),
+      datalabels:{anchor:'end', align:'top', offset:2, color:(c)=>months[c.dataIndex]===curr?'#14214d':'#4a5576',
+        font:(c)=>({size:10.5, weight: months[c.dataIndex]===curr?800:600}),
+        formatter:(v)=> v>=1e9 ? (v/1e9).toFixed(2) : (v/1e6).toFixed(0)+'Jt'}}]},
+    options:{responsive:true, maintainAspectRatio:false, layout:{padding:{top:22}},
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>fmtRp(c.raw)}}},
+      scales:{y:{display:false, beginAtZero:true, grace:'8%'}, x:{grid:{display:false}, border:{display:false}, ticks:{font:{size:11,weight:600}, color:'#4a5576', maxRotation:0, autoSkip:false}}}}
+  });
+
+  /* table per bulan (terbaru di atas) */
+  let html=''; const rev=[...months].reverse();
+  rev.forEach((m,i)=>{
+    const v=dppMap.get(m)||0; const pm=months[months.indexOf(m)-1]; const pv=pm?(dppMap.get(pm)||0):0;
+    let dCell='<td class="num">-</td>';
+    if(pv){ const d=(v-pv)/pv*100; dCell=`<td class="num ${d>0.05?'up':d<-0.05?'down':''}">${d>=0?'+':''}${d.toFixed(1)}%</td>`; }
+    html += `<tr class="${m===curr?'now':''}"><td>${escapeHtml(bulanPanjang(m))}</td><td class="num">${fmtNum(unitMap.get(m)?unitMap.get(m).size:0)}</td><td class="num cur">${fmtRpShort(v)}</td>${dCell}</tr>`;
+  });
+  $('Body').innerHTML = html || '<tr><td colspan="4" class="hint">Tidak ada data</td></tr>';
+
+  /* note */
+  const first = months[0], firstVal = dppMap.get(first)||0;
+  let items='';
+  if(prevM){ const d=dpp-dppPrev; items += `<li>Vs ${escapeHtml(prevLabel)}: ${d>=0?'naik':'turun'} <span>${fmtRpShort(Math.abs(d))} (${deltaTxt(dpp,dppPrev)})</span></li>`; }
+  if(first && first!==curr && firstVal){ const d=dpp-firstVal; items += `<li>Vs ${escapeHtml(bulanPanjang(first))}: ${d>=0?'naik':'turun'} <span>${fmtRpShort(Math.abs(d))} (${deltaTxt(dpp,firstVal)})</span></li>`; }
+  if(dt>0) items += `<li>Potongan downtime <span>${fmtRpShort(dt)} (${pct2(dt,dpp)} dari DPP)</span></li>`;
+  items += pendingNote;
+  $('Note').innerHTML = `${NOTE_SVG}<b class="t">NOTE :</b><ol>${items||'<li>Belum ada pembanding</li>'}</ol>`;
 }
 
+/* ---------- Slide 3: Highlight ---------- */
 function renderSlide3(rows){
   const {curr, prev} = getLatestTwoPeriods(rows);
-  document.getElementById('slide3Sub').textContent = (curr && prev) ? `Owner: MR · Periode ${curr} dibandingkan ${prev}` : '-';
-  updateHighlight(rows, 'slideHighlightBox');
+  const $ = k=>document.getElementById('s3_'+k);
+  const cL = bulanPanjang(curr), pL = bulanPanjang(prev);
+  $('PeriodLeft').textContent = curr ? (prev?`${cL} vs ${pL.split(' ')[0]}`:cL) : '-';
+  $('Banner').textContent = curr ? (prev?`${cL} vs ${pL}`:`${cL} (belum ada pembanding)`) : 'Belum ada data periode';
+  const firstBy = (arr)=>{ const m=new Map(); arr.forEach(r=>{ if(!m.has(r.NOPOL)) m.set(r.NOPOL,r); }); return m; };
+  const cMap = firstBy(rows.filter(r=>r.Bulan===curr)), pMap = firstBy(rows.filter(r=>r.Bulan===prev));
+  const added = [...cMap.keys()].filter(n=>!pMap.has(n)).map(n=>cMap.get(n));
+  const removed = prev ? [...pMap.keys()].filter(n=>!cMap.has(n)).map(n=>pMap.get(n)) : [];
+  const net = cMap.size - pMap.size;
+  const sum=(m)=>{ let s=0; m.forEach(r=>s+= (r.DPP||0)); return s; };
+  const dC = rows.filter(r=>r.Bulan===curr).reduce((s,r)=>s+(r.DPP||0),0);
+  const dP = rows.filter(r=>r.Bulan===prev).reduce((s,r)=>s+(r.DPP||0),0);
+
+  $('BigNum').textContent = curr ? (prev ? `${net>0?'+':''}${net}` : '0') : '-';
+  $('BigSub').textContent = prev ? `${fmtNum(cMap.size)} unit (${fmtNum(pMap.size)} di ${pL})` : '';
+  const mx = Math.max(added.length, removed.length, 1);
+  $('Bars').innerHTML = leftBars([
+    ['Unit Masuk', added.length, 'linear-gradient(90deg,#12b08c,#2fd3a8)', '+'+added.length],
+    ['Unit Keluar', removed.length, 'linear-gradient(90deg,#e0384a,#ff6b7a)', '−'+removed.length]
+  ], mx).replace(/<span class="ohx-own-pct">[^<]*<\/span>/g,'<span class="ohx-own-pct"></span>');
+  $('Foot').innerHTML = `${PIN_SVG} Owner MR · Active On-Hand`;
+
+  /* cards */
+  const cards=$('Cards'); cards.style.gridTemplateColumns='1.4fr repeat(3,1fr)';
+  const kpi=(title,color,tint,ico,num,sub)=>`<div class="ohx-kpi" style="background:${tint};"><div class="ohx-bu-bar" style="background:${color};"></div>
+    <div class="ohx-bu-head"><div class="ohx-bu-ico" style="border-color:${color};"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ico}</svg></div><div class="ohx-bu-name" style="color:${color};margin-top:6px;">${title}</div></div>
+    <div class="ohx-bu-num" style="color:#14214d;">${num}</div><div class="ohx-bu-sub">${sub}</div></div>`;
+  const truckSvg = '<svg width="46" height="34" viewBox="0 0 40 30"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="2" y="4" width="22" height="16" rx="2"/><path d="M24 9h7l6 6v5H24z"/><circle cx="9" cy="23" r="3" fill="#0f7270"/><circle cx="31" cy="23" r="3" fill="#0f7270"/></g></svg>';
+  const dd = dC-dP;
+  cards.innerHTML = `<div class="ohx-total"><div class="ohx-total-head">${truckSvg}<span>TOTAL UNIT<br>${escapeHtml(cL)}</span></div><div class="ohx-total-num">${fmtNum(cMap.size)} <small>Unit</small></div></div>` +
+    kpi('Unit Masuk','#11a37f','#e8f8f2','<path d="M12 5v14M5 12h14"/>', '+'+added.length, prev?`baru muncul di ${cL.split(' ')[0]}`:'-') +
+    kpi('Unit Keluar','#dc2638','#fdeef0','<path d="M5 12h14"/>', (removed.length?'−':'')+removed.length, prev?`tidak ada lagi di ${cL.split(' ')[0]}`:'-') +
+    (dC>0 ? kpi('Perubahan DPP','#2659e6','#eef3fe','<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>', `<span style="font-size:24px;">${dd>=0?'+':'−'}${fmtRpShort(Math.abs(dd))}</span>`, prev?`${deltaTxt(dC,dP)} vs ${pL.split(' ')[0]}`:'-')
+           : kpi('Tagihan DPP','#2659e6','#eef3fe','<path d="M5 2h14v20l-3-2-4 2-4-2-3 2z"/><path d="M9 8h6M9 12h6"/>', '<span style="font-size:22px;">Belum ada</span>', `tagihan ${cL.split(' ')[0]} belum terisi`));
+
+  /* lists */
+  const listHtml = (arr)=> arr.length ? `<table><thead><tr><th>NOPOL</th><th>Site</th><th>Type</th></tr></thead><tbody>${
+    arr.sort((a,b)=>(classifySiteGroup(a)||'').localeCompare(classifySiteGroup(b)||'')||String(a.NOPOL).localeCompare(String(b.NOPOL)))
+       .map(r=>`<tr><td class="np">${escapeHtml(r.NOPOL)}</td><td>${escapeHtml(String(r['Site Name']||'-').trim())}</td><td>${escapeHtml(r['Type Armada']||'-')}</td></tr>`).join('')}</tbody></table>`
+    : '<div class="empty">Tidak ada</div>';
+  $('InList').innerHTML = listHtml(added); $('OutList').innerHTML = listHtml(removed);
+  $('InCount').textContent = `${added.length} Unit`; $('OutCount').textContent = `${removed.length} Unit`;
+
+  /* tabel perubahan per site */
+  const shortM = m=>{ if(!m) return ''; const [mm,yy]=m.split('-'); return (BULAN_ID[mm]||mm).slice(0,3)+" '"+yy; };
+  $('ColPrev').textContent = prev ? shortM(prev) : 'Lalu'; $('ColCurr').textContent = curr ? shortM(curr) : 'Ini';
+  const kC = unitCountByKey(rows, classifySiteGroup, curr), kP = unitCountByKey(rows, classifySiteGroup, prev);
+  const ord = k=>{ const i=SITE_ORDER.indexOf(k); return i<0?99:i; };
+  const keys = Array.from(new Set([...kC.keys(),...kP.keys()])).sort((a,b)=>ord(a)-ord(b)||a.localeCompare(b));
+  let tC=0,tP=0, html='';
+  keys.forEach(k=>{ const c=kC.get(k)||0, p=kP.get(k)||0; tC+=c; tP+=p; const d=c-p;
+    html += `<tr><td>${escapeHtml(k)}</td><td class="num">${p}</td><td class="num cur">${c}</td><td class="num ${d>0?'down':d<0?'up':''}">${d>0?'+':''}${d||'–'}</td></tr>`; });
+  const dT=tC-tP;
+  html += `<tr class="gt"><td>Grand Total</td><td class="num">${fmtNum(tP)}</td><td class="num cur">${fmtNum(tC)}</td><td class="num">${dT>0?'+':''}${dT}</td></tr>`;
+  $('Body').innerHTML = keys.length ? html : '<tr><td colspan="4" class="hint">Tidak ada data</td></tr>';
 }
 
 function updateSlideReport(rows){
   const ON_HAND = ['On Hand','On Hand - Tagihan'];
   const mrRows = rows.filter(r=>r.Owner==='MR' && ON_HAND.includes(r.State));
   renderSlide1(mrRows);
-  renderSlide2(rows);
+  renderSlide2(rows, getFiltered({ignoreMonthOnly:true}));
   renderSlide3(mrRows);
 }
 
@@ -2187,29 +2417,36 @@ function draw3DPie(canvas, items, total){
     c.font="600 12px 'Plus Jakarta Sans',sans-serif"; c.fillText(`${fmtNum(s.v)} Unit (${pct2(s.v,total)})`, side==='R'? dx-5 : dx+5, ly+15);
   });
 }
-let ohxPieState = null;
-window.addEventListener('resize', ()=>{ if(ohxPieState) draw3DPie(document.getElementById('ohxPie'), ohxPieState.items, ohxPieState.total); });
-document.querySelectorAll('.nav-item[data-page="onhand"]').forEach(b=>b.addEventListener('click', ()=>setTimeout(()=>{ if(ohxPieState) draw3DPie(document.getElementById('ohxPie'), ohxPieState.items, ohxPieState.total); }, 30)));
+const PIE_STATE = {};
+function redrawPies(){ Object.keys(PIE_STATE).forEach(P=>{ const c=document.getElementById(P+'ohxPie'); if(c&&c.clientWidth) draw3DPie(c, PIE_STATE[P].items, PIE_STATE[P].total); }); }
+window.addEventListener('resize', redrawPies);
+document.querySelectorAll('.nav-item, .slide-tab-btn').forEach(b=>b.addEventListener('click', ()=>setTimeout(()=>{ redrawPies(); Object.values(Chart.instances||{}).forEach(ch=>{ try{ch.resize();}catch(e){} }); }, 40)));
 
-function renderOnHandSlide1(rows){
+function renderPoster(rows, P, opts){
+  opts = opts||{};
+  const $ = k=>document.getElementById(P+k);
   const {curr, prev} = getLatestTwoPeriods(rows);
   const currLabel = bulanPanjang(curr), prevLabel = bulanPanjang(prev);
-  document.getElementById('onhandSub').textContent = curr ? `Asset Armada ${currLabel}` : 'Belum ada data periode';
-  document.getElementById('ohxPeriodLeft').textContent = curr ? currLabel : '-';
+  $('onhandSub').textContent = curr ? `Asset Armada ${currLabel}` : 'Belum ada data periode';
+  $('ohxPeriodLeft').textContent = curr ? currLabel : '-';
 
   const currRows = rows.filter(r=>r.Bulan===curr);
   const prevRows = rows.filter(r=>r.Bulan===prev);
   const firstBy = (arr)=>{ const m=new Map(); arr.forEach(r=>{ if(!m.has(r.NOPOL)) m.set(r.NOPOL,r); }); return m; };
   const cMap = firstBy(currRows), pMap = firstBy(prevRows);
   const currTotal = cMap.size, prevTotal = pMap.size;
-  document.getElementById('onhandBigNum').textContent = curr ? fmtNum(currTotal) : '-';
-  document.getElementById('onhandBigSub').textContent = prev ? `${fmtNum(prevTotal)} unit di ${prevLabel}` : '';
+  $('onhandBigNum').textContent = curr ? fmtNum(currTotal) : '-';
+  $('onhandBigSub').textContent = prev ? `${fmtNum(prevTotal)} unit di ${prevLabel}` : '';
 
   /* kepemilikan */
-  const own = new Map(); cMap.forEach(r=>own.set(r.Owner,(own.get(r.Owner)||0)+1));
+  const barKey = opts.barKey || (r=>r.Owner);
+  const barMeta = opts.barMeta || OWNER_META;
+  if($('ohxOwnTitle')) $('ohxOwnTitle').textContent = opts.barTitle || 'Kepemilikan Armada';
+  if($('ohxPeriodTop')) $('ohxPeriodTop').textContent = opts.periodTop || 'Active On-Hand';
+  const own = new Map(); cMap.forEach(r=>{ const k=barKey(r)||'-'; own.set(k,(own.get(k)||0)+1); });
   const ownList = Array.from(own.entries()).sort((a,b)=>b[1]-a[1]);
-  document.getElementById('ohxOwnerBars').innerHTML = ownList.map(([o,c])=>{
-    const m = OWNER_META[o]||{label:o,color:'#9fb3e6'};
+  $('ohxOwnerBars').innerHTML = ownList.map(([o,c])=>{
+    const m = barMeta[o]||{label:o,color:'#9fb3e6'};
     const p = currTotal>0 ? c/currTotal*100 : 0;
     return `<div class="ohx-own"><div class="ohx-own-top"><span>${escapeHtml(m.label)}</span><b>${fmtNum(c)}</b></div>
       <div class="ohx-own-row"><div class="ohx-own-track"><div class="ohx-own-fill" style="width:${Math.max(p,2)}%;background:${m.color};"></div></div><span class="ohx-own-pct">${p.toFixed(1)}%</span></div></div>`;
@@ -2219,7 +2456,7 @@ function renderOnHandSlide1(rows){
   const bu = new Map(); cMap.forEach(r=>{ const k=r['BU Site']; if(k) bu.set(k,(bu.get(k)||0)+1); });
   const buKeys = Array.from(bu.keys()).sort((a,b)=>{ const ia=BU_ORDER.indexOf(a), ib=BU_ORDER.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib) || a.localeCompare(b); });
   const truckSvg = '<svg width="46" height="34" viewBox="0 0 40 30"><g fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"><rect x="2" y="4" width="22" height="16" rx="2"/><path d="M24 9h7l6 6v5H24z"/><circle cx="9" cy="23" r="3" fill="#0f7270"/><circle cx="31" cy="23" r="3" fill="#0f7270"/></g></svg>';
-  const cards = document.getElementById('ohxCards');
+  const cards = $('ohxCards');
   cards.style.gridTemplateColumns = `1.4fr repeat(${Math.max(buKeys.length,1)},1fr)`;
   cards.innerHTML = `<div class="ohx-total"><div class="ohx-total-head">${truckSvg}<span>ASSET ARMADA<br>${escapeHtml(currLabel)}</span></div><div class="ohx-total-num">${fmtNum(currTotal)} <small>Unit</small></div></div>` +
     buKeys.map(k=>{
@@ -2232,18 +2469,18 @@ function renderOnHandSlide1(rows){
     }).join('');
 
   /* pie 3D */
-  document.getElementById('ohxAllocTotal').textContent = `Total : ${fmtNum(currTotal)} Unit`;
+  $('ohxAllocTotal').textContent = `Total : ${fmtNum(currTotal)} Unit`;
   const items = buKeys.map(k=>({k, v:bu.get(k), color:(BU_META[k]||{pie:'#9aa6c4'}).pie, dot:(BU_META[k]||{color:'#9aa6c4'}).color}));
-  ohxPieState = {items, total:currTotal};
+  PIE_STATE[P] = {items, total:currTotal};
   if(chartOwnerOnHand){ chartOwnerOnHand.destroy(); chartOwnerOnHand=null; }
-  requestAnimationFrame(()=>draw3DPie(document.getElementById('ohxPie'), items, currTotal));
-  if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>draw3DPie(document.getElementById('ohxPie'), items, currTotal));
+  requestAnimationFrame(()=>draw3DPie($('ohxPie'), items, currTotal));
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>draw3DPie($('ohxPie'), items, currTotal));
 
   /* tabel per site */
   const hasPrev = !!prev;
-  const colPrevEl = document.getElementById('onhandColPrev');
+  const colPrevEl = $('onhandColPrev');
   colPrevEl.textContent = prevLabel; colPrevEl.style.display = hasPrev ? '' : 'none';
-  document.getElementById('onhandColCurr').textContent = curr ? currLabel : 'Bulan Ini';
+  $('onhandColCurr').textContent = curr ? currLabel : 'Bulan Ini';
   const katCurr = unitCountByKey(rows, classifySiteGroup, curr);
   const katPrev = unitCountByKey(rows, classifySiteGroup, prev);
   const ord = k=>{ const i=SITE_ORDER.indexOf(k); return i<0?99:i; };
@@ -2254,11 +2491,11 @@ function renderOnHandSlide1(rows){
     return `<tr><td>${escapeHtml(k)}</td><td class="num cur">${c}</td>${hasPrev?`<td class="num">${p}</td>`:''}</tr>`;
   }).join('');
   html += `<tr class="gt"><td>Grand Total</td><td class="num cur">${fmtNum(tC)}</td>${hasPrev?`<td class="num">${fmtNum(tP)}</td>`:''}</tr>`;
-  document.getElementById('onhandKategoriBody').innerHTML = katKeys.length ? html : `<tr><td colspan="3" class="hint">Tidak ada data</td></tr>`;
+  $('onhandKategoriBody').innerHTML = katKeys.length ? html : `<tr><td colspan="3" class="hint">Tidak ada data</td></tr>`;
 
   /* note ringkas */
   const noteIcon = '<svg width="26" height="30" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 2h11l5 5v19H4z"/><path d="M15 2v5h5M8 13h8M8 17h8M8 21h5"/></svg>';
-  const note = document.getElementById('ohxNote');
+  const note = $('ohxNote');
   if(!hasPrev){ note.innerHTML = `${noteIcon}<b class="t">NOTE :</b><span>Belum ada periode pembanding.</span>`; }
   else{
     const added = [...cMap.keys()].filter(n=>!pMap.has(n)).map(n=>cMap.get(n));
@@ -2273,8 +2510,10 @@ function renderOnHandSlide1(rows){
     note.innerHTML = `${noteIcon}<b class="t">NOTE : vs ${escapeHtml(prevLabel)} (net ${net>=0?'+':''}${net} unit)</b><ol>${items}</ol>`;
   }
 
-  document.getElementById('onhandDonutCaption').innerHTML = curr ? `<svg width="14" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg> ${katKeys.length} Sites · ${buKeys.length} BU` : '-';
+  $('onhandDonutCaption').innerHTML = curr ? `<svg width="14" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg> ${katKeys.length} Sites · ${buKeys.length} BU` : '-';
 }
+
+function renderOnHandSlide1(rows){ renderPoster(rows, '', {}); }
 
 function updateOnHandTable(rows){
   const stateSel = document.getElementById('fOnHandState').value;
