@@ -508,6 +508,21 @@ tbody tr:hover{background:#f5f8ff;}
 .ohx-kpi .ohx-bu-name{font-size:17px;}
 .ohx-kpi .ohx-bu-num{font-size:34px;}
 .ohx-kpi .ohx-bu-sub{position:relative;z-index:1;font-size:12px;color:#3b4560;margin-top:6px;font-weight:600;}
+
+/* ===== Fullscreen untuk screenshot ===== */
+.fs-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.fs-row .fs-btn{margin-left:auto;}
+.fs-row-end{justify-content:flex-end;margin-bottom:12px;}
+.fs-btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--navy);background:var(--navy);color:#fff;font-family:inherit;font-size:12.5px;font-weight:700;padding:7px 14px;border-radius:8px;cursor:pointer;}
+.fs-btn:hover{background:#22337a;}
+.fs-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.fs-stage:fullscreen{background:#e9edf5;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0;}
+.fs-stage:fullscreen .slide-sub:not(.active){display:none;}
+.fs-stage:fullscreen .slide-sub.active{display:flex;align-items:center;justify-content:center;width:100%;height:100%;}
+.fs-stage:fullscreen .ohx{width:1680px;flex:none;margin:0;transform-origin:center center;box-shadow:0 10px 40px rgba(22,34,74,.18);}
+.fs-hint{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:rgba(20,33,77,.92);color:#fff;font-size:13px;font-weight:600;padding:9px 16px;border-radius:20px;z-index:5;pointer-events:none;transition:opacity .5s;}
+.fs-hint.hide{opacity:0;}
+@media (prefers-reduced-motion:reduce){.fs-hint{transition:none;}}
 </style>
 </head>
 <body>
@@ -820,12 +835,14 @@ tbody tr:hover{background:#f5f8ff;}
       <h2 class="page-title">Laporan Slide</h2>
       <p class="page-sub">Ringkasan otomatis mengikuti format laporan slide bulanan (mengikuti semua filter aktif, termasuk Tahun & Bulan)</p>
 
-      <div class="slide-tabs">
+      <div class="slide-tabs fs-row">
         <button class="slide-tab-btn active" data-slide="1">Slide 1 — Overview Unit</button>
         <button class="slide-tab-btn" data-slide="2">Slide 2 — Tagihan</button>
         <button class="slide-tab-btn" data-slide="3">Slide 3 — Highlight</button>
+        <button type="button" class="fs-btn" data-fs-target="slideStage" title="Tampilkan layar penuh untuk screenshot"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>Fullscreen</span></button>
       </div>
 
+      <div class="fs-stage" id="slideStage">
       <div class="slide-sub active" id="slide-sub-1">
         <div class="ohx">
         <aside class="ohx-left">
@@ -956,11 +973,14 @@ tbody tr:hover{background:#f5f8ff;}
         </div>
       </div>
       </div>
+      </div>
     </section>
 
     <!-- ============ PAGE 5: ARMADA ON HAND ============ -->
     <section class="page" id="page-onhand">
 
+      <div class="fs-row fs-row-end"><button type="button" class="fs-btn" data-fs-target="ohStage" title="Tampilkan layar penuh untuk screenshot"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>Fullscreen</span></button></div>
+      <div class="fs-stage" id="ohStage">
       <div class="ohx">
         <aside class="ohx-left">
           <div class="ohx-brand"><strong>Kawan Lama</strong><span>Group</span></div>
@@ -1003,6 +1023,7 @@ tbody tr:hover{background:#f5f8ff;}
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       <div class="chart-row full">
@@ -2695,6 +2716,54 @@ function goPage(p){
 }
 
 loadData();
+
+/* ===== Fullscreen untuk screenshot ===== */
+(function(){
+  let hintTimer=null;
+  function stageEl(){ return document.fullscreenElement && document.fullscreenElement.classList.contains('fs-stage') ? document.fullscreenElement : null; }
+  function fit(){
+    const st = stageEl(); if(!st) return;
+    const ohx = st.querySelector('.slide-sub.active .ohx') || st.querySelector('.ohx'); if(!ohx) return;
+    st.querySelectorAll('.ohx').forEach(o=>{ if(o!==ohx) o.style.transform=''; });
+    ohx.style.transform='none';
+    if(typeof redrawPies==='function') redrawPies();
+    Object.values(Chart.instances||{}).forEach(ch=>{ try{ch.resize();}catch(e){} });
+    requestAnimationFrame(()=>{
+      const pad=24, w=ohx.offsetWidth, h=ohx.offsetHeight;
+      const k=Math.min((window.innerWidth-pad*2)/w, (window.innerHeight-pad*2)/h);
+      ohx.style.transform=`scale(${k})`;
+    });
+  }
+  function showHint(st){
+    let h=st.querySelector('.fs-hint');
+    if(!h){ h=document.createElement('div'); h.className='fs-hint'; st.appendChild(h); }
+    h.textContent = st.id==='slideStage' ? 'Esc untuk keluar · ← → ganti slide' : 'Esc untuk keluar';
+    h.classList.remove('hide'); clearTimeout(hintTimer);
+    hintTimer=setTimeout(()=>h.classList.add('hide'), 2200);
+  }
+  document.querySelectorAll('.fs-btn').forEach(b=>b.addEventListener('click', ()=>{
+    const st=document.getElementById(b.dataset.fsTarget);
+    if(!st || !st.requestFullscreen){ alert('Browser ini tidak mendukung fullscreen'); return; }
+    st.requestFullscreen().catch(()=>{});
+  }));
+  document.addEventListener('fullscreenchange', ()=>{
+    const st=stageEl();
+    if(st){ setTimeout(fit, 60); showHint(st); }
+    else {
+      document.querySelectorAll('.fs-stage .ohx').forEach(o=>o.style.transform='');
+      setTimeout(()=>{ if(typeof redrawPies==='function') redrawPies(); Object.values(Chart.instances||{}).forEach(ch=>{ try{ch.resize();}catch(e){} }); }, 60);
+    }
+  });
+  window.addEventListener('resize', ()=>{ if(stageEl()) fit(); });
+  document.addEventListener('keydown', (e)=>{
+    const st=stageEl(); if(!st || st.id!=='slideStage') return;
+    if(e.key!=='ArrowRight' && e.key!=='ArrowLeft') return;
+    const tabs=[...document.querySelectorAll('.slide-tab-btn')];
+    const i=tabs.findIndex(t=>t.classList.contains('active'));
+    const n=tabs[(i + (e.key==='ArrowRight'?1:tabs.length-1)) % tabs.length];
+    n.click(); setTimeout(fit, 80);
+  });
+})();
 </script>
 <a href="https://rahmatpambudi-dot.github.io/connectone/" style="
   position: fixed;
