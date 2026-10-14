@@ -1445,6 +1445,30 @@ function buildSiteTree(containerId, groupedMap, selectedSet, onChange){
   });
 }
 
+let SITE_BU = new Map();
+function buildSiteBuMap(rows){
+  // per site: cari bulan terbaru, lalu BU Site terbanyak di bulan itu
+  const latest = new Map(); // site -> {key, counts}
+  rows.forEach(r=>{
+    const site = r['Site Name'], bu = r['BU Site'];
+    if(!site || !bu) return;
+    const k = bulanSortKey(r.Bulan);
+    let e = latest.get(site);
+    if(!e || k > e.key){ e = {key:k, counts:new Map()}; latest.set(site, e); }
+    if(k === e.key) e.counts.set(bu, (e.counts.get(bu)||0)+1);
+  });
+  const m = new Map();
+  latest.forEach((e, site)=>{
+    const best = Array.from(e.counts.entries()).sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0]))[0];
+    m.set(site, best[0]);
+  });
+  return m;
+}
+function siteFilterKey(r){
+  const site = r['Site Name'];
+  return (SITE_BU.get(site) || r['BU Site']) + '|||' + site;
+}
+
 function initFilters(){
   const bulanList = uniqueSorted(RAW.map(r=>r.Bulan)).sort((a,b)=>bulanSortKey(a)-bulanSortKey(b));
   const periodeEl = document.getElementById('periodeRange');
@@ -1456,11 +1480,10 @@ function initFilters(){
   const bulanNamaOrder = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const bulanNamaList = bulanNamaOrder.filter(m=>bulanList.some(b=>b.startsWith(m+'-')));
 
+  // Site -> BU mengikuti bulan terupdate (BU mayoritas di bulan terakhir site itu muncul)
+  SITE_BU = buildSiteBuMap(RAW);
   const siteGrouped = new Map();
-  RAW.forEach(r=>{
-    const bu = r['BU Site'];
-    const site = r['Site Name'];
-    if(!bu || !site) return;
+  SITE_BU.forEach((bu, site)=>{
     if(!siteGrouped.has(bu)) siteGrouped.set(bu, new Set());
     siteGrouped.get(bu).add(site);
   });
@@ -1515,7 +1538,7 @@ function getFiltered(opts={}){
       if(!matches(filterState.tahun, '20'+yr2)) return false;
       if(!ignoreMonthOnly && !matches(filterState.bulanNama, monName)) return false;
     }
-    if(!matches(filterState.site, r['BU Site']+'|||'+r['Site Name'])) return false;
+    if(!matches(filterState.site, siteFilterKey(r))) return false;
     if(!matches(filterState.kategori, r['Kategori Site'])) return false;
     if(!matches(filterState.owner, r.Owner)) return false;
     if(!matches(filterState.armada, r['Type Armada'])) return false;
