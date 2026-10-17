@@ -479,6 +479,10 @@ tbody tr:hover{background:#f5f8ff;}
 #onHandTable tr.oh-child td{background:#fafbfe;color:#3b4560;font-size:11.5px;}
 #onHandTable tr.oh-child td:first-child{padding-left:34px;}
 #onHandTable tr.oh-total td{font-weight:800;background:var(--accent-soft);color:#14214d;}
+/* hover abu-abu untuk semua baris (group & child), kecuali Grand Total */
+#onHandTable tbody tr td{transition:background-color .12s ease;}
+#onHandTable tbody tr:not(.oh-total):hover td{background:#e9ecf2 !important;}
+#onHandTable tbody tr.oh-child:hover td{color:#14214d;}
 
 /* ===== Laporan Slide = poster ===== */
 #slide-sub-2 .ohx-table thead th:nth-child(1),#slide-sub-3 .ohx-table thead th:nth-child(1){width:36%;}
