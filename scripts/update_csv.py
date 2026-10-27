@@ -182,6 +182,36 @@ def classify_city(raw):
     return (str(raw).strip(), 'Lainnya')
 
 
+def read_records(ws):
+    """
+    Pengganti get_all_records() yang tahan banting:
+    - kolom dengan header kosong dilewati (penyebab error 'header row contains duplicates')
+    - header duplikat (nama sama) -> pakai kolom pertama, sisanya dilewati
+    Nama header TIDAK di-strip, supaya key 'DPP\\n ( Nilai Yg ditagihkan )' tetap cocok.
+    """
+    values = ws.get_all_values()
+    if not values:
+        return []
+    headers = values[0]
+    keep, seen, skipped_blank, skipped_dup = [], set(), 0, []
+    for i, h in enumerate(headers):
+        if not str(h).strip():
+            skipped_blank += 1
+            continue
+        if h in seen:
+            skipped_dup.append(h)
+            continue
+        seen.add(h)
+        keep.append((i, h))
+    if skipped_blank or skipped_dup:
+        print(f'Info [{ws.title}]: {skipped_blank} kolom tanpa header dilewati'
+              + (f', header duplikat dilewati: {skipped_dup}' if skipped_dup else ''))
+    records = []
+    for row in values[1:]:
+        records.append({h: (row[i] if i < len(row) else '') for i, h in keep})
+    return records
+
+
 def main():
     creds_json = os.environ['GOOGLE_CREDENTIALS']
     creds_dict = json.loads(creds_json)
@@ -193,8 +223,8 @@ def main():
     ws_master = spreadsheet.get_worksheet_by_id(GID_MASTER)
     ws_downtime = spreadsheet.get_worksheet_by_id(GID_DOWNTIME)
 
-    master_records = ws_master.get_all_records()
-    downtime_records = ws_downtime.get_all_records()
+    master_records = read_records(ws_master)
+    downtime_records = read_records(ws_downtime)
 
     # --- Master: buang baris kosong (tanpa Bulan) ---
     master = [r for r in master_records if str(r.get('Bulan', '')).strip()]
