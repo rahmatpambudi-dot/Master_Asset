@@ -1,34 +1,308 @@
-name: Update Asset & Downtime CSV
+"""
+Update asset_downtime.csv dari Google Sheets MASTER (2 tab: Data Verifikasi & Downtime).
+Dijalankan otomatis oleh GitHub Actions (lihat .github/workflows/update-csv.yml).
 
-on:
-  schedule:
-    - cron: '0 0 * * *'   # setiap hari jam 07.00 WIB (00.00 UTC)
-  workflow_dispatch:        # bisa trigger manual dari tab Actions
+Logic join:
+  - Downtime.Periode dinormalisasi ke format "Mon-YY" (sama seperti Master.Bulan)
+  - Downtime di-agregasi per (Nopol, Periode) -> total Potongan sewa
+  - Di-join ke Master via (NOPOL, Bulan)
+  - DPP Net = DPP - Downtime (0 kalau tidak ada catatan downtime)
+"""
 
-jobs:
-  update-csv:
-    runs-on: ubuntu-24.04   # dikunci, jangan ikut ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
+import gspread
+import pandas as pd
+import json
+import os
+import re
+from google.oauth2.service_account import Credentials
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
+# ============================================================
+# CONFIG — ganti 3 nilai ini
+# ============================================================
+SPREADSHEET_ID = '1R30vW1JD94RPjVhmGeyvu2uOmR9xomAfd8SfczzN7qA'
+GID_MASTER = 0            # tab "Data Verifikasi dan Tagihan"
+GID_DOWNTIME = 1232255908 # tab "Downtime"
+OUTPUT_PATH = 'data/asset_downtime.csv'
+# ============================================================
 
-      - name: Install dependencies
-        run: pip install gspread google-auth pandas
+MONTH_MAP = {
+    'jan': 'Jan', 'januari': 'Jan',
+    'feb': 'Feb', 'februari': 'Feb',
+    'mar': 'Mar', 'maret': 'Mar',
+    'apr': 'Apr', 'april': 'Apr',
+    'mei': 'May', 'may': 'May',
+    'jun': 'Jun', 'juni': 'Jun',
+    'jul': 'Jul', 'juli': 'Jul',
+    'agu': 'Aug', 'agustus': 'Aug', 'aug': 'Aug',
+    'sep': 'Sep', 'sept': 'Sep', 'september': 'Sep',
+    'okt': 'Oct', 'oktober': 'Oct', 'oct': 'Oct',
+    'nov': 'Nov', 'november': 'Nov',
+    'des': 'Dec', 'desember': 'Dec', 'dec': 'Dec',
+}
 
-      - name: Run update script
-        env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
-        run: python scripts/update_csv.py
 
-      - name: Commit and push CSV
-        run: |
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add data/asset_downtime.csv
-          git diff --staged --quiet || git commit -m "Auto-update asset_downtime.csv $(date +'%Y-%m-%d')"
-          git push
+def normalize_periode(p):
+    """'Januari 25' / 'Jan-26' / 'Sept 25' -> 'Jan-25' (format Bulan di master)"""
+    if not p:
+        return None
+    p = str(p).strip()
+    parts = re.split(r'[\s-]+', p)
+    if len(parts) != 2:
+        return None
+    mon, yr = parts
+    mon_std = MONTH_MAP.get(mon.lower())
+    if not mon_std:
+        return None
+    if len(yr) == 4:
+        yr = yr[-2:]
+    return f'{mon_std}-{yr}'
+
+
+def to_num(v):
+    if v is None:
+        return 0.0
+    s = str(v).strip().replace(',', '').replace(' ', '')
+    if not s:
+        return 0.0
+    try:
+        return float(s)
+    except ValueError:
+        return 0.0
+
+
+SITE_NAME_FIXES = {
+    ('arang', 'AHI'): 'JABABEKA AHI',
+    ('arang', 'KLS'): 'KLS JABABEKA',
+    ('abeka', 'HCI'): 'JABABEKA HCI',
+}
+
+
+def clean_site_name(site, bu):
+    site = (site or '').strip()
+    bu = (bu or '').strip()
+    return SITE_NAME_FIXES.get((site, bu), site)
+
+
+CITY_REGION = [
+    ('ALAM SUTERA', 'Jakarta (Alam Sutera)', 'Jabodetabek'),
+    ('PURI MALL', 'Jakarta (Puri)', 'Jabodetabek'),
+    ('HUB AHI PURI', 'Jakarta (Puri)', 'Jabodetabek'),
+    ('HUB PURI', 'Jakarta (Puri)', 'Jabodetabek'),
+    ('GANDARIA', 'Jakarta (Gandaria)', 'Jabodetabek'),
+    ('KASABLANKA', 'Jakarta (Kasablanka)', 'Jabodetabek'),
+    ('ARTHA GADING', 'Jakarta (Artha Gading)', 'Jabodetabek'),
+    (' MAG', 'Jakarta (Artha Gading)', 'Jabodetabek'),
+    ('CIBUBUR', 'Jakarta (Cibubur)', 'Jabodetabek'),
+    ('BINTARO', 'Jakarta (Bintaro)', 'Jabodetabek'),
+    ('AYB', 'Bekasi (Ahmad Yani)', 'Jabodetabek'),
+    ('AHMAD YANI BEKASI', 'Bekasi (Ahmad Yani)', 'Jabodetabek'),
+    ('HUB UTARA', 'Jakarta Utara', 'Jabodetabek'),
+    ('LIVING WORLD', 'Jakarta (Living World)', 'Jabodetabek'),
+    ('LIVING PLAZA', 'Jakarta (Living Plaza)', 'Jabodetabek'),
+    ('LIPPO PLAZA', 'Jakarta (Lippo Plaza)', 'Jabodetabek'),
+    ('NDC KLS HO', 'Head Office', 'Head Office'),
+    ('BDG LP PASKAL', 'Bandung (Paskal)', 'Bandung Raya'),
+    ('PASKAL', 'Bandung (Paskal)', 'Bandung Raya'),
+    ('BANDUNG', 'Bandung', 'Bandung Raya'),
+    ('GARUT', 'Garut', 'Bandung Raya'),
+    ('TASIKMALAYA', 'Tasikmalaya', 'Bandung Raya'),
+    ('CIREBON', 'Cirebon', 'Bandung Raya'),
+    ('SAWOJAJAR', 'Malang (Sawojajar)', 'Jawa Timur'),
+    ('JUANDA', 'Surabaya (Juanda)', 'Jawa Timur'),
+    ('SURABAYA', 'Surabaya', 'Jawa Timur'),
+    ('SIDOARJO', 'Sidoarjo', 'Jawa Timur'),
+    ('MALANG', 'Malang', 'Jawa Timur'),
+    ('KEDIRI', 'Kediri', 'Jawa Timur'),
+    ('JEMBER', 'Jember', 'Jawa Timur'),
+    ('BANYUWANGI', 'Banyuwangi', 'Jawa Timur'),
+    ('JAKARTA', 'Jakarta', 'Jabodetabek'),
+    ('BEKASI', 'Bekasi', 'Jabodetabek'),
+    ('BOGOR', 'Bogor', 'Jabodetabek'),
+    ('DEPOK', 'Depok', 'Jabodetabek'),
+    ('TANGERANG', 'Tangerang', 'Jabodetabek'),
+    ('CIKARANG', 'Cikarang', 'Jabodetabek'),
+    ('CIKUPA', 'Cikupa', 'Jabodetabek'),
+    ('JABABEKA', 'Cikarang (Jababeka)', 'Jabodetabek'),
+    ('TAMORA', 'Cikarang (Tamora)', 'Jabodetabek'),
+    ('SEMARANG', 'Semarang', 'Jawa Tengah & DIY'),
+    ('PURWOKERTO', 'Purwokerto', 'Jawa Tengah & DIY'),
+    ('TEGAL', 'Tegal', 'Jawa Tengah & DIY'),
+    ('YOGYA', 'Yogyakarta', 'Jawa Tengah & DIY'),
+    ('PRAMBANAN', 'Yogyakarta (Prambanan)', 'Jawa Tengah & DIY'),
+    ('DENPASAR', 'Denpasar', 'Bali & Nusra'),
+    ('KUTA', 'Kuta', 'Bali & Nusra'),
+    ('BALI', 'Bali', 'Bali & Nusra'),
+    ('MEDAN', 'Medan', 'Sumatera'),
+    ('TANJUNG MORAWA', 'Tanjung Morawa', 'Sumatera'),
+    ('SIANTAR', 'Pematang Siantar', 'Sumatera'),
+    ('PALEMBANG', 'Palembang', 'Sumatera'),
+    ('LAMPUNG', 'Lampung', 'Sumatera'),
+    ('PEKANBAR', 'Pekanbaru', 'Sumatera'),
+    ('BATAM', 'Batam', 'Sumatera'),
+    ('JAMBI', 'Jambi', 'Sumatera'),
+    ('ACEH', 'Aceh', 'Sumatera'),
+    ('BENGKULU', 'Bengkulu', 'Sumatera'),
+    ('PADANG', 'Padang', 'Sumatera'),
+    ('DUMAI', 'Dumai', 'Sumatera'),
+    ('PANGKAL PINANG', 'Pangkal Pinang', 'Sumatera'),
+    ('BANJAR MASIN', 'Banjarmasin', 'Kalimantan'),
+    ('BANJARMASIN', 'Banjarmasin', 'Kalimantan'),
+    ('BALIKPAPAN', 'Balikpapan', 'Kalimantan'),
+    ('PONTIANAK', 'Pontianak', 'Kalimantan'),
+    ('SAMARINDA', 'Samarinda', 'Kalimantan'),
+    ('PALANGKARAYA', 'Palangkaraya', 'Kalimantan'),
+    ('PALNGKARAYA', 'Palangkaraya', 'Kalimantan'),
+    ('TARAKAN', 'Tarakan', 'Kalimantan'),
+    ('SINGKAWANG', 'Singkawang', 'Kalimantan'),
+    ('MKS', 'Makassar', 'Sulawesi'),
+    ('MAKASSAR', 'Makassar', 'Sulawesi'),
+    ('MAKASAR', 'Makassar', 'Sulawesi'),
+    ('TALLO', 'Makassar (Tallo)', 'Sulawesi'),
+    ('MANADO', 'Manado', 'Sulawesi'),
+    ('KENDARI', 'Kendari', 'Sulawesi'),
+    ('PALU', 'Palu', 'Sulawesi'),
+    ('PALOPO', 'Palopo', 'Sulawesi'),
+    ('DC MALUKU', 'Maluku', 'Maluku & Papua'),
+    ('AMBON', 'Ambon', 'Maluku & Papua'),
+    ('JAYAPURA', 'Jayapura', 'Maluku & Papua'),
+    ('ABEPURA', 'Abepura', 'Maluku & Papua'),
+    ('SORONG', 'Sorong', 'Maluku & Papua'),
+    ('TERNATE', 'Ternate', 'Maluku & Papua'),
+    ('HEAD OFFICE', 'Head Office', 'Head Office'),
+]
+
+
+def classify_city(raw):
+    if not raw:
+        return ('Tidak diketahui', 'Lainnya')
+    up = ' ' + str(raw).upper() + ' '
+    for kw, city, region in CITY_REGION:
+        if kw in up:
+            return (city, region)
+    return (str(raw).strip(), 'Lainnya')
+
+
+def read_records(ws):
+    """
+    Pengganti get_all_records() yang tahan banting:
+    - kolom dengan header kosong dilewati (penyebab error 'header row contains duplicates')
+    - header duplikat (nama sama) -> pakai kolom pertama, sisanya dilewati
+    Nama header TIDAK di-strip, supaya key 'DPP\\n ( Nilai Yg ditagihkan )' tetap cocok.
+    """
+    values = ws.get_all_values()
+    if not values:
+        return []
+    headers = values[0]
+    keep, seen, skipped_blank, skipped_dup = [], set(), 0, []
+    for i, h in enumerate(headers):
+        if not str(h).strip():
+            skipped_blank += 1
+            continue
+        if h in seen:
+            skipped_dup.append(h)
+            continue
+        seen.add(h)
+        keep.append((i, h))
+    if skipped_blank or skipped_dup:
+        print(f'Info [{ws.title}]: {skipped_blank} kolom tanpa header dilewati'
+              + (f', header duplikat dilewati: {skipped_dup}' if skipped_dup else ''))
+    records = []
+    for row in values[1:]:
+        records.append({h: (row[i] if i < len(row) else '') for i, h in keep})
+    return records
+
+
+def main():
+    creds_json = os.environ['GOOGLE_CREDENTIALS']
+    creds_dict = json.loads(creds_json)
+    scopes = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+    creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
+    client = gspread.authorize(creds)
+
+    spreadsheet = client.open_by_key(SPREADSHEET_ID)
+    ws_master = spreadsheet.get_worksheet_by_id(GID_MASTER)
+    ws_downtime = spreadsheet.get_worksheet_by_id(GID_DOWNTIME)
+
+    master_records = read_records(ws_master)
+    downtime_records = read_records(ws_downtime)
+
+    # --- Master: buang baris kosong (tanpa Bulan) ---
+    master = [r for r in master_records if str(r.get('Bulan', '')).strip()]
+
+    # --- Downtime: agregasi Potongan sewa & Lift Time Downtime per (NOPOL upper, Periode ternormalisasi) ---
+    downtime_agg = {}
+    downtime_days_agg = {}
+    for r in downtime_records:
+        nopol = str(r.get('Nopol', '')).strip().upper()
+        if not nopol:
+            continue
+        bln = normalize_periode(r.get('Periode', ''))
+        potongan = to_num(r.get('Potongan sewa', 0))
+        hari = to_num(r.get('Lift Time Downtime', 0))
+        key = (nopol, bln)
+        downtime_agg[key] = downtime_agg.get(key, 0.0) + potongan
+        downtime_days_agg[key] = downtime_days_agg.get(key, 0.0) + hari
+
+    # --- Join ke master ---
+    out_rows = []
+    for r in master:
+        nopol = str(r.get('NOPOL', '')).strip().upper()
+        bln = str(r.get('Bulan', '')).strip()
+        dpp = to_num(r.get('DPP\n ( Nilai Yg ditagihkan )', r.get('DPP', 0)))
+        downtime_val = downtime_agg.get((nopol, bln), 0.0)
+        downtime_days = downtime_days_agg.get((nopol, bln), 0.0)
+        dpp_net = dpp - downtime_val
+        city_clean, region = classify_city(r.get('CITY', ''))
+        site_clean = clean_site_name(r.get('Site Name', ''), r.get('BU Site', ''))
+        owner = str(r.get('OWNER', '')).strip() or 'Tidak Diketahui'
+        jenis = str(r.get('JENIS', '')).strip()
+        # Unit CDP (site mengandung 'CDP', mis. JABABEKA HCI CDP / Inbound Trucking)
+        # di sheet masih tertulis OWNER=MR & JENIS=NIAGA -> tandai sebagai CDP
+        if 'CDP' in str(site_clean).upper():
+            if owner.upper() == 'MR':
+                owner = 'MR CDP'
+            if jenis.upper() == 'NIAGA':
+                jenis = 'CDP-NIAGA'
+        out_rows.append({
+            'Bulan': bln,
+            'NOPOL': str(r.get('NOPOL', '')).strip(),
+            'Kategori Site': str(r.get('Kategori Site', '')).strip(),
+            'Site Name': site_clean,
+            'BU Site': str(r.get('BU Site', '')).strip(),
+            'Type Armada': str(r.get('Type Armada', '')).strip(),
+            'Klasifikasi Kendaraan': jenis,
+            'City': city_clean,
+            'Wilayah': region,
+            'Usia (Year)': r.get('Usia (Year)', ''),
+            'Owner': owner,
+            'State': (str(r.get('State', '') or r.get('STATE', '') or r.get('state', '')).strip()),
+            'DPP': dpp,
+            'Nominal Downtime': downtime_val,
+            'Downtime (Hari)': downtime_days,
+            'DPP Net (setelah downtime)': dpp_net,
+        })
+
+    df = pd.DataFrame(out_rows)
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+    df.to_csv(OUTPUT_PATH, index=False)
+    print(f'OK -> {OUTPUT_PATH} ({len(df)} baris, {df["NOPOL"].nunique()} unit unik)')
+
+    # --- Laporan baris downtime yang gagal nyambung ke master (untuk dicek manual) ---
+    master_keys = {(str(r.get('NOPOL', '')).strip().upper(), str(r.get('Bulan', '')).strip()) for r in master}
+    gagal = []
+    for r in downtime_records:
+        nopol = str(r.get('Nopol', '')).strip().upper()
+        bln = normalize_periode(r.get('Periode', ''))
+        if not nopol or to_num(r.get('Potongan sewa', 0)) == 0:
+            continue
+        if (nopol, bln) not in master_keys:
+            gagal.append((nopol, r.get('Periode', '')))
+    if gagal:
+        print(f'Peringatan: {len(gagal)} baris downtime tidak nyambung ke master:')
+        for nopol, periode in gagal:
+            print(f'  - {nopol} / {periode}')
+    print('Selesai.')
+
+
+if __name__ == '__main__':
+    main()
